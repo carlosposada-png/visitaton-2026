@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Visitatón 2026 · Dashboard Alegra</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --p:#00D6BC;--pd:#0CB09D;--pl:#E0FAF7;
+  --g:#26C578;--gl:#EAFBF2;--gd:#1EA862;
+  --t1:#1A2332;--t2:#4A5568;--tm:#8492A6;
+  --bg:#F0F4F8;--w:#fff;
+  --bd:#E2E8F0;--bdl:#F1F5F9;
+  --sh:0 1px 3px rgba(0,0,0,.06);
+  --shm:0 2px 8px rgba(0,0,0,.08);
+  --r:12px;--rs:8px;--rl:16px;
+  --blue:#3B82F6;--bll:#EFF6FF;
+  --og:#F59E0B;--ogl:#FFFBEB;
+  --rd:#EF4444;--rdl:#FEF2F2;
+  --pu:#8B5CF6;--pul:#F5F3FF;
+  --sw:228px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--t1);font-size:14px;line-height:1.5;display:flex}
+
+/* SIDEBAR */
+.sb{width:var(--sw);background:#1A2332;position:fixed;top:0;left:0;height:100vh;display:flex;flex-direction:column;z-index:100;overflow-y:auto}
+.sb-logo{padding:18px 16px 14px;border-bottom:1px solid rgba(255,255,255,.08)}
+.sb-logo .lw{display:flex;align-items:center;gap:10px}
+.sb-logo .li{width:34px;height:34px;background:linear-gradient(135deg,var(--p),var(--g));border-radius:9px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:15px;flex-shrink:0}
+.sb-logo .lt{color:#fff;font-weight:700;font-size:15px;line-height:1.2}
+.sb-logo .ls{color:rgba(255,255,255,.4);font-size:11px}
+.sb-nav{padding:10px 8px;flex:1}
+.nl{font-size:10px;font-weight:600;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.08em;padding:8px 8px 4px}
+.ni{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:8px;cursor:pointer;color:rgba(255,255,255,.5);font-size:13px;font-weight:500;margin-bottom:2px;transition:all .15s;position:relative}
+.ni:hover{color:rgba(255,255,255,.88);background:rgba(255,255,255,.06)}
+.ni.active{color:#fff;background:rgba(0,214,188,.15)}
+.ni.active::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);height:20px;width:3px;background:var(--p);border-radius:0 3px 3px 0}
+.ni-ic{width:18px;text-align:center;font-size:13px;flex-shrink:0}
+.ni-n{margin-left:auto;background:rgba(0,214,188,.2);color:var(--p);font-size:10px;font-weight:700;padding:1px 7px;border-radius:10px;font-family:'DM Mono',monospace}
+.sb-ft{padding:12px 14px;border-top:1px solid rgba(255,255,255,.08);font-size:11px;color:rgba(255,255,255,.28)}
+.sb-ft span{color:var(--p)}
+
+/* MAIN */
+.main{margin-left:var(--sw);flex:1;display:flex;flex-direction:column;min-height:100vh}
+.topbar{background:#fff;border-bottom:1px solid var(--bd);padding:0 24px;height:52px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;box-shadow:var(--sh)}
+.tt{font-size:15px;font-weight:700}.ts{font-size:11px;color:var(--tm)}
+.tb-badge{background:var(--pl);color:var(--pd);padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600}
+
+/* BOARD */
+.board{display:none;padding:20px 24px}
+.board.active{display:block}
+.bh{margin-bottom:16px;display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.bt{font-size:19px;font-weight:700}.bd{font-size:13px;color:var(--t2);margin-top:3px}
+
+/* KPI */
+.kr{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:12px;margin-bottom:18px}
+.kc{background:#fff;border-radius:var(--r);padding:15px 15px 13px;box-shadow:var(--sh);border:1px solid var(--bdl);position:relative;overflow:hidden;transition:box-shadow .15s}
+.kc:hover{box-shadow:var(--shm)}
+.kc::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:var(--r) var(--r) 0 0}
+.ct::before{background:linear-gradient(90deg,var(--p),#038C7C)}
+.cg::before{background:linear-gradient(90deg,var(--g),var(--gd))}
+.co::before{background:var(--og)}
+.cr::before{background:var(--rd)}
+.cb::before{background:var(--blue)}
+.cp::before{background:var(--pu)}
+.kl{font-size:10px;font-weight:600;color:var(--tm);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
+.kv{font-size:26px;font-weight:800;color:var(--t1);font-family:'DM Mono',monospace;line-height:1}
+.ks{font-size:11px;color:var(--tm);margin-top:5px}
+.ki{position:absolute;right:13px;top:13px;font-size:18px;opacity:.1;color:var(--t1)}
+
+/* CHARTS */
+.cg2{display:grid;gap:13px;margin-bottom:16px}
+.c2{grid-template-columns:1fr 1fr}
+.c21{grid-template-columns:2fr 1fr}
+.cc{background:#fff;border-radius:var(--r);padding:15px;box-shadow:var(--sh);border:1px solid var(--bdl)}
+.ch{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px}
+.ctt{font-size:13px;font-weight:700}.cts{font-size:11px;color:var(--tm);margin-top:2px}
+canvas{max-height:220px!important}
+
+/* FILTERS */
+.fb{background:#fff;border-radius:var(--r);padding:11px 14px;border:1px solid var(--bdl);box-shadow:var(--sh);margin-bottom:14px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.fl{font-size:11px;font-weight:600;color:var(--tm);text-transform:uppercase;letter-spacing:.04em;white-space:nowrap}
+.fc{flex:1;min-width:130px}
+.fc select,.fc input{width:100%;padding:7px 10px;border:1px solid var(--bd);border-radius:var(--rs);font-size:12px;font-family:inherit;color:var(--t1);background:#fff;outline:none;transition:border-color .15s}
+.fc select:focus,.fc input:focus{border-color:var(--p)}
+.btn{padding:7px 13px;border-radius:var(--rs);font-size:12px;font-weight:600;cursor:pointer;border:none;display:inline-flex;align-items:center;gap:5px;transition:all .15s;font-family:inherit;white-space:nowrap}
+.bp{background:var(--p);color:#fff}.bp:hover{background:var(--pd)}
+.bg{background:transparent;color:var(--t2);border:1px solid var(--bd)}.bg:hover{background:var(--bg)}
+.bsm{padding:5px 10px;font-size:11px}
+.ba{background:var(--pl);color:var(--pd);border:1px solid var(--p)}
+.br{background:var(--rd);color:#fff}.br:hover{background:#DC2626}
+
+/* TABLE */
+.tw{background:#fff;border-radius:var(--r);border:1px solid var(--bdl);box-shadow:var(--sh);overflow:hidden;margin-bottom:18px}
+.th{padding:13px 15px;border-bottom:1px solid var(--bdl);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.thtt{font-size:13px;font-weight:700}
+table.dt{width:100%;border-collapse:collapse;font-size:12px}
+table.dt thead th{background:var(--bg);padding:8px 12px;text-align:left;font-weight:600;color:var(--t2);font-size:10px;text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid var(--bd);white-space:nowrap}
+table.dt tbody td{padding:8px 12px;border-bottom:1px solid var(--bdl);vertical-align:middle}
+table.dt tbody tr:hover{background:#F8FAFC;cursor:pointer}
+
+/* BADGES */
+.bx{display:inline-flex;align-items:center;padding:2px 7px;border-radius:20px;font-size:10px;font-weight:600;white-space:nowrap}
+.xg{background:#ECFDF5;color:#065F46}
+.xr{background:#FEF2F2;color:#991B1B}
+.xo{background:#FFFBEB;color:#92400E}
+.xb{background:#EFF6FF;color:#1E40AF}
+.xt{background:var(--pl);color:#0CB09D}
+.xgr{background:#F1F5F9;color:#475569}
+.xp{background:#F5F3FF;color:#5B21B6}
+
+/* PANEL */
+.po{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.3);z-index:200;display:none;backdrop-filter:blur(2px)}
+.po.open{display:block}
+.sp{position:fixed;top:0;right:-460px;width:460px;height:100vh;background:#fff;z-index:201;box-shadow:-4px 0 24px rgba(0,0,0,.12);transition:right .3s cubic-bezier(.4,0,.2,1);overflow-y:auto;display:flex;flex-direction:column}
+.sp.open{right:0}
+.ph{padding:16px 18px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#fff;z-index:1}
+.pht{font-size:14px;font-weight:700}
+.pc{width:28px;height:28px;border-radius:6px;border:1px solid var(--bd);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--tm);font-size:12px}
+.pc:hover{background:var(--bg)}
+.pb{padding:16px 18px;flex:1}
+.pr{margin-bottom:12px}
+.prl{font-size:10px;font-weight:600;color:var(--tm);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px}
+.prv{font-size:13px;color:var(--t1);font-weight:500}
+.prv a{color:var(--p);text-decoration:none}.prv a:hover{text-decoration:underline}
+.pdiv{height:1px;background:var(--bdl);margin:12px 0}
+
+/* MODAL */
+.mo{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.4);z-index:300;display:none;align-items:center;justify-content:center;backdrop-filter:blur(3px)}
+.mo.open{display:flex}
+.md{background:#fff;border-radius:var(--rl);box-shadow:0 20px 60px rgba(0,0,0,.2);width:90%;max-width:560px;max-height:82vh;overflow-y:auto}
+.mh{padding:16px 18px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#fff}
+.mhtt{font-size:14px;font-weight:700}
+.mb{padding:18px}
+.mf{padding:12px 18px;border-top:1px solid var(--bd);display:flex;justify-content:flex-end;gap:8px}
+
+/* TOP LIST */
+.tl{display:flex;flex-direction:column;gap:5px}
+.ti{display:flex;align-items:center;gap:10px;padding:7px 10px;background:var(--bg);border-radius:var(--rs);transition:background .15s}
+.ti:hover{background:#E8EEF4}
+.tr{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;flex-shrink:0;background:var(--p)}
+.tr.gold{background:#D97706}.tr.silver{background:#94A3B8}.tr.bronze{background:#B45309}
+.tn{flex:1;font-size:12px;font-weight:600;color:var(--t1)}
+.tb{width:90px;height:5px;background:var(--bd);border-radius:3px;overflow:hidden}
+.tb-inner{height:100%;background:var(--p);border-radius:3px}
+.tc{font-size:12px;font-weight:800;color:var(--t1);min-width:22px;text-align:right;font-family:'DM Mono',monospace}
+
+/* SECTION DIV */
+.sd{display:flex;align-items:center;gap:10px;margin:18px 0 12px}
+.sdt{font-size:13px;font-weight:700;color:var(--t1);white-space:nowrap}
+.sdl{flex:1;height:1px;background:var(--bd)}
+
+/* SEARCH BAR */
+.sbar{display:flex;align-items:center;gap:7px;background:var(--bg);border-radius:var(--rs);padding:6px 11px;border:1px solid transparent;transition:all .15s}
+.sbar:focus-within{border-color:var(--p);background:#fff}
+.sbar i{color:var(--tm);font-size:12px}
+.sbar input{border:none;background:transparent;font-size:13px;color:var(--t1);outline:none;flex:1;font-family:inherit}
+
+/* AUTOCOMPLETE */
+.acw{position:relative}
+.acd{position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid var(--bd);border-radius:var(--rs);box-shadow:var(--shm);z-index:100;max-height:200px;overflow-y:auto;display:none}
+.aci{padding:8px 12px;cursor:pointer;font-size:12px;border-bottom:1px solid var(--bdl);display:flex;align-items:center;justify-content:space-between}
+.aci:hover{background:var(--pl)}.aci:last-child{border-bottom:none}
+.acn{font-weight:600;color:var(--t1)}.act{color:var(--tm);font-size:11px}
+.acc{background:var(--p);color:#fff;padding:1px 6px;border-radius:10px;font-size:10px;font-weight:700;font-family:'DM Mono',monospace}
+
+/* INFO BOX */
+.ib{border-radius:var(--r);padding:12px 15px;margin-bottom:16px;display:flex;align-items:flex-start;gap:10px;font-size:12px}
+.ibb{background:#EFF6FF;border:1px solid #BFDBFE;color:#1E40AF}
+
+/* LINEAR TASKS */
+.lp{background:#fff;border-radius:var(--r);border:1px solid var(--bdl);box-shadow:var(--sh);margin-bottom:12px;overflow:hidden}
+.lph{padding:11px 15px;background:var(--bg);border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:10px}
+.lpid{font-family:'DM Mono',monospace;font-size:11px;color:var(--tm)}
+.lptitle{font-size:13px;font-weight:700;flex:1}
+.lpst{padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700}
+.lpsb{background:#EFF6FF;color:#1E40AF}.lpsg{background:#F1F5F9;color:#475569}
+.lss{padding:8px 0}
+.ls{padding:8px 14px 8px 32px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--bdl);position:relative;transition:background .1s}
+.ls:hover{background:#FAFBFC}.ls:last-child{border-bottom:none}
+.ls::before{content:'└';position:absolute;left:13px;color:var(--tm);font-size:11px}
+.lst{flex:1;font-size:12px;color:var(--t1)}
+.lsa{font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;white-space:nowrap;cursor:pointer}
+.lsok{background:#ECFDF5;color:#065F46}.lsna{background:#FEF2F2;color:#991B1B}
+
+/* PIPELINE */
+.pipe{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px}
+.pcol{background:var(--bg);border-radius:var(--r);padding:8px}
+.pcolh{padding:6px 8px 10px;margin-bottom:6px}
+.pcoltt{font-size:12px;font-weight:700}.pcoln{font-size:11px;color:var(--tm);margin-top:1px}
+.pcard{background:#fff;border-radius:var(--rs);padding:10px 11px;margin-bottom:7px;box-shadow:var(--sh);border:1px solid var(--bdl);cursor:pointer;transition:all .15s}
+.pcard:hover{box-shadow:var(--shm);transform:translateY(-1px)}
+.pco{font-size:12px;font-weight:600;color:var(--t1);margin-bottom:3px}
+.pmeta{font-size:10px;color:var(--tm);display:flex;gap:5px;flex-wrap:wrap}
+
+/* BUGS */
+.bgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;margin-bottom:18px}
+.bgc{background:#fff;border-radius:var(--r);padding:13px 15px;border:1px solid var(--bdl);border-left:4px solid var(--rd);box-shadow:var(--sh);transition:box-shadow .15s}
+.bgc:hover{box-shadow:var(--shm)}
+.bgct{font-size:12px;font-weight:700;color:var(--rd);margin-bottom:5px;display:flex;align-items:center;justify-content:space-between}
+.bgcd{font-size:12px;color:var(--t2);line-height:1.45;margin-bottom:9px}
+.bgcm{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px}
+.bgcc{font-size:11px;color:var(--tm);margin-bottom:7px}
+.bgs{width:100%;padding:5px 8px;border:1px solid var(--bd);border-radius:6px;font-size:11px;font-family:inherit;outline:none;background:#fff;cursor:pointer}
+.bgs:focus{border-color:var(--rd)}
+.bug-co-list{margin-top:8px;display:flex;flex-direction:column;gap:4px}
+.bug-co-item{font-size:11px;display:flex;align-items:center;gap:5px;padding:3px 6px;background:var(--bg);border-radius:4px}
+.bug-co-item a{color:var(--p);font-size:10px;flex-shrink:0}
+
+/* CLUSTERS */
+.clgrid{display:grid;grid-template-columns:1fr 1fr;gap:13px;margin-bottom:16px}
+.clcard{background:#fff;border-radius:var(--r);padding:13px 15px;border:1px solid var(--bdl);box-shadow:var(--sh);cursor:pointer;transition:all .15s;border-left:4px solid transparent}
+.clcard:hover{box-shadow:var(--shm);transform:translateY(-1px)}
+.clcard.expanded{border-color:var(--p)}
+.cltop{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.cltxt{font-size:12px;color:var(--t1);flex:1;line-height:1.45;font-weight:500}
+.clcnt{background:var(--bg);padding:2px 8px;border-radius:20px;font-size:11px;font-weight:700;color:var(--tm);flex-shrink:0}
+.clcat{margin-top:7px}
+.cl-detail{display:none;margin-top:12px;border-top:1px solid var(--bdl);padding-top:10px}
+.clcard.expanded .cl-detail{display:block}
+.cl-quote{font-size:12px;font-style:italic;color:var(--t2);background:var(--bg);border-left:3px solid var(--p);padding:8px 10px;border-radius:0 6px 6px 0;margin-bottom:10px;line-height:1.5}
+.cl-co-item{font-size:11px;display:flex;align-items:center;gap:6px;padding:4px 6px;border-bottom:1px solid var(--bdl)}
+.cl-co-item:last-child{border-bottom:none}
+.cl-co-item a{color:var(--p);font-size:10px;flex-shrink:0;display:inline-flex;align-items:center;gap:3px}
+
+/* DATATABLE overrides */
+.dataTables_wrapper .dataTables_filter{padding:10px 14px 0}
+.dataTables_wrapper .dataTables_filter input{border:1px solid var(--bd);border-radius:var(--rs);padding:5px 10px;font-size:12px;font-family:inherit;outline:none}
+.dataTables_wrapper .dataTables_filter input:focus{border-color:var(--p)}
+.dataTables_wrapper .dataTables_filter label::before{content:'Escribe el nombre del cliente: ';font-size:12px;color:var(--tm);font-style:italic}
+.dataTables_wrapper .dataTables_length{padding:10px 14px 0}
+.dataTables_wrapper .dataTables_length select{border:1px solid var(--bd);border-radius:var(--rs);padding:4px 6px;font-size:12px;font-family:inherit}
+.dataTables_wrapper .dataTables_info{padding:8px 14px;font-size:11px;color:var(--tm)}
+.dataTables_wrapper .dataTables_paginate{padding:8px 14px}
+.dataTables_wrapper .dataTables_paginate .paginate_button{border-radius:6px;font-size:12px;padding:4px 10px;font-family:inherit}
+.dataTables_wrapper .dataTables_paginate .paginate_button.current{background:var(--p)!important;color:#fff!important;border:none!important}
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover{background:var(--pl)!important;color:var(--pd)!important;border:none!important}
+.dataTables_wrapper table.dataTable{margin:0!important;font-size:12px}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-thumb{background:#CBD5E1;border-radius:3px}
+
+@media(max-width:900px){.c2,.c21{grid-template-columns:1fr}.pipe,.clgrid{grid-template-columns:1fr}}
+@media(max-width:640px){:root{--sw:52px}.ni span,.lt,.ls{display:none}.kr{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+
+<aside class="sb">
+  <div class="sb-logo">
+    <div class="lw">
+      <div class="li">V</div>
+      <div><div class="lt">Visitatón 2026</div><div class="ls">Analytics</div></div>
+    </div>
+  </div>
+  <nav class="sb-nav">
+    <div class="nl">Tableros</div>
+    <div class="ni active" onclick="showBoard('b1')"><span class="ni-ic"><i class="fa fa-chart-line"></i></span><span>Efectividad global</span><span class="ni-n">116</span></div>
+    <div class="ni" onclick="showBoard('b2')"><span class="ni-ic"><i class="fa fa-users"></i></span><span>Participación líderes</span><span class="ni-n">101</span></div>
+    <div class="ni" onclick="showBoard('b3')"><span class="ni-ic"><i class="fa fa-tasks"></i></span><span>Compromisos</span><span class="ni-n">28</span></div>
+    <div class="ni" onclick="showBoard('b4')"><span class="ni-ic"><i class="fa fa-lightbulb"></i></span><span>Insights</span><span class="ni-n">163</span></div>
+  </nav>
+  <div class="sb-ft">Visitatón 2026 · <span>Alegra</span></div>
+</aside>
+
+<main class="main">
+  <div class="topbar">
+    <div><div class="tt">Visitatón 2026 · Dashboard</div><div class="ts">Programa de visitas a clientes · Alegra</div></div>
+    <span class="tb-badge"><i class="fa fa-database" style="margin-right:5px;font-size:10px"></i>116 entrevistas · 101 líderes</span>
+  </div>
+
+  <!-- TABLERO 1 -->
+  <div id="b1" class="board active">
+    <div class="bh"><div><div class="bt">Efectividad Global de Entrevistas</div><div class="bd">Basado en 116 entrevistas · Ene–Mar 2026</div></div></div>
+    <div class="kr">
+      <div class="kc ct"><i class="fa fa-calendar-check ki"></i><div class="kl">Total programadas</div><div class="kv">116</div><div class="ks">Ene–Mar 2026</div></div>
+      <div class="kc cg"><i class="fa fa-check-circle ki"></i><div class="kl">Efectivas</div><div class="kv">80</div><div class="ks">69% tasa de éxito</div></div>
+      <div class="kc cr"><i class="fa fa-times-circle ki"></i><div class="kl">No efectivas</div><div class="kv">20</div><div class="ks">19% del total</div></div>
+      <div class="kc co"><i class="fa fa-clock ki"></i><div class="kl">Pendientes</div><div class="kv">16</div><div class="ks">14% por realizar</div></div>
+      <div class="kc cb"><i class="fa fa-map-marker-alt ki"></i><div class="kl">Presenciales</div><div class="kv">30</div><div class="ks">86 remotas</div></div>
+      <div class="kc cp"><i class="fa fa-building ki"></i><div class="kl">Empresas únicas</div><div class="kv" id="kpi-emp">—</div><div class="ks">Clientes visitados</div></div>
+    </div>
+
+    <div class="cg2 c2">
+      <div class="cc"><div class="ch"><div><div class="ctt">Entrevistas por mes</div><div class="cts">Conteo por ID único — col. D</div></div></div><canvas id="chMonthly"></canvas></div>
+      <div class="cc"><div class="ch"><div><div class="ctt">% Efectividad mensual</div><div class="cts">Sobre entrevistas realizadas (excluye pendientes)</div></div></div><canvas id="chEfect"></canvas></div>
+    </div>
+    <div class="cg2 c21">
+      <div class="cc"><div class="ch"><div><div class="ctt">Motivos de no efectividad</div><div class="cts">20 entrevistas no realizadas</div></div></div><canvas id="chMotivos" style="max-height:170px!important"></canvas></div>
+      <div class="cc"><div class="ch"><div><div class="ctt">Modalidad de visita</div><div class="cts">Virtual vs Presencial</div></div></div><canvas id="chModal" style="max-height:170px!important"></canvas></div>
+    </div>
+    <div class="cg2 c2">
+      <div class="cc"><div class="ch"><div><div class="ctt">Tipo de usuario (ICP)</div><div class="cts">Perfil del cliente visitado</div></div></div><canvas id="chICP" style="max-height:200px!important"></canvas></div>
+      <div class="cc"><div class="ch"><div><div class="ctt">Plan del cliente</div><div class="cts">Distribución por plan</div></div></div><canvas id="chPlan" style="max-height:200px!important"></canvas></div>
+    </div>
+
+    <div class="sd"><div class="sdt"><i class="fa fa-trophy" style="color:var(--og);margin-right:6px"></i>Top Entrevistadores</div><div class="sdl"></div></div>
+    <div style="background:#fff;border-radius:var(--r);padding:13px 15px;border:1px solid var(--bdl);box-shadow:var(--sh);margin-bottom:18px">
+      <div style="display:flex;gap:10px;margin-bottom:11px;align-items:center;flex-wrap:wrap">
+        <div class="sbar" style="flex:1;min-width:200px"><i class="fa fa-search"></i><input type="text" id="srchEv" placeholder="Buscar entrevistador…" oninput="filterEntrev(this.value)"></div>
+        <span style="font-size:11px;color:var(--tm)">Por entrevistas realizadas (filas totales)</span>
+      </div>
+      <div class="tl" id="topEvList"></div>
+    </div>
+
+    <div class="sd">
+      <div class="sdt"><i class="fa fa-building" style="color:var(--p);margin-right:6px"></i>Clientes visitados</div>
+      <div class="sdl"></div>
+      <span style="font-size:11px;color:var(--tm)">Clic en fila para ver detalle</span>
+    </div>
+    <div class="tw">
+      <div class="th"><div class="thtt">Registro por ID único (col. D) · <span style="color:var(--tm);font-weight:400">Escribe el nombre del cliente en el buscador</span></div></div>
+      <table id="tblEntrev" class="dt display" style="width:100%">
+        <thead><tr>
+          <th>ID</th><th>Empresa</th><th>Fecha</th><th>Solicitó</th>
+          <th>Modalidad</th><th>Efectividad</th><th>ICP</th><th>Plan</th><th>Transcripción</th>
+        </tr></thead>
+        <tbody id="tbodyEv"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- TABLERO 2 -->
+  <div id="b2" class="board">
+    <div class="bh"><div><div class="bt">Participación de Líderes</div><div class="bd">101 líderes · 38 activos · 63 pendientes</div></div></div>
+    <div class="kr">
+      <div class="kc ct"><i class="fa fa-users ki"></i><div class="kl">Total líderes</div><div class="kv">101</div><div class="ks">En el programa</div></div>
+      <div class="kc cg"><i class="fa fa-check ki"></i><div class="kl">Activos</div><div class="kv">38</div><div class="ks">Han realizado entrevistas</div></div>
+      <div class="kc co"><i class="fa fa-hourglass ki"></i><div class="kl">Pendientes</div><div class="kv">63</div><div class="ks">Sin entrevistas aún</div></div>
+      <div class="kc cb"><i class="fa fa-percent ki"></i><div class="kl">% Participación</div><div class="kv">38%</div><div class="ks">38 de 101 líderes</div></div>
+      <div class="kc cp"><i class="fa fa-chart-bar ki"></i><div class="kl">Total entrevistas</div><div class="kv" id="k2tot">80</div><div class="ks">Entrevistas efectivas</div></div>
+      <div class="kc cr"><i class="fa fa-divide ki"></i><div class="kl">Promedio/líder</div><div class="kv" id="k2avg">—</div><div class="ks">Entre activos</div></div>
+    </div>
+    <div class="fb">
+      <span class="fl"><i class="fa fa-filter"></i></span>
+      <div class="fc acw"><input type="text" id="fLNm" placeholder="Buscar líder…" oninput="handleLAC(this.value)" autocomplete="off"><div class="acd" id="lac"></div></div>
+      <div class="fc"><select id="fTT" onchange="applyLF()"><option value="">Todos los equipos</option><option>Developer</option><option>Revenue</option><option>Product</option><option>Finance</option><option>People</option><option>Data</option><option>CEO</option></select></div>
+      <div class="fc"><select id="fPL" onchange="applyLF()"><option value="">Todos los países</option><option>Colombia</option><option>México</option><option>Venezuela</option><option>Argentina</option><option>Perú</option><option>Ecuador</option><option>Chile</option><option>República Dominicana</option></select></div>
+      <div class="fc"><select id="fEL" onchange="applyLF()"><option value="">Todos</option><option value="1">Solo activos</option><option value="0">Solo pendientes</option></select></div>
+      <button class="btn bg bsm" onclick="resetLF()"><i class="fa fa-times"></i> Limpiar</button>
+    </div>
+    <div class="cg2 c2">
+      <div class="cc"><div class="ch"><div><div class="ctt">Por Technical Team</div><div class="cts">Activos vs Pendientes · Clic en barra para filtrar</div></div></div><canvas id="chTT"></canvas></div>
+      <div class="cc"><div class="ch"><div><div class="ctt">Top 10 líderes</div><div class="cts">Por entrevistas · Clic en barra para filtrar</div></div></div><canvas id="chTop10"></canvas></div>
+    </div>
+    <div class="cg2 c2">
+      <div class="cc"><div class="ch"><div><div class="ctt">Líderes activos por mes</div><div class="cts">Líderes únicos que realizaron visitas</div></div></div><canvas id="chLMes"></canvas></div>
+      <div class="cc"><div class="ch"><div><div class="ctt">Modalidad de entrevistas</div><div class="cts">Virtual vs Presencial · Se actualiza con filtros</div></div></div><canvas id="chLMod" style="max-height:200px!important"></canvas></div>
+    </div>
+    <div class="sd"><div class="sdt">Lista completa de líderes</div><div class="sdl"></div></div>
+    <div class="tw">
+      <div class="th"><div class="thtt">Líderes del programa Visitatón 2026</div></div>
+      <table id="tblLid" class="dt display" style="width:100%">
+        <thead><tr><th>Nombre</th><th>Equipo</th><th>País</th><th>Virtuales</th><th>Presenciales</th><th>Total</th><th>Estado</th></tr></thead>
+        <tbody id="tbodyLid"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- TABLERO 3 -->
+  <div id="b3" class="board">
+    <div class="bh">
+      <div><div class="bt">Compromisos de Visitas</div><div class="bd">Tareas del tablero Linear · tts-revops-feedback-post-visitaton</div></div>
+      <button class="btn bp bsm" onclick="window.open('https://linear.app','_blank')"><i class="fa fa-external-link-alt"></i> Abrir Linear</button>
+    </div>
+    <div class="kr">
+      <div class="kc ct"><div class="kl">Visitas presenciales</div><div class="kv">30</div><div class="ks">Total programadas</div></div>
+      <div class="kc cg"><div class="kl">Efectivas</div><div class="kv">24</div><div class="ks">80% efectividad</div></div>
+      <div class="kc co"><div class="kl">Pendientes</div><div class="kv">2</div><div class="ks">Por realizar</div></div>
+      <div class="kc cr"><div class="kl">No efectivas</div><div class="kv">4</div><div class="ks">No se concretaron</div></div>
+    </div>
+    <div class="ib ibb"><i class="fa fa-info-circle" style="font-size:15px;margin-top:1px;flex-shrink:0"></i><div><strong>Tablero Linear: tts-revops-feedback-post-visitaton</strong> — Clic en cualquier tarea para ver sus subtareas. Cambia el estado directamente en cada tarjeta.</div></div>
+    <div id="linBoard"></div>
+    <div class="sd"><div class="sdt">Pipeline de visitas presenciales</div><div class="sdl"></div></div>
+    <div class="pipe" id="pipeLine"></div>
+  </div>
+
+  <!-- TABLERO 4 -->
+  <div id="b4" class="board">
+    <div class="bh"><div><div class="bt">Insights de Clientes</div><div class="bd">Análisis de transcripciones · 163 transcripciones · solo entrevistas exploratorias</div></div></div>
+    <div class="kr">
+      <div class="kc ct"><div class="kl">Con transcripción</div><div class="kv">163</div><div class="ks">Entrevistas exploratorias</div></div>
+      <div class="kc cg"><div class="kl">Highlights</div><div class="kv">7</div><div class="ks">Clusters positivos</div></div>
+      <div class="kc cr"><div class="kl">Lowlights</div><div class="kv">6</div><div class="ks">Clusters negativos</div></div>
+      <div class="kc co"><div class="kl">Bugs</div><div class="kv">8</div><div class="ks">Errores reportados</div></div>
+      <div class="kc cb"><div class="kl">Exploratorias</div><div class="kv">163</div><div class="ks">Sin prototipos</div></div>
+    </div>
+    <div class="fb">
+      <span class="fl"><i class="fa fa-filter"></i> Vista</span>
+      <button class="btn ba bsm" id="bAll" onclick="fIns('all')">Todos</button>
+      <button class="btn bg bsm" id="bHL" onclick="fIns('highlights')"><i class="fa fa-star" style="color:var(--g)"></i> Highlights</button>
+      <button class="btn bg bsm" id="bLL" onclick="fIns('lowlights')"><i class="fa fa-arrow-down" style="color:var(--rd)"></i> Lowlights</button>
+      <button class="btn bg bsm" id="bBug" onclick="fIns('bugs')"><i class="fa fa-bug" style="color:var(--rd)"></i> Bugs</button>
+    </div>
+    <div class="cg2 c2">
+      <div class="cc"><div class="ch"><div><div class="ctt">Insights por categoría</div><div class="cts">Clic en barra → filtra esa categoría</div></div></div><canvas id="chInsCat"></canvas></div>
+      <div class="cc"><div class="ch"><div><div class="ctt">Bugs por categoría</div><div class="cts">Clic en barra → muestra bugs de esa categoría</div></div></div><canvas id="chBugs"></canvas></div>
+    </div>
+    <div id="insClusters"></div>
+    <div id="bugsSec">
+      <div class="sd">
+        <div class="sdt" id="bugSecTt"><i class="fa fa-bug" style="color:var(--rd);margin-right:6px"></i>Bugs reportados</div>
+        <div class="sdl"></div>
+        <button class="btn bg bsm" onclick="renderBugs(null)">Ver todos</button>
+      </div>
+      <div class="bgrid" id="bugsGrid"></div>
+    </div>
+  </div>
+</main>
+
+<!-- PANEL -->
+<div class="po" id="pO" onclick="closePanel()"></div>
+<div class="sp" id="sP">
+  <div class="ph"><div class="pht" id="pTt">Detalle</div><button class="pc" onclick="closePanel()"><i class="fa fa-times"></i></button></div>
+  <div class="pb" id="pBd"></div>
+</div>
+
+<!-- MODAL -->
+<div class="mo" id="mO" onclick="if(event.target===this)closeMod()">
+  <div class="md">
+    <div class="mh"><div class="mhtt" id="mTt">Linear Issue</div><button class="pc" onclick="closeMod()"><i class="fa fa-times"></i></button></div>
+    <div class="mb" id="mBd"></div>
+    <div class="mf"><button class="btn bg" onclick="closeMod()">Cerrar</button><button class="btn bp" onclick="copyMod()"><i class="fa fa-copy"></i> Copiar</button></div>
+  </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+<script>
+Chart.register(ChartDataLabels);
+
+const E = [{"id":"Natali Castillo","fecha":"2026-03-13","mes":"marzo","empresa":"Natali Castillo","tipo_feedback":"Validar usabilidad","plan":"Contador","correo":"","entrevistador":"","modalidad":"Remoto","motivo":"","efectividad":"Pendiente por realizar","icp":"Supercontador","solicitud":"dbedoya@alegra.com","origen":"Request","foco":"","link":"","technical_team":""},{"id":"1793813.0","fecha":"2026-03-12","mes":"marzo","empresa":"CONFIABONOS S.A.S","tipo_feedback":"Exploratorio","plan":"Plan Plus","correo":"alejandro.aguilar@alegra.com","entrevistador":"Alejandro Aguilar","modalidad":"Presencial","motivo":"","efectividad":"Pendiente por realizar","icp":"Core","solicitud":"Carlos Posada","origen":"Visitatón proactivo","foco":"Bogota","link":"","technical_team":"People"},{"id":"addisoncar@hotmail.com","fecha":"2026-03-11","mes":"marzo","empresa":"Addison Rueda","tipo_feedback":"Exploratorio","plan":"Contador","correo":"","entrevistador":"","modalidad":"Remoto","motivo":"","efectividad":"Pendiente por realizar","icp":"Contador","solicitud":"Carlos Posada","origen":"Visitatón proactivo","foco":"","link":"","technical_team":""},{"id":"447160.0","fecha":"2026-03-11","mes":"marzo","empresa":"Contador Addison Rueda Galvis ","tipo_feedback":"Exploratorio","plan":"Contador","correo":"ibsen.herreno@alegra.com","entrevistador":"Ibsen Herreno","modalidad":"Remoto","motivo":"","efectividad":"Pendiente por realizar","icp":"Core","solicitud":"ibsen.herreno@alegra.com","origen":"Request","foco":"","link":"","technical_team":""},{"id":"1850112.0","fecha":"2026-03-11","mes":"marzo","empresa":"Diana Méndez / Dibor GROUP","tipo_feedback":"Exploratorio","plan":"Contador","correo":"edgar.castellanos@alegra.com","entrevistador":"Edgar Castellanos","modalidad":"Remoto","motivo":"","efectividad":"Pendiente por realizar","icp":"Core","solicitud":"Carlos Posada","origen":"Visitatón proactivo","foco":"","link":"","technical_team":"Revenue"},{"id":"1663494.0","fecha":"2026-03-11","mes":"marzo","empresa":"Frostypollo","tipo_feedback":"Exploratorio","plan":"Plan Pro","correo":"juan.montero@alegra.com","entrevistador":"Juan Montero","modalidad":"Remoto","motivo":"","efectividad":"Pendiente por realizar","icp":"Core","solicitud":"Kellyn Rodriguez","origen":"Request","foco":"","link":"","technical_team":"Revenue"},{"id":"2029972.0","fecha":"2026-03-11","mes":"marzo","empresa":"Gaqua SAS","tipo_feedback":"Exploratorio","plan":"Plan Emprendedor","correo":"pablo.rios@alegra.com","entrevistador":"Pablo Rios","modalidad":"Remoto","motivo":"","efectividad":"Pendiente por realizar","icp":"Lite","solicitud":"Kellyn Rodriguez","origen":"Request","foco":"","link":"","technical_team":"Product"},{"id":"901279.0","fecha":"2026-03-11","mes":"marzo","empresa":"OSCAR LEON GEORGE","tipo_feedback":"Exploratorio","plan":"MultiRFC Contador","correo":"","entrevistador":"","modalidad":"Remoto","motivo":"","efectividad":"Pendiente por realizar","icp":"MultiRFC","solicitud":"cristina.barrales@alegra.com","origen":"Request","foco":"","link":"","technical_team":""},{"id":"2208597.0","fecha":"2026-03-10","mes":"marzo","empresa":"Av tienda natural","tipo_feedback":"Exploratorio","plan":"Plan Consulta","correo":"santiago.higuera@alegra.com","entrevistador":"Santiago Higuera","modalidad":"Remoto","motivo":"","efectividad":"Pendiente por realizar","icp":"Lite","solicitud":"javiera.cerpa@alegra.com","origen":"Request","foco":"","link":"","technical_team":"Product"},{"id":"2061416.0","fecha":"2026-03-10","mes":"marzo","empresa":"HOCAM GROUP S.A.S","tipo_feedback":"Exploratorio","plan":"Plan Premium","correo":"jahzeel.cordero@alegra.com","entrevistador":"Jahzeel Cordero","modalidad":"Remoto","motivo":"","efectividad":"Pendiente por realizar","icp":"Core","solicitud":"Carlos Posada","origen":"Visitatón proactivo","foco":"","link":"","technical_team":"Product"},{"id":"330693.0","fecha":"2026-03-10","mes":"marzo","empresa":"MOTION & EMOTION SAS","tipo_feedback":"Exploratorio","plan":"Contador","correo":"alejandra.gomez@alegra.com","entrevistador":"Alejandra Gomez","modalidad":"Remoto","motivo":"","efectividad":"Pendiente por realizar","icp":"Core","solicitud":"Carlos Posada","origen":"Visitatón proactivo","foco":"","link":"","technical_team":"Product"},{"id":"2187921.0","fecha":"2026-03-10","mes":"marzo","empresa":"SERVICIOS TECNICOS OPERARIOS SAS","tipo_feedback":"Exploratorio","plan":"Contador","correo":"anyi.cardozo@alegra.com","entrevistador":"Anyi Cardozo","modalidad":"Remoto","motivo":"","efectividad":"Pendiente por realizar","icp":"Core","solicitud":"Carlos Posada","origen":"Visitatón proactivo","foco":"","link":"","technical_team":"Revenue"},{"id":"1854611.0","fecha":"2026-03-09","mes":"marzo","empresa":"AGROPAI SAS","tipo_feedback":"Exploratorio","plan":"Plan Pyme","correo":"","entrevistador":"","modalidad":"Remoto","motivo":"","efectividad":"Pendiente por realizar","icp":"Lite","solicitud":"alejandra.gomez@alegra.com","origen":"Request","foco":"","link":"","technical_team":""},{"id":"2187921.0","fecha":"2026-03-09","mes":"marzo","empresa":"SERVICIOS TECNICOS OPERARIOS SAS","tipo_feedback":"Exploratorio","plan":"Plan Premium","correo":"","entrevistador":"","modalidad":"Remoto","motivo":"","efectividad":"Pendiente por realizar","icp":"Core","solicitud":"Carlos Posada","origen":"Visitatón proactivo","foco":"","link":"","technical_team":""},{"id":"265597.0","fecha":"2026-03-06","mes":"marzo","empresa":"GUILLERMO LEOPOLDO BELTRAN FONSECA","tipo_feedback":"Exploratorio","plan":"Plan Pro","correo":"","entrevistador":"","modalidad":"Remoto","motivo":"","efectividad":"Pendiente por realizar","icp":"Core","solicitud":"camilo.bermeo@alegra.com","origen":"Request","foco":"","link":"","technical_team":""},{"id":"2160590 (1)","fecha":"2026-03-05","mes":"marzo","empresa":"ASPIRECO COACHING Y CONSULTORIA","tipo_feedback":"Exploratorio","plan":"Plan Emprendedor","correo":"","entrevistador":"","modalidad":"Presencial","motivo":"","efectividad":"Pendiente por realizar","icp":"Core","solicitud":"David Sanchez","origen":"Request","foco":"","link":"","technical_team":""},{"id":"1429665.0","fecha":"2026-03-05","mes":"marzo","empresa":"CAROLINA SILVA OLARTE","tipo_feedback":"Exploratorio","plan":"Plan Pyme","correo":"kellynr@alegra.com","entrevistador":"Kellynr","modalidad":"Remoto","motivo":"","efectividad":"SI","icp":"Lite","solicitud":"Kellyn Rodriguez","origen":"Request","foco":"","link":"","technical_team":""},{"id":"2204753.0","fecha":"2026-03-05","mes":"marzo","empresa":"MLL TRANSPORT SOLUTIONS SAS","tipo_feedback":"Exploratorio","plan":"Plan Pyme","correo":"javiera.cerpa@alegra.com","entrevistador":"Javiera Cerpa","modalidad":"Remoto","motivo":"","efectividad":"SI","icp":"Lite","solicitud":"javiera.cerpa@alegra.com","origen":"Request","foco":"","link":"","technical_team":""},{"id":"1797959.0","fecha":"2026-03-04","mes":"marzo","empresa":"EMPRESA DE SERVICIOS PUBLICOS DE ITAGUI - E.M.S.I. E.S.P. S.A.S.","tipo_feedback":"Exploratorio","plan":"Plan Premium","correo":"dbedoya@alegra.com","entrevistador":"Dbedoya","modalidad":"Presencial","motivo":"","efectividad":"SI","icp":"Core","solicitud":"Carlos Posada","origen":"Visitatón proactivo","foco":"Medellín","link":"","technical_team":"Product"},{"id":"2214396.0","fecha":"2026-03-04","mes":"marzo","empresa":"Lumiere Intima","tipo_feedback":"Exploratorio","plan":"Plan Consulta","correo":"","entrevistador":"","modalidad":"Remoto","motivo":"","efectividad":"NO","icp":"Lite","solicitud":"javiera.cerpa@alegra.com","origen":"Request","foco":"","link":"","technical_team":""},{"id":"901279.0","fecha":"2026-03-04","mes":"marzo","empresa":"OSCAR LEON GEORGE","tipo_feedback":"Exploratorio","plan":"MultiRFC Contador","correo":"abraham.garcia@alegra.com","entrevistador":"Abraham Garcia","modalidad":"Presencial","motivo":"","efectividad":"SI","icp":"MultiRFC","solicitud":"David Sanchez","origen":"Request","foco":"","link":"","technical_team":"Product"},{"id":"933890.0","fecha":"2026-03-03","mes":"marzo","empresa":"Carsix AutoServices","tipo_feedback":"Validar usabilidad","plan":"Plan Plus","correo":"jennifer.queque@alegra.com","entrevistador":"Jennifer Queque","modalidad":"Remoto","motivo":"","efectividad":"NO","icp":"Core","solicitud":"jennifer.queque@alegra.com","origen":"Request","foco":"","link":"","technical_team":""},{"id":"2207575.0","fecha":"2026-03-03","mes":"marzo","empresa":"Commercial group","tipo_feedback":"Exploratorio","plan":"Plan Pro","correo":"NA","entrevistador":"","modalidad":"Remoto","motivo":"","efectividad":"NO","icp":"Lite","solicitud":"javiera.cerpa@alegra.com","origen":"Request","foco":"","link":"","technical_team":""},{"id":"2160590.0","fecha":"2026-03-03","mes":"marzo","empresa":"LOGISTICS CROSSING WORLD","tipo_feedback":"Exploratorio","plan":"Plan Pro","correo":"abraham.garcia@alegra.com","entrevistador":"Abraham Garcia","modalidad":"Presencial","motivo":"","efectividad":"SI","icp":"Core","solicitud":"David Sanchez","origen":"Request","foco":"","link":"","technical_team":"Product"},{"id":"2207742.0","fecha":"2026-03-03","mes":"marzo","empresa":"SUPER BRILLO DIAZ SAS","tipo_feedback":"Exploratorio","plan":"Plan Pro","correo":"isabel.jaramillo@alegra.com","entrevistador":"Isabel Jaramillo","modalidad":"Remoto","motivo":"","efectividad":"SI","icp":"Lite","solicitud":"javiera.cerpa@alegra.com","origen":"Request","foco":"","link":"https://docs.google.com/document/d/1O9qHeh5IvLkZIRchTER7NS7ZUXmYqrsoFuLsKzh0KVE/edit?usp=meet_tnfm_calendar","technical_team":""},{"id":"1204422.0","fecha":"2026-03-02","mes":"marzo","empresa":"Fundación Raices ACD","tipo_feedback":"Validar usabilidad","plan":"Plan Premium","correo":"juan.alvarez@alegra.com","entrevistador":"Juan Alvarez","modalidad":"Remoto","motivo":"","efectividad":"SI","icp":"Core","solicitud":"jennifer.queque@alegra.com","origen":"Request","foco":"","link":"","technical_team":""},{"id":"2211619.0","fecha":"2026-03-02","mes":"marzo","empresa":"MARISOL RAMIREZ","tipo_feedback":"Exploratorio","plan":"Plan Consulta","correo":"lizeth.florez@alegra.com","entrevistador":"Lizeth Florez","modalidad":"Remoto","motivo":"","efectividad":"SI","icp":"Lite","solicitud":"javiera.cerpa@alegra.com","origen":"Request","foco":"","link":"https://docs.google.com/document/d/1TEaz6863UWXKn3uw7smA4nQzE1fuOGt6UFJulYgLrZ4/edit?usp=meet_tnfm_calendar","technical_team":"Revenue"},{"id":"684541.0","fecha":"2026-02-27","mes":"febrero","empresa":"Carolina Salamanca","tipo_feedback":"Exploratorio","plan":"Plan Premium","correo":"agustin.mair@alegra.com","entrevistador":"Agustin Mair","modalidad":"Presencial","motivo":"","efectividad":"SI","icp":"Contador","solicitud":"Carlos Posada","origen":"Visitatón proactivo","foco":"Bogota","link":"https://docs.google.com/document/d/1R6_KH-PUZ6xkj27CE8Z36XqQN1jWVKjtsvR5uqEOdxA/edit?tab=t.dtp1jx4ogjux","technical_team":""},{"id":"2196473.0","fecha":"2026-02-27","mes":"febrero","empresa":"DIEGO FERNANDO BARRETO PIRATEQUE","tipo_feedback":"Exploratorio","plan":"Plan Pyme","correo":"agustin.mair@alegra.com","entrevistador":"Agustin Mair","modalidad":"Presencial","motivo":"","efectividad":"SI","icp":"Core","solicitud":"Carlos Posada","origen":"Visitatón proactivo","foco":"Bogota","link":"https://docs.google.com/document/d/1v1boTVOgzwFkc0aI2tjMG5ArK2_KVAtJNFwIrso1uvw/edit?tab=t.vy4pit5mdqka","technical_team":""},{"id":"1819336.0","fecha":"2026-02-27","mes":"febrero","empresa":"Tatina Merchan","tipo_feedback":"Exploratorio","plan":"Contador","correo":"agustin.mair@alegra.com","entrevistador":"Agustin Mair","modalidad":"Presencial","motivo":"","efectividad":"SI","icp":"Contador","solicitud":"Carlos Posada","origen":"Visitatón proactivo","foco":"Bogota","link":"https://docs.google.com/document/d/18a1zq2QCnKM2BkexfLaG2JsWEvk_4mXPHij3K-72dkE/edit?usp=meet_tnfm_calendar","technical_team":""},{"id":"2042305.0","fecha":"2026-02-26","mes":"febrero","empresa":"SALUD FISCAL Y PATRIMONIAL","tipo_feedback":"Validar usabilidad","plan":"MultiRFC Contador","correo":"cristina.barrales@alegra.com","entrevistador":"Cristina Barrales","modalidad":"Remoto","motivo":"","efectividad":"SI","icp":"MultiRFC","solicitud":"dbedoya@alegra.com","origen":"Request","foco":"","link":"https://docs.google.com/document/d/16Vy1GprVXnNG92lVNVLmbodr3lYXnAESFL0hMw1T8zY/edit?tab=t.ciy4ktk6vqoe","technical_team":""},{"id":"252220.0","fecha":"2026-02-26","mes":"febrero","empresa":"ZU EVENTOS ELISA UCROS","tipo_feedback":"Exploratorio","plan":"Plan Pro","correo":"alejandra.gomez@alegra.com","entrevistador":"Alejandra Gomez","modalidad":"Remoto","motivo":"","efectividad":"SI","icp":"Lite","solicitud":"alejandra.gomez@alegra.com","origen":"Request","foco":"","link":"https://docs.google.com/document/d/1K1jMkFpVztFDyypyO93coBYQtwJLfS823R_uPJZqdss/edit?tab=t.8s7lvlu8dg4","technical_team":"Product"},{"id":"2191327.0","fecha":"2026-02-25","mes":"febrero","empresa":"A3 LABORATORIO CLINICO VETERINARIO SAS","tipo_feedback":"Exploratorio","plan":"Plan Plus","correo":"alberto.robles@alegra.com","entrevistador":"Alberto Robles","modalidad":"Presencial","motivo":"","efectividad":"SI","icp":"Core","solicitud":"Carlos Posada","origen":"Visitatón proactivo","foco":"Bogota","link":"https://docs.google.com/document/d/1IK9ePu7Cey-aLoRt8rgAI_ZMIhyg5lQG41a_Lmga3NU/edit?tab=t.og7149owyqzr","technical_team":"Revenue"},{"id":"angesanro@hotmail.com","fecha":"2026-02-25","mes":"febrero","empresa":"Angélica Sanchez","tipo_feedback":"Exploratorio","plan":"Contador","correo":"alberto.robles@alegra.com","entrevistador":"Alberto Robles","modalidad":"Presencial","motivo":"Tuvo que mover su agenda por motivos laborales","efectividad":"NO","icp":"Contador","solicitud":"Carlos Posada","origen":"Visitatón proactivo","foco":"Bogota","link":"https://docs.google.com/document/d/1tUbV7JYPGoi1bHijn5NPPX1H4eO1LAuccVLLjoxKlro/edit?tab=t.cgpkpax6ztrn","technical_team":"Revenue"},{"id":"Carlos Tamayo","fecha":"2026-02-25","mes":"febrero","empresa":"Carlos Tamayo","tipo_feedback":"Exploratorio","plan":"Contador","correo":"alberto.robles@alegra.com","entrevistador":"Alberto Robles","modalidad":"Presencial","motivo":"","efectividad":"SI","icp":"Contador","solicitud":"Carlos Posada","origen":"Visitatón proactivo","foco":"Bogota","link":"https://docs.google.com/document/d/1mktqAzUTDrgeEtrHpLb4WzRt6KnVuBwbTBwPzifA1yo/edit?tab=t.qbdxa0cymrvy","technical_team":"Revenue"},{"id":"1334747.0","fecha":"2026-02-25","mes":"febrero","empresa":"DELAX PROJECTS SRL","tipo_feedback":"Exploratorio","plan":"Plan Premium","correo":"camila.becerra@alegra.com","entrevistador":"Camila Becerra","modalidad":"Remoto","motivo":"No contestó la usuaria","efectividad":"NO","icp":"Core","solicitud":"Camila Becerra","origen":"Request","foco":"","link":"","technical_team":""},{"id":"326498.0","fecha":"2026-02-25","mes":"febrero","empresa":"EDALEZ SAS","tipo_feedback":"Exploratorio","plan":"Plan Plus","correo":"alberto.robles@alegra.com","entrevistador":"Alberto Robles","modalidad":"Presencial","motivo":"","efectividad":"SI","icp":"Core","solicitud":"Carlos Posada","origen":"Visitatón proactivo","foco":"Bogota","link":"https://docs.google.com/document/d/1M134xZ-B0zv7ayRXFYcgKfvzzQr9OEjOau84gB0RlN0/edit?tab=t.jyjo32p424j7","technical_team":"Revenue"},{"id":"1380850.0","fecha":"2026-02-25","mes":"febrero","empresa":"ESPERANZA CASTRO","tipo_feedback":"Exploratorio","plan":"Contador","correo":"alberto.robles@alegra.com","entrevistador":"Alberto Robles","modalidad":"Presencial","motivo":"","efectividad":"NO","icp":"Contador","solicitud":"Carlos Posada","origen":"Visitatón proactivo","foco":"Bogota","link":"","technical_team":"Revenue"},{"id":"1026671.0","fecha":"2026-02-25","mes":"febrero","empresa":"FRESCO ANC, SRL.","tipo_feedback":"Exploratorio","plan":"Plan Pro","correo":"carlos.quispe@alegra.com","entrevistador":"Carlos Quispe","modalidad":"Remoto","motivo":"","efectividad":"SI","icp":"Core","solicitud":"jennifer.queque@alegra.com","origen":"Request","foco":"","link":"https://docs.google.com/document/d/1lfpgWz8HosTvncaqRQ28CZMN_EbzvSmjIFGNVErdBLY/edit?tab=t.bsjuexhvo6ov","technical_team":"Developer"},{"id":"1026671.0","fecha":"2026-02-25","mes":"febrero","empresa":"FRESCO ANC, SRL.","tipo_feedback":"Exploratorio","plan":"Plan Pro","correo":"jennifer.queque@alegra.com","entrevistador":"Jennifer Queque","modalidad":"Remoto","motivo":"","efectividad":"SI","icp":"Core","solicitud":"jennifer.queque@alegra.com","origen":"Request","foco":"","link":"https://docs.google.com/document/d/1lfpgWz8HosTvncaqRQ28CZMN_EbzvSmjIFGNVErdBLY/edit?tab=t.bsjuexhvo6ov","technical_team":""},{"id":"1026671.0","fecha":"2026-02-25","mes":"febrero","empresa":"FRESCO ANC, SRL.","tipo_feedback":"Exploratorio","plan":"Plan Pro","correo":"juan.alvarez@alegra.com","entrevistador":"Juan Alvarez","modalidad":"Remoto","motivo":"","efectividad":"SI","icp":"Core","solicitud":"jennifer.queque@alegra.com","origen":"Request","foco":"","link":"https://docs.google.com/document/d/1lfpgWz8HosTvncaqRQ28CZMN_EbzvSmjIFGNVErdBLY/edit?tab=t.bsjuexhvo6ov","technical_team":""},{"id":"1185113.0","fecha":"2026-02-25","mes":"febrero","empresa":"Insignia SRL","tipo_feedback":"Validar usabilidad","plan":"Plan Premium","correo":"andres.campo@alegra.com","entrevistador":"Andres Campo","modalidad":"Remoto","motivo":"","efectividad":"SI","icp":"Core","solicitud":"jennifer.queque@alegra.com","origen":"Request","foco":"","link":"","technical_team":""},{"id":"1497243.0","fecha":"2026-02-25","mes":"febrero","empresa":"KAGILI,SRL","tipo_feedback":"Validar usabilidad","plan":"Plan Pyme","correo":"andres.campo@alegra.com","entrevistador":"Andres Campo","modalidad":"Remoto","motivo":"","efectividad":"SI","icp":"Core","solicitud":"jennifer.queque@alegra.com","origen":"Request","foco":"","link":"https://docs.google.com/document/d/1ON7Egb61NM8mqLXPZCi9kEDA-m0KqS33GVatJUml5Bw/edit?usp=meet_tnfm_calendar","technical_team":""},{"id":"1390775.0","fecha":"2026-02-25","mes":"febrero","empresa":"LILIA ANGELICA CARDOZO LEAL","tipo_feedback":"Exploratorio","plan":"Contador","correo":"edgar.castellanos@alegra.com","entrevistador":"Edgar Castellanos","modalidad":"Presencial","motivo":"","efectividad":"SI","icp":"Contador","solicitud":"Carlos Posada","origen":"Visitatón proactivo","foco":"Bogota","link":"https://docs.google.com/document/d/1L9uFKAuJpddyMBBMHYOwtJXgT24rNND6-i4zx78y7pc/edit?tab=t.mvazkssucq9e","technical_team":"Revenue"},{"id":"1747211.0","fecha":"2026-02-25","mes":"febrero","empresa":"MILVIA MILENA TORRES GARZON","tipo_feedback":"Exploratorio","plan":"Contador","correo":"","entrevistador":"","modalidad":"Presencial","motivo":"La contadora vive en un lugar marginal","efectividad":"NO","icp":"Contador","solicitud":"Carlos Posada","origen":"Visitatón proactivo","foco":"Bogota","link":"","technical_team":""},{"id":"462772.0","fecha":"2026-02-25","mes":"febrero","empresa":"PAL HORNO BY LOZADA SRL","tipo_feedback":"Validar usabilidad","plan":"Plan Emprendedor","correo":"andres.campo@alegra.com","entrevistador":"Andres Campo","modalidad":"Remoto","motivo":"","efectividad":"SI","icp":"Core","solicitud":"jennifer.queque@alegra.com","origen":"Request","foco":"","link":"https://docs.google.com/document/d/1LaPJ-1uvAUlPqB9Droukmf9umjq0lgUfV44Tp6fPywo/edit?tab=t.ut2xl7axsz02","technical_team":""},{"id":"1968189.0","fecha":"2026-02-24","mes":"febrero","empresa":"HUGO LAVALLE HIDALGO","tipo_feedback":"Exploratorio","plan":"MultiRFC Contador","correo":"abraham.garcia@alegra.com","entrevistador":"Abraham Garcia","modalidad":"Presencial","motivo":"","efectividad":"SI","icp":"MultiRFC","solicitud":"David Sanchez","origen":"Request","foco":"","link":"","technical_team":"Product"},{"id":"2192100.0","fecha":"2026-02-24","mes":"febrero","empresa":"Internacional Mecanizados","tipo_feedback":"Exploratorio","plan":"Plan Plus","correo":"getsemani.castillo@alegra.com","entrevistador":"Getsemani Castillo","modalidad":"Presencial","motivo":"","efectividad":"SI","icp":"Core","solicitud":"Carlos Posada","origen":"Visitatón proactivo","foco":"Bogota","link":"","technical_team":"Revenue"},{"id":"1952612.0","fecha":"2026-02-24","mes":"febrero","empresa":"Viviana Alejandra Aranda","tipo_feedback":"Exploratorio","plan":"Plan Pro","correo":"camilo.ramos@alegra.com","entrevistador":"Camilo Ramos","modalidad":"Presencial","motivo":"","efectividad":"SI","icp":"Contador","solicitud":"Juan Alvarez","origen":"Request","foco":"","link":"","technical_team":""},{"id":"927837.0","fecha":"2026-02-23","mes":"febrero","empresa":"DEFENSAS DEL CARIBE RD DCRD","tipo_feedback":"Exploratorio","plan":"Plan Plus","correo":"camila.becerra@alegra.com","entrevistador":"Camila Becerra","modalidad":"Remoto","motivo":"","efectividad":"NO","icp":"Core","solicitud":"Camila Becerra","origen":"Request","foco":"","link":"","technical_team":""},{"id":"2186211.0","fecha":"2026-02-20","mes":"febrero","empresa":"Leika SRL","tipo_feedback":"Exploratorio","plan":"Plan Pro","correo":"alejandra.gomez@alegra.com","entrevistador":"Alejandra Gomez","modalidad":"Remoto","motivo":"","efectividad":"NO","icp":"Core","solicitud":"alejandra.gomez@alegra.com","origen":"Request","foco":"","link":"","technical_team":"Product"},{"id":"2165779.0","fecha":"2026-02-19","mes":"febrero","empresa":"SERVICIOS INTEGRALES LANDIN","tipo_feedback":"Exploratorio","plan":"Contador","correo":"abraham.garcia@alegra.com","entrevistador":"Abraham Garcia","modalidad":"Presencial","motivo":"","efectividad":"SI","icp":"Supercontador","solicitud":"David Sanchez","origen":"Request","foco":"","link":"https://www.notion.so/alegraweb/Mariana-Landin-25584de535dc4977889b53c0d8049b0d","technical_team":"Product"},{"id":"2167824.0","fecha":"2026-02-19","mes":"febrero","empresa":"TECNOLOGIAS PARA EL DIAGNOSTICO PULMONAR","tipo_feedback":"Exploratorio","plan":"MultiRFC Contador","correo":"abraham.garcia@alegra.com","entrevistador":"Abraham Garcia","modalidad":"Presencial","motivo":"No respondio, dijo que no se le confirmó","efectividad":"NO","icp":"MultiRFC","solicitud":"David Sanchez","origen":"Request","foco":"","link":"","technical_team":"Product"},{"id":"627572.0","fecha":"2026-02-17","mes":"febrero","empresa":"DISTRIBUCIONES A&A","tipo_feedback":"Exploratorio","plan":"Plan Pyme","correo":"camilo.bermeo@alegra.com","entrevistador":"Camilo Bermeo","modalidad":"Remoto","motivo":"","efectividad":"NO","icp":"Core","solicitud":"camilo.bermeo@alegra.com","origen":"Request","foco":"","link":"","technical_team":""},{"id":"1078385.0","fecha":"2026-02-17","mes":"febrero","empresa":"Elpidio Flores Ortiz","tipo_feedback":"Exploratorio","plan":"MultiRFC Contador","correo":"abraham.garcia@alegra.com","entrevistador":"Abraham Garcia","modalidad":"Presencial","motivo":"","efectividad":"SI","icp":"Supercontador","solicitud":"David Sanchez","origen":"Request","foco":"","link":"https://www.notion.so/alegraweb/Elpidio-30a55f93676580ec8399fef96829e9a9","technical_team":"Product"},{"id":"272286.0","fecha":"2026-02-17","mes":"febrero","empresa":"HSEC INNOVATION","tipo_feedback":"Exploratorio","plan":"Plan Plus","correo":"alejandro.montealegre@alegra.com","entrevistador":"Alejandro Montealegre","modalidad":"Remoto","motivo":"","efectividad":"SI","icp":"Core","solicitud":"oscar.gonzalez@alegra.com","origen":"Request","foco":"","link":"https://docs.google.com/document/d/1W-RTYp5yDTlW_oS6jZ3ozY0u_UBiSMTg2vsT5-ogsC8/edit?usp=meet_tnfm_email&urp=gmail_link","technical_team":""},{"id":"1338155.0","fecha":"2026-02-17","mes":"febrero","empresa":"ILUMINAR INGENIERIA D.M.","tipo_feedback":"Exploratorio","plan":"Plan Pyme","correo":"andres.orozco@alegra.com","entrevistador":"Andres Orozco","modalidad":"Remoto","motivo":"No respondieron","efectividad":"NO","icp":"Lite","solicitud":"dbedoya@alegra.com","origen":"Request","foco":"","link":"","technical_team":""},{"id":"Natali Castillo","fecha":"2026-02-17","mes":"febrero","empresa":"Natali Castillo","tipo_feedback":"Validar usabilidad","plan":"Contador","correo":"carmen.leyva@alegra.com","entrevistador":"Carmen Leyva","modalidad":"Remoto","motivo":"","efectividad":"SI","icp":"Supercontador","solicitud":"carmen.leyva@alegra.com","origen":"Request","foco":"","link":"https://docs.google.com/document/d/10uc-FGPz09MysCOuYRBaF9p6kF349GWpSGe3FhVDmY4/edit?tab=t.93uvagshz0mv","technical_team":""},{"id":"1962386.0","fecha":"2026-02-17","mes":"febrero","empresa":"REDUCOL","tipo_feedback":"Exploratorio","plan":"Plan Premium","correo":"daniela.yepes@alegra.com","entrevistador":"Daniela Yepes","modalidad":"Remoto","motivo":"","efectividad":"SI","icp":"Core","solicitud":"dbedoya@alegra.com","origen":"Request","foco":"","link":"https://docs.google.com/document/d/18SJr1wd2OH7CH2dt12cCfOVfo8o5ogKhLd6zn4iN2_c/edit?tab=t.1lp6fgzak4b0","technical_team":""},{"id":"2042305.0","fecha":"2026-02-17","mes":"febrero","empresa":"SALUD FISCAL Y PATRIMONIAL","tipo_feedback":"Exploratorio","plan":"MultiRFC Contador","correo":"abraham.garcia@alegra.com","entrevistador":"Abraham Garcia","modalidad":"Presencial","motivo":"","efectividad":"SI","icp":"MultiRFC","solicitud":"David Sanchez","origen":"Request","foco":"","link":"https://www.notion.so/alegraweb/Reuni-n-con-Salud-Fiscal-y-Patrimonial-30a55f93676580b48b92caee81a42e56?source=copy_link","technical_team":"Product"},{"id":"1026671.0","fecha":"2026-02-16","mes":"febrero","empresa":"FRESCO ANC,","tipo_feedback":"Exploratorio","plan":"Plan Plus","correo":"jennifer.queque@alegra.com","entrevistador":"Jennifer Queque","modalidad":"Remoto","motivo":"","efectividad":"SI","icp":"Core","solicitud":"jennifer.queque@alegra.com","origen":"Request","foco":"","link":"","technical_team":""},{"id":"1962386.0","fecha":"2026-02-16","mes":"febrero","empresa":"REDUCOL","tipo_feedback":"Exploratorio","plan":"Plan Premium","correo":"alejandro.montealegre@alegra.com","entrevistador":"Alejandro Montealegre","modalidad":"Remoto","motivo":"","efectividad":"SI","icp":"Core","solicitud":"oscar.gonzalez@alegra.com","origen":"Request","foco":"","link":"https://docs.google.com/document/d/1BTFwBVbtL4xHA65V0Pv2nJH9vn1kEdZPuJXmCfaCVCc/edit?usp=meet_tnfm_email&urp=gmail_link","technical_team":""},{"id":"59847.0","fecha":"2026-02-16","mes":"febrero","empresa":"SAMUEL RENDON S.A.S","tipo_feedback":"Exploratorio","plan":"Plan Plus","correo":"alejandro.montealegre@alegra.com","entrevistador":"Alejandro Montealegre","modalidad":"Remoto","motivo":"","efectividad":"SI","icp":"Core","solicitud":"oscar.gonzalez@alegra.com","origen":"Request","foco":"","link":"https://docs.google.com/document/d/1GLpJtAQsJmOzY00FttuaOrDlzvY_p76W1kP8AxG9gZs/edit?tab=t.4k2omjxdk5on","technical_team":""},{"id":"1685950.0","fecha":"2026-02-16","mes":"febrero","empresa":"TRANSPORTES Y GRUAS H & O","tipo_feedback":"Exploratorio","plan":"Plan Plus","correo":"alejandro.montealegre@alegra.com","entrevistador":"Alejandro Montealegre","modalidad":"Remoto","motivo":"","efectividad":"SI","icp":"Core","solicitud":"dbedoya@alegra.com","origen":"Request","foco":"","link":"https://docs.google.com/document/d/1cFYoJ0q0PqeUTxbrd1e9Xu3VCX5gK_KZc6QuPR0UAG8/edit?usp=meet_tnfm_email&urp=gmail_link","technical_team":""},{"id":"2038312.0","fecha":"2026-02-13","mes":"febrero","empresa":"JEMM DAHIANA ARENIS","tipo_feedback":"Exploratorio","plan":"Plan Pyme","correo":"camilo.bermeo@alegra.com","entrevistador":"Camilo Bermeo","modalidad":"Remoto","motivo":"","efectividad":"SI","icp":"Core","solicitud":"camilo.bermeo@alegra.com","origen":"Request","foco":"","link":"https://docs.google.com/document/d/1RylbHmrO5vLpClxlwDYhLFGn1qKsJ6oSzfXB8xT5QZk/edit?usp=meet_tnfm_email&urp=gmail_link","technical_team":""},{"id":"187349.0","fecha":"2026-02-13","mes":"febrero","empresa":"PROVEEDOR INDUSTRIAL DE COLOMBIA","tipo_feedback":"Exploratorio","plan":"Plan Pro","correo":"camilo.bermeo@alegra.com","entrevistador":"Camilo Bermeo","modalidad":"Remoto","motivo":"","efectividad":"SI","icp":"Core","solicitud":"camilo.bermeo@alegra.com","origen":"Request","foco":"","link":"https://docs.google.com/document/d/1iQaaXMuoD3eXNXPCQVvCuS390YSYjaLrJl_ieTenRV4/edit?usp=meet_tnfm_email&urp=gmail_link","technical_team":""},{"id":"1685950.0","fecha":"2026-02-13","mes":"febrero","empresa":"TRANSPORTES Y GRUAS H & O","tipo_feedback":"Exploratorio","plan":"Plan Plus","correo":"agustin.mair@alegra.com","entrevistador":"Agustin Mair","modalidad":"Remoto","motivo":"","efectividad":"SI","icp":"Core","solicitud":"oscar.gonzalez@alegra.com","origen":"Request","foco":"","link":"https://docs.google.com/document/d/1cDjS9E11syyfqU5j5UxYJ3FgpKMBO-vvuTsoIZUl1wA/edit?tab=t.8vpt6oxfwz29","technical_team":""},{"id":"2188210.0","fecha":"2026-02-12","mes":"febrero","empresa":"2M CREACIONES EN TELAS & AZAHAR SRL","tipo_feedback":"Exploratorio","plan":"Plan Pro","correo":"alejandra.gomez@alegra.com","entrevistador":"Alejandra Gomez","modalidad":"Remoto","motivo":"","efectividad":"SI","icp":"Core","solicitud":"alejandra.gomez@alegra.com","origen":"Request","foco":"","link":"https://docs.google.com/document/d/1faLZFtlwr1QfKAIHpd2PiKWIssXdS7j5F_sLJQ_kddM/edit?usp=meet_tnfm_email&urp=gmail_link","technical_team":"Product"},{"id":"2083174.0","fecha":"2026-02-12","mes":"febrero","empresa":"MATEO BARRAGAN JIMENEZ","tipo_feedback":"Validar usabilidad","plan":"Plan Pyme","correo":"hugo.urrea@alegra.com","entrevistador":"Hugo Urrea","modalidad":"Remoto","motivo":"No contestó","efectividad":"NO","icp":"Lite","solicitud":"Kellyn Rodriguez","origen":"Request","foco":"","link":"","technical_team":""},{"id":"187349.0","fecha":"2026-02-12","mes":"febrero","empresa":"PROVEEDOR INDUSTRIAL DE COLOMBIA","tipo_feedback":"Exploratorio","plan":"Plan Pro","correo":"alejandra.gomez@alegra.com","entrevistador":"Alejandra Gomez","modalidad":"Remoto","motivo":"","efectividad":"SI","icp":"Core","solicitud":"Camila Becerra","origen":"Request","foco":"","link":"https://docs.google.com/document/d/1OpItl5JiiNDsJwClQiQO2O1FPgi6X58IbjI9_FvFc3Q/edit?usp=meet_tnfm_email&urp=gmail_link","technical_team":"Product"},{"id":"1471875.0","fecha":"2026-02-12","mes":"febrero","empresa":"SERVICIOS HIDRÁULICOS DIÉSEL Y TECNOLOGÍA SAS","tipo_feedback":"Exploratorio","plan":"Plan Pro","correo":"deiby.rayo@alegra.com","entrevistador":"Deiby Rayo","modalidad":"Remoto","motivo":"","efectividad":"SI","icp":"Core","solicitud":"camilo.bermeo@alegra.com","origen":"Request","foco":"","link":"https://docs.google.com/document/d/1G90yjM3NrwT87WCSRgH0ZcZVRX6yb3QhEUtcfj8q3XM/edit?usp=meet_tnfm_email&urp=gmail_link","technical_team":""},{"id":"1713186.0","fecha":"2026-02-10","mes":"febrero","empresa":"3 EVENTOS S.A.S","tipo_feedback":"Exploratorio","plan":"Plan Plus","correo":"andres.orozco@alegra.com","entrevistador":"Andres Orozco","modalidad":"Remoto","motivo":"","efectividad":"SI","icp":"Core","solicitud":"paola.moreno@alegra.com","origen":"Request","foco":"","link":"https://docs.google.com/document/d/1KQM7Ju26g5jIeKRpTv4p6j-uKXAXwlOurnN8okNfCQU/edit?tab=t.g3vhfsv2ozm","technical_team":""},{"id":"1538032.0","fecha":"2026-02-10","mes":"febrero","empresa":"ANA MARIA ROJAS GOMEZ","tipo_feedback":"Exploratorio","plan":"Plan Pyme","correo":"camila.becerra@alegra.com","entrevistador":"Camila Becerra","modalidad":"Remoto","motivo":"No respondió a los llamadas, con antelación se contactó","efectividad":"NO","icp":"Lite","solicitud":"camila.becerra@alegra.com","origen":"Request","foco":"","link":"","technical_team":""},{"id":"314536.0","fecha":"2026-02-10","mes":"febrero","empresa":"DistriDago S.A.S.","tipo_feedback":"Exploratorio","plan":"Plan Pro","correo":"camilo.bermeo@alegra.com","entrevistador":"Camilo Bermeo","modalidad":"Remoto","motivo":"","efectividad":"SI","icp":"Core","solicitud":"ralfin.restrepo@alegra.com","origen":"Request","foco":"","link":"https://docs.google.com/document/d/1z90Gu1t2aTk9AKMHtxtKSt1maTSi_MNhXJZeLhTFpdY/edit?tab=t.sliof5dp3lhj","technical_team":""},{"id":"1647965.0","fecha":"2026-02-10","mes":"febrero","empresa":"EDUARDO LINARES RAMIREZ","tipo_feedback":"Exploratorio","plan":"Plan Pro","correo":"leonardo.guerra@alegra.com","entrevistador":"Leonardo Guerra","modalidad":"Remoto","motivo":"","efectividad":"SI","icp":"Core","solicitud":"leonardo.guerra@alegra.com","origen":"Request","foco":"","link":"https://docs.google.com/document/d/1wBpo1ddz2lctru7Vrt-9kfwoUjyps4ndlBGlPp-iO50/edit?tab=t.u1a298i5r15c","technical_team":""},{"id":"476392.0","fecha":"2026-02-10","mes":"febrero","empresa":"HECTOR ALFREDO ZAMBRANO OJEDA","tipo_feedback":"Validar usabilidad","plan":"Plan Pro","correo":"hugo.urrea@alegra.com","entrevistador":"Hugo Urrea","modalidad":"Remoto","motivo":"Dijo que no tenía tiempo de reuniones su asistente","efectividad":"NO","icp":"Core","solicitud":"Kellyn Rodriguez","origen":"Request","foco":"","link":"","technical_team":""},{"id":"1338155.0","fecha":"2026-02-10","mes":"febrero","empresa":"ILUMINAR INGENIERIA D.M.","tipo_feedback":"Exploratorio","plan":"Plan Pyme","correo":"camilo.bermeo@alegra.com","entrevistador":"Camilo Bermeo","modalidad":"Remoto","motivo":"","efectividad":"SI","icp":"Lite","solicitud":"ralfin.restrepo@alegra.com","origen":"Request","foco":"","link":"https://docs.google.com/document/d/1YEMEehqcBt_6cOR9kIZc4RsmflvsMrPrQD7JONI-JB8/edit?usp=meet_tnfm_email&urp=gmail_link","technical_team":""},{"id":"1168383.0","fecha":"2026-02-09","mes":"febrero","empresa":"GRUPO BURBUJA","tipo_feedback":"Exploratorio","plan":"Plan Pyme","correo":"camilo.bermeo@alegra.com","entrevistador":"Camilo Bermeo","modalidad":"Remoto","motivo":"Tienen mucho trabajo en la semana, quedó en escribirme para ver nueva fecha","efectividad":"NO","icp":"Core","solicitud":"ralfin.restrepo@alegra.com","origen":"Request","foco":"","link":"","technical_team":""},{"id":"1788003.0","fecha":"2026-02-09","mes":"febrero","empresa":"Maria Elena Martinez Salazar","tipo_feedback":"Exploratorio","plan":"Plan Plus","correo":"camilo.bermeo@alegra.com","entrevistador":"Camilo Bermeo","modalidad":"Remoto","motivo":"","efectividad":"SI","icp":"Lite","solicitud":"ralfin.restrepo@alegra.com","origen":"Request","foco":"","link":"https://docs.google.com/document/d/1uGemPNEsM2V5ecnP1Pvs-HAG6C1_lsjvbF8zb9O26aM/edit?tab=t.6outf8r2g8s1","technical_team":""},{"id":"2127790.0","fecha":"2026-02-09","mes":"febrero","empresa":"Pura Prote SRL","tipo_feedback":"Validar usabilidad","plan":"Plan Plus","correo":"camila.becerra@alegra.com","entrevistador":"Camila Becerra","modalidad":"Remoto","motivo":"","efectividad":"SI","icp":"Core","solicitud":"Camila Becerra","origen":"Request","foco":"","link":"https://docs.google.com/document/d/1M6AabXVB32wjcfhF6CnP41xbc3RnD9-OxjwSoyp3ISU/edit?tab=t.nvzxtyve05vu","technical_team":""},{"id":"adriand@andujarasociados.com","fecha":"2026-02-06","mes":"febrero","empresa":"Adrian de la Cruz","tipo_feedback":"Exploratorio","plan":"Multicuenta Contador","correo":"andres.torres@alegra.com","entrevistador":"Andres Torres","modalidad":"Presencial","motivo":"","efectividad":"SI","icp":"Contador","solicitud":"Carlos Posada","origen":"Visitatón proactivo","foco":"Santo Domingo","link":"https://docs.google.com/document/d/1N3J64XLXjv0QlGgrujC31qCguk-5lNz2JdSxCTPvQ1g/edit?tab=t.0","technical_team":""},{"id":"euclides.garrido@garridocorporan.com","fecha":"2026-02-06","mes":"febrero","empresa":"Euclides Garrido","tipo_feedback":"Exploratorio","plan":"Multicuenta Contador","correo":"andres.torres@alegra.com","entrevistador":"Andres Torres","modalidad":"Presencial","motivo":"","efectividad":"SI","icp":"Supercontador","solicitud":"Carlos Posada","origen":"Visitatón proactivo","foco":"Santo Domingo","link":"https://docs.google.com/document/d/1N3J64XLXjv0QlGgrujC31qCguk-5lNz2JdSxCTPvQ1g/edit?tab=t.0","technical_team":""},{"id":"294185.0","fecha":"2026-02-06","mes":"febrero","empresa":"HOSTING COFFE","tipo_feedback":"Exploratorio","plan":"Plan Pyme","correo":"camila.becerra@alegra.com","entrevistador":"Camila Becerra","modalidad":"Remoto","motivo":"","efectividad":"SI","icp":"Lite","solicitud":"Camila Becerra","origen":"Request","foco":"","link":"https://docs.google.com/document/d/1YwRzhYAWkH6ymSTbAsVqS-NGlKkUOaLocBn5xTYQUlE/edit?tab=t.vnegqbsks4f0","technical_team":""},{"id":"1549618.0","fecha":"2026-02-06","mes":"febrero","empresa":"Master Barf","tipo_feedback":"Validar usabilidad","plan":"Plan Pyme","correo":"camila.becerra@alegra.com","entrevistador":"Camila Becerra","modalidad":"Remoto","motivo":"","efectividad":"SI","icp":"Lite","solicitud":"Camila Becerra","origen":"Request","foco":"","link":"https://docs.google.com/document/d/1qA88SaprChMmPAvsYvnUf51DCd35wvmS38aadexlvP4/edit?tab=t.keyvk5569u5q","technical_team":""},{"id":"144645.0","fecha":"2026-02-06","mes":"febrero","empresa":"Melvin Feliz","tipo_feedback":"Exploratorio","plan":"Multicuenta Contador","correo":"andres.torres@alegra.com","entrevistador":"Andres Torres","modalidad":"Presencial","motivo":"","efectividad":"SI","icp":"Supercontador","solicitud":"Carlos Posada","origen":"Visitatón proactivo","foco":"Santo Domingo","link":"","technical_team":""},{"id":"449134.0","fecha":"2026-02-05","mes":"febrero","empresa":"Cristian & Diana Hernández","tipo_feedback":"Exploratorio","plan":"Multicuenta Contador","correo":"andres.torres@alegra.com","entrevistador":"Andres Torres","modalidad":"Presencial","motivo":"","efectividad":"SI","icp":"Supercontador","solicitud":"Carlos Posada","origen":"Visitatón proactivo","foco":"Santo Domingo","link":"https://docs.google.com/document/d/1N3J64XLXjv0QlGgrujC31qCguk-5lNz2JdSxCTPvQ1g/edit?tab=t.0","technical_team":""},{"id":"NA","fecha":"2026-02-05","mes":"febrero","empresa":"Enfoque Estratégico Consultoría SAS","tipo_feedback":"Propuesta","plan":"Lead","correo":"daniela.villegas@alegra.com","entrevistador":"Daniela Villegas","modalidad":"Presencial","motivo":"","efectividad":"SI","icp":"Partner","solicitud":"Daniela Villegas","origen":"Request","foco":"","link":"","technical_team":"Revenue"},{"id":"1930503.0","fecha":"2026-02-05","mes":"febrero","empresa":"FABER ADELSON AGUDELO GUTIERREZ","tipo_feedback":"Validar usabilidad","plan":"Plan Pro","correo":"camila.becerra@alegra.com","entrevistador":"Camila Becerra","modalidad":"Remoto","motivo":"","efectividad":"SI","icp":"Core","solicitud":"Camila Becerra","origen":"Request","foco":"","link":"https://docs.google.com/document/d/1VTpeNCrzNYHAbCfp4DpbI_KD8xdt119Rs0AiLpBWxX0/edit?usp=meet_tnfm_email&urp=gmail_link","technical_team":""},{"id":"144547.0","fecha":"2026-02-05","mes":"febrero","empresa":"Juan Carlos Paulino","tipo_feedback":"Exploratorio","plan":"Multicuenta Contador","correo":"andres.torres@alegra.com","entrevistador":"Andres Torres","modalidad":"Presencial","motivo":"","efectividad":"SI","icp":"Contador","solicitud":"Carlos Posada","origen":"Visitatón proactivo","foco":"Santo Domingo","link":"https://docs.google.com/document/d/1N3J64XLXjv0QlGgrujC31qCguk-5lNz2JdSxCTPvQ1g/edit?tab=t.0","technical_team":""},{"id":"1879141.0","fecha":"2026-02-05","mes":"febrero","empresa":"Steeldepot MC SRL","tipo_feedback":"Exploratorio","plan":"Plan Premium","correo":"andres.torres@alegra.com","entrevistador":"Andres Torres","modalidad":"Presencial","motivo":"","efectividad":"SI","icp":"Core","solicitud":"Carlos Posada","origen":"Visitatón proactivo","foco":"Santo Domingo","link":"https://docs.google.com/document/d/1N3J64XLXjv0QlGgrujC31qCguk-5lNz2JdSxCTPvQ1g/edit?tab=t.0","technical_team":""},{"id":"1812821.0","fecha":"2026-02-05","mes":"febrero","empresa":"We Bake You, SRL","tipo_feedback":"Validar usabilidad","plan":"Plan Plus","correo":"andres.campo@alegra.com","entrevistador":"Andres Campo","modalidad":"Remoto","motivo":"","efectividad":"SI","icp":"Core","solicitud":"andres.campo@alegra.com, jennifer.queque@alegra.com","origen":"","foco":"","link":"https://docs.google.com/document/d/1fE_mzVyIGumfklZBJnn4x26vs2Sxh3X2V5Jk6YkIVJE/edit?usp=meet_tnfm_email&urp=gmail_link","technical_team":""},{"id":"293441.0","fecha":"2026-02-04","mes":"febrero","empresa":"Cayenas Laundry Services, SRL","tipo_feedback":"Validar usabilidad","plan":"Plan Plus","correo":"andres.campo@alegra.com","entrevistador":"Andres Campo","modalidad":"Remoto","motivo":"No respondio a mi mensaje, ni llamada","efectividad":"NO","icp":"Core","solicitud":"andres.campo@alegra.com, jennifer.queque@alegra.com","origen":"","foco":"","link":"","technical_team":""},{"id":"2183007.0","fecha":"2026-02-04","mes":"febrero","empresa":"Oscar Rodriguez","tipo_feedback":"Exploratorio","plan":"MultiRFC Contador","correo":"cristina.barrales@alegra.com","entrevistador":"Cristina Barrales","modalidad":"Remoto","motivo":"","efectividad":"SI","icp":"MultiRFC","solicitud":"cristina.barrales@alegra.com","origen":"Request","foco":"","link":"https://docs.google.com/document/d/1ikNGXUxUYRE_XhNZlcaey0QN4Di0tT1I58auZ2SLd7o/edit?usp=meet_tnfm_email&urp=gmail_link","technical_team":""},{"id":"837362.0","fecha":"2026-02-04","mes":"febrero","empresa":"SEDELI S.R.L","tipo_feedback":"Validar usabilidad","plan":"Plan Plus","correo":"andres.campo@alegra.com","entrevistador":"Andres Campo","modalidad":"Remoto","motivo":"","efectividad":"SI","icp":"Core","solicitud":"andres.campo@alegra.com, jennifer.queque@alegra.com","origen":"","foco":"","link":"https://docs.google.com/document/d/1DlQw3q6nj-WyZmNzfjH6JDoIrMcZHH5xKdEWV59Per8/edit?tab=t.bo1zxdmfa1kb","technical_team":""},{"id":"579782.0","fecha":"2026-02-04","mes":"febrero","empresa":"Yaster Graph","tipo_feedback":"Validar usabilidad","plan":"Plan Plus","correo":"andres.campo@alegra.com","entrevistador":"Andres Campo","modalidad":"Remoto","motivo":"","efectividad":"SI","icp":"Core","solicitud":"andres.campo@alegra.com, jennifer.queque@alegra.com","origen":"","foco":"","link":"https://docs.google.com/document/d/18jUHXGTNjb_tiUl9ueBts8ldTwzV5Ejpc-OL6JdvMoM/edit?usp=meet_tnfm_email&urp=gmail_link","technical_team":""},{"id":"1265777.0","fecha":"2026-02-03","mes":"febrero","empresa":"FUNDACION GRUPO FENIX","tipo_feedback":"Validar usabilidad","plan":"Plan Plus","correo":"andres.campo@alegra.com","entrevistador":"Andres Campo","modalidad":"Remoto","motivo":"","efectividad":"SI","icp":"Core","solicitud":"andres.campo@alegra.com, jennifer.queque@alegra.com","origen":"Request","foco":"","link":"https://docs.google.com/document/d/1SquPbmNlaR42dYThk2FekgAJ8_0-DFWcgVt13MZKcFI/edit?tab=t.0","technical_team":""},{"id":"1613360.0","fecha":"2026-02-03","mes":"febrero","empresa":"Lara Multiservice SRL","tipo_feedback":"Validar usabilidad","plan":"Plan Plus","correo":"andres.campo@alegra.com","entrevistador":"Andres Campo","modalidad":"Remoto","motivo":"","efectividad":"SI","icp":"Core","solicitud":"andres.campo@alegra.com, jennifer.queque@alegra.com","origen":"Request","foco":"","link":"https://docs.google.com/document/d/1GzvTgJJBAoXx-AUNsYw0dli2MBcwG1tXvClOBdbF9ms/edit?usp=meet_tnfm_email&urp=gmail_link","technical_team":""},{"id":"1368453.0","fecha":"2026-02-03","mes":"febrero","empresa":"SANDRA MILENA LONDOÑO URIBE","tipo_feedback":"Validar usabilidad","plan":"Plan Pyme","correo":"hugo.urrea@alegra.com","entrevistador":"Hugo Urrea","modalidad":"Remoto","motivo":"","efectividad":"SI","icp":"Lite","solicitud":"kellynr@alegra.com","origen":"Request","foco":"","link":"https://docs.google.com/document/d/1vQAhzvdTPrqoaxz5NvWTnhtQoB8FyrLAmVGruodV9mw/edit?tab=t.8syqn9i0r6mu","technical_team":""},{"id":"960730.0","fecha":"2026-02-02","mes":"febrero","empresa":"ORO MICHI S.A.S","tipo_feedback":"Validar usabilidad","plan":"Plan Pyme","correo":"hugo.urrea@alegra.com","entrevistador":"Hugo Urrea","modalidad":"Remoto","motivo":"","efectividad":"SI","icp":"Lite","solicitud":"kellynr@alegra.com","origen":"Request","foco":"","link":"https://docs.google.com/document/d/14llT215My1IaJe1b49aDvXGWspmygL6gc9qPOPCxzCs/edit?tab=t.umvxqwbke4cs","technical_team":""},{"id":"1232440.0","fecha":"2026-02-02","mes":"febrero","empresa":"Zootech","tipo_feedback":"Validar usabilidad","plan":"Plan Premium","correo":"andres.campo@alegra.com","entrevistador":"Andres Campo","modalidad":"Remoto","motivo":"","efectividad":"SI","icp":"Core","solicitud":"andres.campo@alegra.com, jennifer.queque@alegra.com","origen":"Request","foco":"","link":"https://docs.google.com/document/d/17xkgpt-qoelWY4zgOoT_V39WAnO55qS2QcFWsoWbafE/edit?tab=t.z7l55vek4e8y","technical_team":""},{"id":"583321.0","fecha":"2026-01-29","mes":"enero","empresa":"Simona's Pets & People","tipo_feedback":"Exploratorio","plan":"Plan Pyme","correo":"alejandra.gomez@alegra.com","entrevistador":"Alejandra Gomez","modalidad":"Presencial","motivo":"","efectividad":"SI","icp":"Lite","solicitud":"kellynr@alegra.com","origen":"Request","foco":"","link":"https://docs.google.com/document/d/14llT215My1IaJe1b49aDvXGWspmygL6gc9qPOPCxzCs/edit?tab=t.umvxqwbke4cs","technical_team":"Product"},{"id":"NA","fecha":"2026-01-29","mes":"enero","empresa":"Tony Cano","tipo_feedback":"Propuesta","plan":"Lead","correo":"daniela.villegas@alegra.com","entrevistador":"Daniela Villegas","modalidad":"Remoto","motivo":"","efectividad":"SI","icp":"Partner","solicitud":"Daniela Villegas","origen":"Request","foco":"","link":"","technical_team":"Revenue"},{"id":"2108917.0","fecha":"2026-01-28","mes":"enero","empresa":"MARIA ALEJANDRA GUARIN PEDROZO","tipo_feedback":"Exploratorio","plan":"Plan Pyme","correo":"alejandra.gomez@alegra.com","entrevistador":"Alejandra Gomez","modalidad":"Remoto","motivo":"Tuvo que salir del trabajo. —Se le olvidó el espacio","efectividad":"NO","icp":"Core","solicitud":"Camila Becerra","origen":"Request","foco":"","link":"","technical_team":"Product"},{"id":"2001761.0","fecha":"2026-01-27","mes":"enero","empresa":"DAYSTON CONSULTORES","tipo_feedback":"Exploratorio","plan":"MultiRFC Contador","correo":"alejandra.arciniegas@alegra.com","entrevistador":"Alejandra Arciniegas","modalidad":"Remoto","motivo":"","efectividad":"SI","icp":"MultiRFC","solicitud":"daniel.medina@alegra.com","origen":"Request","foco":"","link":"https://docs.google.com/document/d/1CHkkP--41l9T8xS3jJBo-q8-gfJeSC6HHOJTG9JpErE/edit?usp=meet_tnfm_email&urp=gmail_link","technical_team":""},{"id":"1496326.0","fecha":"2026-01-27","mes":"enero","empresa":"LUIS ALFONSO PATARROYO ARIAS","tipo_feedback":"Exploratorio","plan":"Plan Pyme","correo":"alejandra.gomez@alegra.com","entrevistador":"Alejandra Gomez","modalidad":"Remoto","motivo":"No respondió","efectividad":"NO","icp":"","solicitud":"alejandra.gomez@alegra.com","origen":"Request","foco":"","link":"","technical_team":"Product"},{"id":"1991702.0","fecha":"2026-01-27","mes":"enero","empresa":"UZZIEL NUÑEZ CAZALES","tipo_feedback":"Exploratorio","plan":"MultiRFC Contador","correo":"alejandra.arciniegas@alegra.com","entrevistador":"Alejandra Arciniegas","modalidad":"Remoto","motivo":"","efectividad":"SI","icp":"MultiRFC","solicitud":"daniel.medina@alegra.com","origen":"Request","foco":"","link":"https://docs.google.com/document/d/1_AEItJR_jEe7ZO50EAHIiljRXrDD6ALxmMppJeiRAfw/edit?tab=t.ym4gzgwdyjr8","technical_team":""},{"id":"1494781.0","fecha":"2026-01-21","mes":"enero","empresa":"Transgoba Sociedad Anónima","tipo_feedback":"Exploratorio","plan":"Plan Pro","correo":"jennifer.queque@alegra.com","entrevistador":"Jennifer Queque","modalidad":"Remoto","motivo":"","efectividad":"SI","icp":"Core","solicitud":"juan.alvarez@alegra.com","origen":"Request","foco":"","link":"https://docs.google.com/document/d/1JA9k42RIAZ0yHU6r9l5HxL8bSCuNMRPsNmMiFyb5iJQ/edit?tab=t.bimft6e9jbcf","technical_team":""},{"id":"367001.0","fecha":"2026-01-19","mes":"enero","empresa":"DISTRIBUCIONES E IMPORTACIONES TECNOLOGICAS DIELTEC S.A.S.","tipo_feedback":"Exploratorio","plan":"Plan Pro","correo":"juan.alvarez@alegra.com","entrevistador":"Juan Alvarez","modalidad":"Remoto","motivo":"","efectividad":"SI","icp":"Core","solicitud":"juan.alvarez@alegra.com","origen":"Request","foco":"","link":"https://docs.google.com/document/d/15qiookwJByCel8SUUz7eeo0EvzQ-9RF9JnKg-xSLkzo/edit?usp=drive-dynamite&ts=696f8169","technical_team":""},{"id":"1329139.0","fecha":"2026-01-19","mes":"enero","empresa":"INDUSTRIAS CORMIC S.A.S.","tipo_feedback":"Exploratorio","plan":"Plan Plus","correo":"camilo.bermeo@alegra.com","entrevistador":"Camilo Bermeo","modalidad":"Remoto","motivo":"","efectividad":"SI","icp":"Core","solicitud":"ralfin.restrepo@alegra.com","origen":"Request","foco":"","link":"https://docs.google.com/document/d/1TcQaxpsseeeXUdYLLvB49owMRfq00LPPQ2glCtpnTBo/edit?usp=drive-dynamite&ts=696f8182","technical_team":""},{"id":"1552651.0","fecha":"2026-01-16","mes":"enero","empresa":"Koruma Lenex Seguridad S.A.","tipo_feedback":"Exploratorio","plan":"Plan Pro","correo":"irvis.ozuna@alegra.com","entrevistador":"Irvis Ozuna","modalidad":"Remoto","motivo":"","efectividad":"SI","icp":"Core","solicitud":"jennifer.queque@alegra.com","origen":"Request","foco":"","link":"https://docs.google.com/document/d/1fh54YE-T0MvEFMFfcJ8QZz6cZLHdftmYBgKPfzUdRn4/edit?usp=drive-dynamite&ts=696f81b0  ","technical_team":""},{"id":"833395.0","fecha":"2026-01-14","mes":"enero","empresa":"SANDRA MILENA VALDERRAMA ROJAS","tipo_feedback":"Exploratorio","plan":"Multicuenta Contador","correo":"alejandra.arciniegas@alegra.com","entrevistador":"Alejandra Arciniegas","modalidad":"Remoto","motivo":"","efectividad":"SI","icp":"MultiRFC","solicitud":"daniel.medina@alegra.com","origen":"Request","foco":"","link":"https://docs.google.com/document/d/1JcfuLaoPom3VGAJ8ZDkNlvS-znpNnTSH1n5qduvOE-o/edit?tab=t.dtac2p3hjfqw","technical_team":""},{"id":"2041655.0","fecha":"2026-01-09","mes":"enero","empresa":"Sonrisas Musicales S.R.L.","tipo_feedback":"Exploratorio","plan":"Emprendedor","correo":"andres.campo@alegra.com","entrevistador":"Andres Campo","modalidad":"Remoto","motivo":"","efectividad":"SI","icp":"Core","solicitud":"juandavid.salazar@alegra.com","origen":"Request","foco":"","link":"https://docs.google.com/document/d/1Vw8Z9haUOrdYGJgRzTjgEg3r-TK8Yf1gOoia1P5iFKI/edit?tab=t.bb0h4170eyv5","technical_team":""},{"id":"2041655.0","fecha":"2026-01-09","mes":"enero","empresa":"Sonrisas Musicales S.R.L.","tipo_feedback":"Exploratorio","plan":"Emprendedor","correo":"juandavid.salazar@alegra.com","entrevistador":"Juandavid Salazar","modalidad":"Remoto","motivo":"","efectividad":"SI","icp":"Core","solicitud":"juandavid.salazar@alegra.com","origen":"Request","foco":"","link":"https://docs.google.com/document/d/1Vw8Z9haUOrdYGJgRzTjgEg3r-TK8Yf1gOoia1P5iFKI/edit?tab=t.bb0h4170eyv5","technical_team":""},{"id":"704961.0","fecha":"2026-01-06","mes":"enero","empresa":"Adriana Marcela Ochoa Sanchez","tipo_feedback":"Exploratorio","plan":"Emprendedor","correo":"","entrevistador":"","modalidad":"Remoto","motivo":"","efectividad":"NO","icp":"Core","solicitud":"Daniel Medina","origen":"Request","foco":"","link":"","technical_team":""},{"id":"2061473.0","fecha":"2026-01-06","mes":"enero","empresa":"BIBIANA MARIA AGUDELO SALAZAR","tipo_feedback":"Exploratorio","plan":"Multicuenta Contador","correo":"alejandra.arciniegas@alegra.com","entrevistador":"Alejandra Arciniegas","modalidad":"Remoto","motivo":"","efectividad":"SI","icp":"MultiRFC","solicitud":"daniel.medina@alegra.com","origen":"Request","foco":"","link":"https://docs.google.com/document/d/1m0vGn_C6eAH_ObSDWqnN2ZztBFZfbNWOn0Hsb73ibdQ/edit?tab=t.ssxh2n4f6m8i","technical_team":""},{"id":"698371.0","fecha":"2026-01-06","mes":"enero","empresa":"GOMAR GM S.A.S","tipo_feedback":"Exploratorio","plan":"Plan Plus","correo":"carmen.leyva@alegra.com","entrevistador":"Carmen Leyva","modalidad":"Remoto","motivo":"","efectividad":"SI","icp":"Core","solicitud":"carmen.leyva@alegra.com","origen":"Request","foco":"","link":"https://docs.google.com/document/d/1S58rAHiEGffQsbd2mjmXAN928GfAadcLc4j8f459uUo/edit?tab=t.diuj7jz2hlns","technical_team":""}];
+const L = [{"nombre":"javier chavez","nombre_completo":"Javier Arturo Chávez Sialer","correo":"javier.chavez@alegra.com","pais":"Perú","ciudad":"Lima","technical_team":"Developer","delivery":"","cargo":"Developer Leader","total":0,"virtuales":0,"presenciales":0,"activo":0,"febrero":0,"marzo":0},{"nombre":"daniela montenegro","nombre_completo":"Daniela Carolina Montenegro Pozo","correo":"daniela.montenegro@alegra.com","pais":"Ecuador","ciudad":"Guayaquil","technical_team":"Developer","delivery":"","cargo":"Developer Leader","total":0,"virtuales":0,"presenciales":0,"activo":0,"febrero":0,"marzo":0},{"nombre":"Deisy Mayo","nombre_completo":"Deisy Mayo","correo":"deisy.mayo@alegra.com","pais":"Colombia","ciudad":"Medellín","technical_team":"Revenue","delivery":"Customer","cargo":"Customer Manager","total":2,"virtuales":2,"presenciales":0,"activo":1,"febrero":1,"marzo":1},{"nombre":"yuli castro","nombre_completo":"Yuli Andrea Castro Villalobos","correo":"yuli.castro@alegra.com","pais":"Colombia","ciudad":"Bogotá","technical_team":"People","delivery":"Talent","cargo":"Talent Acquisition Leader","total":0,"virtuales":0,"presenciales":0,"activo":0,"febrero":0,"marzo":0},{"nombre":"yobana ardila","nombre_completo":"Yobana Ardila Cabra","correo":"yobana.ardila@alegra.com","pais":"Colombia","ciudad":"Bogotá","technical_team":"Revenue","delivery":"Support","cargo":"Customer Nightshift Support Manager","total":5,"virtuales":0,"presenciales":5,"activo":1,"febrero":5,"marzo":0},{"nombre":"Lizeth FLorez","nombre_completo":"Lizeth FLorez","correo":"lizeth.florez@alegra.com","pais":"Colombia","ciudad":"La ceja","technical_team":"Revenue","delivery":"Retention","cargo":"Retention team leader","total":1,"virtuales":1,"presenciales":0,"activo":1,"febrero":0,"marzo":1},{"nombre":"stefany bonilla","nombre_completo":"Stefany Maricela Bonilla Pesca","correo":"stefany.bonilla@alegra.com","pais":"Colombia","ciudad":"Sogamoso","technical_team":"Revenue","delivery":"Support","cargo":"Customer Support Manager","total":2,"virtuales":2,"presenciales":0,"activo":1,"febrero":0,"marzo":2},{"nombre":"jhonatan chiquito","nombre_completo":"Jhonatan Chiquito Fuquenes","correo":"jhonatan.chiquito@alegra.com","pais":"Colombia","ciudad":"Envigado","technical_team":"Developer","delivery":"","cargo":"Developer Leader","total":0,"virtuales":0,"presenciales":0,"activo":0,"febrero":0,"marzo":0},{"nombre":"jakub rouban","nombre_completo":"Jakub Roubal","correo":"jakub.rouban@alegra.com","pais":"México","ciudad":"Ciudad de México","technical_team":"Revenue","delivery":"CRO","cargo":"Chief Revenue Officer","total":0,"virtuales":0,"presenciales":0,"activo":0,"febrero":0,"marzo":0},{"nombre":"juan montero","nombre_completo":"Juan Daniel Montero Bravo","correo":"juan.montero@alegra.com","pais":"Venezuela","ciudad":"maracaibo","technical_team":"Revenue","delivery":"Support","cargo":"Customer Support Manager","total":1,"virtuales":1,"presenciales":0,"activo":1,"febrero":0,"marzo":1},{"nombre":"young han","nombre_completo":"Young Sebastian Han Rubio","correo":"young.rubio@alegra.com","pais":"Colombia","ciudad":"Bogotá","technical_team":"Revenue","delivery":"Support","cargo":"Customer Support Director","total":5,"virtuales":1,"presenciales":4,"activo":1,"febrero":4,"marzo":1},{"nombre":"anyi cardozo","nombre_completo":"Anyi Tatiana Cardozo Bustos","correo":"anyi.cardozo@alegra.com","pais":"Colombia","ciudad":"Cali","technical_team":"Revenue","delivery":"Support","cargo":"Customer Support Manager","total":2,"virtuales":2,"presenciales":0,"activo":1,"febrero":0,"marzo":2},{"nombre":"clarey vanegas","nombre_completo":"Clarey Jineidy Vanegas Lopez","correo":"clarey.vanegas@alegra.com","pais":"Colombia","ciudad":"Bogotá","technical_team":"Revenue","delivery":"Sales","cargo":"Team Leader","total":1,"virtuales":0,"presenciales":1,"activo":1,"febrero":1,"marzo":0},{"nombre":"cristian guerrero","nombre_completo":"Cristian Ricardo Guerrero Arrieta","correo":"cristian.guerrero@alegra.com","pais":"Colombia","ciudad":"Bogotá","technical_team":"Revenue","delivery":"Sales","cargo":"Account Executive","total":4,"virtuales":0,"presenciales":4,"activo":1,"febrero":4,"marzo":0},{"nombre":"tatiana guzman","nombre_completo":"Tatiana Guzman Bencardino","correo":"tatiana.guzman@alegra.com","pais":"Colombia","ciudad":"Bogotá","technical_team":"Revenue","delivery":"Sales","cargo":"Team Leader","total":1,"virtuales":0,"presenciales":1,"activo":1,"febrero":1,"marzo":0},{"nombre":"alberto robles","nombre_completo":"Alberto Isaac Robles Rosas","correo":"alberto.robles@alegra.com","pais":"México","ciudad":"Ciudad de México","technical_team":"Revenue","delivery":"Sales","cargo":"Team Leader","total":5,"virtuales":0,"presenciales":5,"activo":1,"febrero":5,"marzo":0},{"nombre":"david sanchez","nombre_completo":"David Jose Sanchez Torres","correo":"david.sanchez@alegra.com","pais":"Colombia","ciudad":"Medellín","technical_team":"Product","delivery":"","cargo":"Head of Product","total":14,"virtuales":1,"presenciales":13,"activo":1,"febrero":10,"marzo":3},{"nombre":"saidy carrión","nombre_completo":"Saidy Milena Carrión López","correo":"saidy.carrion@alegra.com","pais":"Colombia","ciudad":"Funza","technical_team":"Revenue","delivery":"Support","cargo":"Payment Team Leader","total":1,"virtuales":1,"presenciales":0,"activo":1,"febrero":0,"marzo":1},{"nombre":"leonardo oliveros","nombre_completo":"Leonardo Daniel Oliveros Medina","correo":"leonardo.oliveros@alegra.com","pais":"Colombia","ciudad":"Cúcuta","technical_team":"Developer","delivery":"","cargo":"Developer Leader","total":0,"virtuales":0,"presenciales":0,"activo":0,"febrero":0,"marzo":0},{"nombre":"andrea hoyos","nombre_completo":"Andrea Hoyos Ospina","correo":"andrea.hoyos@alegra.com","pais":"Colombia","ciudad":"Envigado","technical_team":"Developer","delivery":"","cargo":"Head of Development","total":0,"virtuales":0,"presenciales":0,"activo":0,"febrero":0,"marzo":0},{"nombre":"flor garcia","nombre_completo":"Flor Garcia Rojas","correo":"flor.garcia@alegra.com","pais":"México","ciudad":"Oaxaca de Juarez","technical_team":"Developer","delivery":"","cargo":"Developer","total":0,"virtuales":0,"presenciales":0,"activo":0,"febrero":0,"marzo":0},{"nombre":"edgar castellanos","nombre_completo":"Edgar De Jesus Castellanos Castelblanco","correo":"edgar.castellanos@alegra.com","pais":"Colombia","ciudad":"Bogotá","technical_team":"Revenue","delivery":"Revops","cargo":"Customer Support Analyst (ALL)","total":2,"virtuales":1,"presenciales":1,"activo":1,"febrero":1,"marzo":1},{"nombre":"jorge soto","nombre_completo":"Jorge Andres Soto Ramirez","correo":"jorge.soto@alegra.com","pais":"Colombia","ciudad":"Medellín","technical_team":"CEO","delivery":"","cargo":"CEO","total":0,"virtuales":0,"presenciales":0,"activo":0,"febrero":0,"marzo":0},{"nombre":"hillary cuervo","nombre_completo":"Hillary Cuervo Valencia","correo":"hillary.cuervo@alegra.com","pais":"Colombia","ciudad":"Bogotá","technical_team":"Revenue","delivery":"Revops","cargo":"Customer Process Lead","total":5,"virtuales":0,"presenciales":5,"activo":1,"febrero":5,"marzo":0},{"nombre":"diana bedoya","nombre_completo":"Diana Patricia Bedoya Duque","correo":"dbedoya@alegra.com","pais":"Colombia","ciudad":"Sabaneta","technical_team":"Product","delivery":"","cargo":"Product Leader","total":10,"virtuales":9,"presenciales":1,"activo":1,"febrero":8,"marzo":2},{"nombre":"lisbeth cardenas","nombre_completo":"Lisbeth Kukuly Coll Cardenas Gonzales","correo":"lisbeth.cardenas@alegra.com","pais":"Perú","ciudad":"Nuevo Chimbote","technical_team":"Revenue","delivery":"Support","cargo":"Customer Support Manager","total":0,"virtuales":0,"presenciales":0,"activo":0,"febrero":0,"marzo":0},{"nombre":"germán sosa","nombre_completo":"Germán Ezequiel Sosa Peters","correo":"germán.sosa@alegra.com","pais":"Argentina","ciudad":"Presidencia Roque Sáenz Peña","technical_team":"Developer","delivery":"","cargo":"Developer Leader","total":0,"virtuales":0,"presenciales":0,"activo":0,"febrero":0,"marzo":0},{"nombre":"fernando mora","nombre_completo":"Fernando Mora Benadero","correo":"fernando.mora@alegra.com","pais":"México","ciudad":"Guadalajara","technical_team":"Revenue","delivery":"Growth","cargo":"Product Marketing Manager","total":0,"virtuales":0,"presenciales":0,"activo":0,"febrero":0,"marzo":0},{"nombre":"richard garcia","nombre_completo":"Richard Jose Garcia Tovar","correo":"richard.garcia@alegra.com","pais":"Colombia","ciudad":"Bello","technical_team":"Finance","delivery":"","cargo":"Collection Data Leader","total":2,"virtuales":1,"presenciales":1,"activo":1,"febrero":0,"marzo":2},{"nombre":"richard rodriguez","nombre_completo":"Richard Brayan Rodriguez Solis","correo":"richard.rodriguez@alegra.com","pais":"Bolivia","ciudad":"Santa Cruz","technical_team":"Data","delivery":"","cargo":"Business Intelligence Manager","total":0,"virtuales":0,"presenciales":0,"activo":0,"febrero":0,"marzo":0},{"nombre":"isidro garcia","nombre_completo":"Isidro Antonio Garcia Santander","correo":"isidro.garcia@alegra.com","pais":"Venezuela","ciudad":"San Cristobal","technical_team":"Developer","delivery":"","cargo":"Developer","total":0,"virtuales":0,"presenciales":0,"activo":0,"febrero":0,"marzo":0},{"nombre":"andres castrillon","nombre_completo":"Andres Ignacio Castrillon Gonzalez","correo":"andres.castrillon@alegra.com","pais":"Colombia","ciudad":"Copacabana","technical_team":"Developer","delivery":"","cargo":"Developer Leader","total":0,"virtuales":0,"presenciales":0,"activo":0,"febrero":0,"marzo":0},{"nombre":"marcos perez","nombre_completo":"Marcos Pérez","correo":"marcos.perez@alegra.com","pais":"Argentina","ciudad":"Tandil","technical_team":"Product","delivery":"","cargo":"Product Designer Leader","total":0,"virtuales":0,"presenciales":0,"activo":0,"febrero":0,"marzo":0},{"nombre":"juan serna","nombre_completo":"Juan Sebastian Serna Carmona","correo":"sebastian@alegra.com","pais":"Colombia","ciudad":"Rionegro","technical_team":"Product","delivery":"","cargo":"Product Leader","total":1,"virtuales":1,"presenciales":0,"activo":1,"febrero":0,"marzo":1},{"nombre":"gerardo castro","nombre_completo":"Gerardo Alonso Castro Lopez","correo":"gerardo.castro@alegra.com","pais":"México","ciudad":"Tuxtla Gutiérrez","technical_team":"Revenue","delivery":"Support","cargo":"Customer Support Leader","total":1,"virtuales":1,"presenciales":0,"activo":1,"febrero":1,"marzo":0},{"nombre":"luis caro","nombre_completo":"Luis Rafael Caro Mosquera","correo":"luis.caro@alegra.com","pais":"Colombia","ciudad":"Cartagena de Indias","technical_team":"Data","delivery":"","cargo":"Chief Data","total":1,"virtuales":1,"presenciales":0,"activo":1,"febrero":0,"marzo":1},{"nombre":"abraham garcia","nombre_completo":"Abraham Garcia Padilla","correo":"abraham.garcia@alegra.com","pais":"México","ciudad":"CDMX","technical_team":"Product","delivery":"","cargo":"Product Manager","total":8,"virtuales":1,"presenciales":7,"activo":1,"febrero":5,"marzo":3},{"nombre":"daniel atehortua","nombre_completo":"Daniel Atehortua Valencia","correo":"daniel.atehortua@alegra.com","pais":"Colombia","ciudad":"Medellín","technical_team":"Finance","delivery":"","cargo":"Head of FP&A and Cash Management","total":0,"virtuales":0,"presenciales":0,"activo":0,"febrero":0,"marzo":0},{"nombre":"meilenns peña","nombre_completo":"Meilenns Peña Valerio","correo":"meilenns.peña@alegra.com","pais":"República Dominicana","ciudad":"Distrito Nacional","technical_team":"Revenue","delivery":"Support","cargo":"Senior Customer Support Manager","total":0,"virtuales":0,"presenciales":0,"activo":0,"febrero":0,"marzo":0},{"nombre":"maría briceño","nombre_completo":"María Eugenia Briceño Lacruz","correo":"maría.briceño@alegra.com","pais":"Venezuela","ciudad":"Mérida","technical_team":"Revenue","delivery":"Support","cargo":"Customer Night Support Analyst","total":0,"virtuales":0,"presenciales":0,"activo":0,"febrero":0,"marzo":0},{"nombre":"eleazar estrada","nombre_completo":"Eleazar Estrada Riffo","correo":"eleazar.estrada@alegra.com","pais":"Chile","ciudad":"Hualpén","technical_team":"Product","delivery":"","cargo":"Product Designer Leader","total":0,"virtuales":0,"presenciales":0,"activo":0,"febrero":0,"marzo":0},{"nombre":"catalina bustamante","nombre_completo":"Catalina Bustamante Montoya","correo":"catalina.bustamante@alegra.com","pais":"Colombia","ciudad":"Medellín","technical_team":"People","delivery":"","cargo":"Chief People","total":0,"virtuales":0,"presenciales":0,"activo":0,"febrero":0,"marzo":0},{"nombre":"derian rosado","nombre_completo":"Derian Roberto Rosado Navarrete","correo":"derian.rosado@alegra.com","pais":"México","ciudad":"Merida","technical_team":"Developer","delivery":"","cargo":"Developer Leader","total":0,"virtuales":0,"presenciales":0,"activo":0,"febrero":0,"marzo":0},{"nombre":"miguel hervas","nombre_completo":"Miguel Angel Hervas Espinoza","correo":"miguel.hervas@alegra.com","pais":"Perú","ciudad":"Lima","technical_team":"Revenue","delivery":"Strategic Relasionships","cargo":"Strategic Relationships Manager","total":0,"virtuales":0,"presenciales":0,"activo":0,"febrero":0,"marzo":0},{"nombre":"brayan mamian","nombre_completo":"Brayan Stiven Mamian Bambagüe","correo":"brayan.mamian@alegra.com","pais":"Colombia","ciudad":"Popayán","technical_team":"Developer","delivery":"","cargo":"Developer","total":0,"virtuales":0,"presenciales":0,"activo":0,"febrero":0,"marzo":0},{"nombre":"maria victoria","nombre_completo":"Maria Victoria Perez","correo":"maria.victoria@alegra.com","pais":"Argentina","ciudad":"buenos aires","technical_team":"Revenue","delivery":"Growth","cargo":"Brand Strategy Manager","total":0,"virtuales":0,"presenciales":0,"activo":0,"febrero":0,"marzo":0},{"nombre":"isanel medina","nombre_completo":"Isanel Medina","correo":"isanel.medina@alegra.com","pais":"República Dominicana","ciudad":"Santiago","technical_team":"Revenue","delivery":"Alanube","cargo":"alanube commercial team leader","total":0,"virtuales":0,"presenciales":0,"activo":0,"febrero":0,"marzo":0},{"nombre":"renzo avalos","nombre_completo":"Renzo Donal Avalos Huapaya","correo":"renzo.avalos@alegra.com","pais":"Perú","ciudad":"Lima","technical_team":"Product","delivery":"","cargo":"Product Designer Leader","total":1,"virtuales":1,"presenciales":0,"activo":1,"febrero":0,"marzo":1},{"nombre":"daniela giraldo","nombre_completo":"Daniela Giraldo Arango","correo":"daniela.giraldo@alegra.com","pais":"Colombia","ciudad":"El Retiro","technical_team":"Finance","delivery":"","cargo":"Labor Relations & Compensation Manager","total":0,"virtuales":0,"presenciales":0,"activo":0,"febrero":0,"marzo":0},{"nombre":"juan lopez","nombre_completo":"Juan Felipe Lopez Palacios","correo":"juan.lopez@alegra.com","pais":"Colombia","ciudad":"Envigado","technical_team":"Product","delivery":"","cargo":"PD Contador","total":2,"virtuales":2,"presenciales":0,"activo":1,"febrero":2,"marzo":0},{"nombre":"alfredo arteaga","nombre_completo":"Alfredo Jesus Arteaga Rico","correo":"alfredo.arteaga@alegra.com","pais":"Colombia","ciudad":"Bogotá","technical_team":"Revenue","delivery":"Revops","cargo":"Sales Operations Manager","total":0,"virtuales":0,"presenciales":0,"activo":0,"febrero":0,"marzo":0},{"nombre":"getsemani castillo","nombre_completo":"Getsemani Dinois Castillo Pinzon","correo":"getsemani.castillo@alegra.com","pais":"Panamá","ciudad":"Panamá","technical_team":"Revenue","delivery":"Sales","cargo":"Team Leader","total":5,"virtuales":0,"presenciales":5,"activo":1,"febrero":5,"marzo":0},{"nombre":"josé padron","nombre_completo":"José Jesús Padrón Figueroa","correo":"josé.padron@alegra.com","pais":"Venezuela","ciudad":"Barcelona","technical_team":"Developer","delivery":"","cargo":"Developer","total":0,"virtuales":0,"presenciales":0,"activo":0,"febrero":0,"marzo":0},{"nombre":"luis fernando","nombre_completo":"Luis Fernando Salazar","correo":"luis.fernando@alegra.com","pais":"Colombia","ciudad":"Cali","technical_team":"Revenue","delivery":"Sales","cargo":"Sales Manager","total":0,"virtuales":0,"presenciales":0,"activo":0,"febrero":0,"marzo":0},{"nombre":"daniela marín","nombre_completo":"Daniela Marín Ramírez","correo":"daniela.marín@alegra.com","pais":"Colombia","ciudad":"Pereira","technical_team":"Revenue","delivery":"Growth","cargo":"AEO Manager","total":0,"virtuales":0,"presenciales":0,"activo":0,"febrero":0,"marzo":0},{"nombre":"angelo anaya","nombre_completo":"Angelo Dali Anaya Sanchez","correo":"angelo.anaya@alegra.com","pais":"Colombia","ciudad":"Bogotá","technical_team":"Revenue","delivery":"Growth","cargo":"Brand Marketing Manager","total":0,"virtuales":0,"presenciales":0,"activo":0,"febrero":0,"marzo":0},{"nombre":"gaidy jesus","nombre_completo":"Gaidy Jesus Gómez","correo":"gaidy.jesus@alegra.com","pais":"Venezuela","ciudad":"Mérida","technical_team":"Developer","delivery":"","cargo":"Developer Leader","total":0,"virtuales":0,"presenciales":0,"activo":0,"febrero":0,"marzo":0},{"nombre":"luis rodriguez","nombre_completo":"Luis Fernando Rodriguez Camacho","correo":"luis.rodriguez@alegra.com","pais":"Colombia","ciudad":"Bogotá","technical_team":"Revenue","delivery":"Growth","cargo":"Social Media Manager","total":0,"virtuales":0,"presenciales":0,"activo":0,"febrero":0,"marzo":0},{"nombre":"jahzeel cordero","nombre_completo":"Jahzeel Ricardo Cordero Cordero","correo":"jahzeel.cordero@alegra.com","pais":"Costa Rica","ciudad":"El Tejar","technical_team":"Product","delivery":"","cargo":"Product Owner","total":1,"virtuales":1,"presenciales":0,"activo":1,"febrero":0,"marzo":1},{"nombre":"leidy franco","nombre_completo":"Leidy Dahiana Franco Rua","correo":"leidy.franco@alegra.com","pais":"Colombia","ciudad":"San Luis","technical_team":"Finance","delivery":"","cargo":"Accounting Leader","total":0,"virtuales":0,"presenciales":0,"activo":0,"febrero":0,"marzo":0},{"nombre":"juan burgos","nombre_completo":"Juan Daniel Burgos Rivero","correo":"juan.burgos@alegra.com","pais":"Colombia","ciudad":"Cereté","technical_team":"Data","delivery":"","cargo":"IT Leader","total":1,"virtuales":1,"presenciales":0,"activo":1,"febrero":0,"marzo":1},{"nombre":"german bruno","nombre_completo":"German Bruno Eichemberger","correo":"german.bruno@alegra.com","pais":"Argentina","ciudad":"Formosa","technical_team":"Developer","delivery":"","cargo":"Developer Leader","total":0,"virtuales":0,"presenciales":0,"activo":0,"febrero":0,"marzo":0},{"nombre":"amilcar coronado","nombre_completo":"Amilcar Jose Coronado Sosa","correo":"amilcar.coronado@alegra.com","pais":"Argentina","ciudad":"Buenos Aires","technical_team":"Developer","delivery":"","cargo":"Developer Leader","total":0,"virtuales":0,"presenciales":0,"activo":0,"febrero":0,"marzo":0},{"nombre":"diego cisneros","nombre_completo":"Diego Cisneros Justiniano","correo":"diego.cisneros@alegra.com","pais":"México","ciudad":"Cancún","technical_team":"Data","delivery":"","cargo":"Data Engineer Leader","total":0,"virtuales":0,"presenciales":0,"activo":0,"febrero":0,"marzo":0},{"nombre":"abraham martinez","nombre_completo":"Abraham Martinez Varela","correo":"abraham.martinez@alegra.com","pais":"Colombia","ciudad":"Santa Marta","technical_team":"Developer","delivery":"","cargo":"Developer","total":0,"virtuales":0,"presenciales":0,"activo":0,"febrero":0,"marzo":0},{"nombre":"franco oscar","nombre_completo":"Franco Oscar Cejudo","correo":"franco.oscar@alegra.com","pais":"Argentina","ciudad":"Funes","technical_team":"Finance","delivery":"","cargo":"Collection Data Leader","total":0,"virtuales":0,"presenciales":0,"activo":0,"febrero":0,"marzo":0},{"nombre":"dana becerra","nombre_completo":"Dana Alejandra Becerra Zambrano","correo":"dana.becerra@alegra.com","pais":"Colombia","ciudad":"Palmira","technical_team":"Revenue","delivery":"Growth","cargo":"Content Producer","total":1,"virtuales":1,"presenciales":0,"activo":1,"febrero":0,"marzo":1},{"nombre":"maria gomez","nombre_completo":"Maria Alejandra Gomez Zuluaga","correo":"alejandra.gomez@alegra.com","pais":"Colombia","ciudad":"Medellín","technical_team":"Product","delivery":"","cargo":"Product Owner","total":8,"virtuales":7,"presenciales":1,"activo":1,"febrero":4,"marzo":1},{"nombre":"haydee cabrera","nombre_completo":"Haydee Stephanie Cabrera Montero","correo":"haydee.cabrera@alegra.com","pais":"República Dominicana","ciudad":"Bani","technical_team":"Revenue","delivery":"Sales","cargo":"Team Leader","total":1,"virtuales":0,"presenciales":1,"activo":1,"febrero":1,"marzo":0},{"nombre":"gianluca osorio","nombre_completo":"Gianluca Luis Fernando Osorio Rojas","correo":"gianluca.osorio@alegra.com","pais":"Chile","ciudad":"Santiago de Chile","technical_team":"Product","delivery":"","cargo":"Product Manager","total":5,"virtuales":5,"presenciales":0,"activo":1,"febrero":3,"marzo":2},{"nombre":"alejandro alvarez","nombre_completo":"Alejandro Aguilar Alvarez Manilla","correo":"alejandro.aguilar@alegra.com","pais":"México","ciudad":"Estado de México","technical_team":"People","delivery":"","cargo":"Talent Acquisition Leader","total":1,"virtuales":0,"presenciales":1,"activo":1,"febrero":0,"marzo":1},{"nombre":"magda rios","nombre_completo":"Magda Patricia Rios Giraldo","correo":"magda.rios@alegra.com","pais":"Colombia","ciudad":"Envigado","technical_team":"Finance","delivery":"","cargo":"Head of Compliance","total":0,"virtuales":0,"presenciales":0,"activo":0,"febrero":0,"marzo":0},{"nombre":"cristian albornoz","nombre_completo":"Cristian Enrique Albornoz Arias","correo":"cristian.albornoz@alegra.com","pais":"Colombia","ciudad":"Cajicá","technical_team":"Revenue","delivery":"Growth","cargo":"Lead Nurturing Leader","total":1,"virtuales":1,"presenciales":0,"activo":1,"febrero":0,"marzo":1},{"nombre":"kelly franco","nombre_completo":"Kelly Tatiana Franco Rua","correo":"kelly.franco@alegra.com","pais":"Colombia","ciudad":"San Luis","technical_team":"Finance","delivery":"","cargo":"Head of Accounting & Taxes","total":0,"virtuales":0,"presenciales":0,"activo":0,"febrero":0,"marzo":0},{"nombre":"dayana rubiano","nombre_completo":"Dayana Milena Rubiano Gaitan","correo":"dayana.rubiano@alegra.com","pais":"Colombia","ciudad":"Tocancipá","technical_team":"Revenue","delivery":"Growth","cargo":"Paid Media Leader","total":0,"virtuales":0,"presenciales":0,"activo":0,"febrero":0,"marzo":0},{"nombre":"angélica gomez","nombre_completo":"Angélica Saray Gomez Guarapana","correo":"angélica.gomez@alegra.com","pais":"Venezuela","ciudad":"Puerto la Cruz","technical_team":"Developer","delivery":"","cargo":"Functional Tester","total":0,"virtuales":0,"presenciales":0,"activo":0,"febrero":0,"marzo":0},{"nombre":"manuel lozada","nombre_completo":"Manuel Alexis Lozada Enciso","correo":"manuel.lozada@alegra.com","pais":"Colombia","ciudad":"Medellín","technical_team":"Revenue","delivery":"Alanube","cargo":"General Manager","total":0,"virtuales":0,"presenciales":0,"activo":0,"febrero":0,"marzo":0},{"nombre":"laura garcia","nombre_completo":"Laura Valentina Garcia Murillo","correo":"laura.garcia@alegra.com","pais":"Colombia","ciudad":"Armenia","technical_team":"Revenue","delivery":"Growth","cargo":"Accountant Editor - Help Center Leader","total":0,"virtuales":0,"presenciales":0,"activo":0,"febrero":0,"marzo":0},{"nombre":"joan bocanegra","nombre_completo":"Joan Bocanegra Gutiérrez","correo":"joan.bocanegra@alegra.com","pais":"Colombia","ciudad":"Bogotá","technical_team":"Revenue","delivery":"Growth","cargo":"SEO Leader","total":0,"virtuales":0,"presenciales":0,"activo":0,"febrero":0,"marzo":0},{"nombre":"gabriela otero","nombre_completo":"Gabriela De Jesus Otero Alcala","correo":"gabriela.otero@alegra.com","pais":"Colombia","ciudad":"Cartagena de Indias","technical_team":"Finance","delivery":"","cargo":"Accounting Analyst","total":0,"virtuales":0,"presenciales":0,"activo":0,"febrero":0,"marzo":0},{"nombre":"jose montoya","nombre_completo":"Jose Danilo Montoya Patiño","correo":"jose.montoya@alegra.com","pais":"Colombia","ciudad":"Bogotá","technical_team":"Revenue","delivery":"Growth","cargo":"PR Leader","total":0,"virtuales":0,"presenciales":0,"activo":0,"febrero":0,"marzo":0},{"nombre":"agustín sebastian","nombre_completo":"Agustín Nicolás Sebastián Mair","correo":"agustín.sebastian@alegra.com","pais":"España","ciudad":"Madrid","technical_team":"Revenue","delivery":"Support","cargo":"Head of collection","total":0,"virtuales":0,"presenciales":0,"activo":0,"febrero":0,"marzo":0},{"nombre":"leonardo salazar","nombre_completo":"Leonardo Alexis Salazar Mittani","correo":"leonardo.salazar@alegra.com","pais":"Perú","ciudad":"Lima","technical_team":"Developer","delivery":"","cargo":"Developer Leader","total":0,"virtuales":0,"presenciales":0,"activo":0,"febrero":0,"marzo":0},{"nombre":"daniela villegas","nombre_completo":"Daniela Villegas Ceballos","correo":"daniela.villegas@alegra.com","pais":"Colombia","ciudad":"Medellín","technical_team":"Revenue","delivery":"Strategic Relasionships","cargo":"Academic Alliances Manager","total":2,"virtuales":1,"presenciales":1,"activo":1,"febrero":1,"marzo":0},{"nombre":"julián gastón","nombre_completo":"Julián Gastón Turini","correo":"julián.gastón@alegra.com","pais":"Argentina","ciudad":"Tres Arroyos","technical_team":"Data","delivery":"","cargo":"Pricing Leader","total":0,"virtuales":0,"presenciales":0,"activo":0,"febrero":0,"marzo":0},{"nombre":"carlos quispe","nombre_completo":"Carlos Rolando Quispe Quispe","correo":"carlos.quispe@alegra.com","pais":"Perú","ciudad":"Moquegua","technical_team":"Developer","delivery":"","cargo":"Developer","total":8,"virtuales":8,"presenciales":0,"activo":1,"febrero":8,"marzo":0},{"nombre":"juan arias","nombre_completo":"Juan Diego Arias Beltran","correo":"juan.arias@alegra.com","pais":"Colombia","ciudad":"Bogotá","technical_team":"Revenue","delivery":"Growth","cargo":"Creative Leader","total":0,"virtuales":0,"presenciales":0,"activo":0,"febrero":0,"marzo":0},{"nombre":"jose peinado","nombre_completo":"Jose Anibal Peinado Morelo","correo":"jose.peinado@alegra.com","pais":"Colombia","ciudad":"Cartagena de Indias","technical_team":"Product","delivery":"","cargo":"Product Owner","total":2,"virtuales":2,"presenciales":0,"activo":1,"febrero":0,"marzo":1},{"nombre":"maria alvarez","nombre_completo":"Maria Camila Alvarez Trujillo","correo":"maria.alvarez@alegra.com","pais":"Colombia","ciudad":"Envigado","technical_team":"Revenue","delivery":"Growth","cargo":"Courses Producer Leader","total":0,"virtuales":0,"presenciales":0,"activo":0,"febrero":0,"marzo":0},{"nombre":"santiago higuera","nombre_completo":"Santiago Higuera Torres","correo":"santiago.higuera@alegra.com","pais":"Colombia","ciudad":"Medellín","technical_team":"Product","delivery":"","cargo":"Product Owner","total":3,"virtuales":3,"presenciales":0,"activo":1,"febrero":0,"marzo":3},{"nombre":"ashel vasquez","nombre_completo":"Ashel Joseph Vasquez Palomino","correo":"ashel.vasquez@alegra.com","pais":"Perú","ciudad":"Lima","technical_team":"Developer","delivery":"","cargo":"Developer Leader","total":0,"virtuales":0,"presenciales":0,"activo":0,"febrero":0,"marzo":0},{"nombre":"carlos pichón","nombre_completo":"Carlos Julian Pichón Hernández","correo":"carlos.pichón@alegra.com","pais":"Colombia","ciudad":"Bogotá","technical_team":"Finance","delivery":"Finance","cargo":"Chief Financial Officer","total":0,"virtuales":0,"presenciales":0,"activo":0,"febrero":0,"marzo":0},{"nombre":"julian orrego","nombre_completo":"Julian Orrego Castañeda","correo":"julian.orrego@alegra.com","pais":"Colombia","ciudad":"Medellín","technical_team":"Product","delivery":"","cargo":"Product Owner","total":2,"virtuales":1,"presenciales":1,"activo":1,"febrero":0,"marzo":1},{"nombre":"santiago ramírez","nombre_completo":"Santiago Ramírez Niño","correo":"santiago.ramírez@alegra.com","pais":"Colombia","ciudad":"Bogotá","technical_team":"Data","delivery":"Data","cargo":"Business Intelligence Specialist","total":0,"virtuales":0,"presenciales":0,"activo":0,"febrero":0,"marzo":0},{"nombre":"santiago villegas","nombre_completo":"Santiago Villegas Giraldo","correo":"santiago.villegas@alegra.com","pais":"Colombia","ciudad":"Medellín","technical_team":"Developer","delivery":"","cargo":"CTO","total":0,"virtuales":0,"presenciales":0,"activo":0,"febrero":0,"marzo":0},{"nombre":"carlos sandoval","nombre_completo":"Carlos Eduardo Sandoval Calderon","correo":"carlos.sandoval@alegra.com","pais":"Colombia","ciudad":"Bogotá","technical_team":"Revenue","delivery":"Alanube","cargo":"Brand Amplification Leader","total":0,"virtuales":0,"presenciales":0,"activo":0,"febrero":0,"marzo":0},{"nombre":"luz hernandez","nombre_completo":"Luz Mallelys Hernandez Florez","correo":"luz.hernandez@alegra.com","pais":"Colombia","ciudad":"Montería","technical_team":"Revenue","delivery":"Growth","cargo":"Events Leader","total":0,"virtuales":0,"presenciales":0,"activo":0,"febrero":0,"marzo":0},{"nombre":"francisco mendy","nombre_completo":"Francisco Mendy","correo":"francisco.mendy@alegra.com","pais":"Argentina","ciudad":"San Isidro","technical_team":"People","delivery":"","cargo":"Formation Leader","total":0,"virtuales":0,"presenciales":0,"activo":0,"febrero":0,"marzo":0},{"nombre":"carolina uriola","nombre_completo":"Carolina Del Carmen Uriola Niebles","correo":"carolina.uriola@alegra.com","pais":"Venezuela","ciudad":"El Marqués","technical_team":"People","delivery":"","cargo":"Talent Acquisition Leader","total":0,"virtuales":0,"presenciales":0,"activo":0,"febrero":0,"marzo":0},{"nombre":"pablo rios","nombre_completo":"Pablo Rios Peña","correo":"pablo.rios@alegra.com","pais":"Sin asignar","ciudad":"La Ceja","technical_team":"Product","delivery":"","cargo":"Product Manager","total":6,"virtuales":6,"presenciales":0,"activo":1,"febrero":4,"marzo":2},{"nombre":"luis romero","nombre_completo":"Luis Enrique Romero Gonzalez","correo":"luis.romero@alegra.com","pais":"Venezuela","ciudad":"Ojeda","technical_team":"Developer","delivery":"","cargo":"Developer","total":0,"virtuales":0,"presenciales":0,"activo":0,"febrero":0,"marzo":0}];
+const EV = [{"name":"Jennifer Queque","count":15},{"name":"David Sanchez","count":14},{"name":"Andres Campo","count":11},{"name":"Dbedoya","count":10},{"name":"Kellynr","count":10},{"name":"Camila Becerra","count":10},{"name":"Camilo Bermeo","count":10},{"name":"Marina Bensusan","count":10},{"name":"Juandavid Salazar","count":9},{"name":"Alejandra Gomez","count":8},{"name":"Abraham Garcia","count":8},{"name":"Juan Alvarez","count":8},{"name":"Deiby Rayo","count":8},{"name":"Carlos Quispe","count":8},{"name":"Miguel Buritica","count":8},{"name":"Pablo Rios","count":6},{"name":"Alejandra Arciniegas","count":6},{"name":"Andres Torres","count":6},{"name":"Gianluca Osorio","count":5},{"name":"Young Rubio","count":5},{"name":"Hugo Urrea","count":5},{"name":"Hillary Cuervo","count":5},{"name":"Yobana Ardila","count":5},{"name":"Alberto Robles","count":5},{"name":"Getsemani Castillo","count":5},{"name":"Alejandro Montealegre","count":5},{"name":"Oscar Gonzalez","count":5},{"name":"Paola Moreno","count":5},{"name":"Javiera Cerpa","count":4},{"name":"Isabel Jaramillo","count":4},{"name":"Agustin Mair","count":4},{"name":"Cristian Guerrero","count":4},{"name":"Santiago Higuera","count":3},{"name":"Muriel Trujillo","count":3},{"name":"Ana Aponte","count":3},{"name":"Cristina Barrales","count":3},{"name":"Paula Tkaczuk","count":3},{"name":"Ralfin Restrepo","count":3},{"name":"Daniel Medina","count":3},{"name":"Mariana Luna","count":3},{"name":"Edgar Castellanos","count":2},{"name":"Stefany Bonilla","count":2},{"name":"Richard Garcia","count":2},{"name":"Anyi Cardozo","count":2},{"name":"Deisy Mayo","count":2},{"name":"Jose Peinado","count":2},{"name":"Isabel Londono","count":2},{"name":"Julian Orrego","count":2},{"name":"Daniela Amado","count":2},{"name":"Andres Orozco","count":2},{"name":"Carmen Leyva","count":2},{"name":"Daniela Yepes","count":2},{"name":"Santiago Delacruz","count":2},{"name":"Yasmin Alcantara","count":2},{"name":"Leonardo Guerra","count":2},{"name":"Henry Ceballos","count":2},{"name":"Juan Lopez","count":2},{"name":"Daniela Villegas","count":2},{"name":"Juliana Restrepo","count":2},{"name":"Sofia Gutierrez","count":2},{"name":"Alejandro Aguilar","count":1},{"name":"Ibsen Herreno","count":1},{"name":"Bryan Lebro","count":1},{"name":"Luis Caro","count":1},{"name":"Juan Montero","count":1},{"name":"Jahzeel Cordero","count":1},{"name":"Cristian Albornoz","count":1},{"name":"Saidy Carrion","count":1},{"name":"Sebastian","count":1},{"name":"Juan Burgos","count":1},{"name":"Dana Becerra","count":1},{"name":"Renzo Avalos","count":1},{"name":"Jakub Roubal","count":1},{"name":"Lizeth Florez","count":1},{"name":"Clarey Vanegas","count":1},{"name":"Mariapaula Morales","count":1},{"name":"Haydee Cabrera","count":1},{"name":"Karen Canas","count":1},{"name":"Tatiana Guzman","count":1},{"name":"Maryi Ramirez","count":1},{"name":"Camilo Ramos","count":1},{"name":"Sebastian Baez","count":1},{"name":"Daniel Galeano","count":1},{"name":"Felipe Varon","count":1},{"name":"Gabriel Ramirezmora","count":1},{"name":"Yohana Munoz","count":1},{"name":"Gerardo Castro","count":1},{"name":"Sandra Herrera","count":1},{"name":"Kevin Lupera","count":1},{"name":"Moises Alvarenga","count":1},{"name":"Irvis Ozuna","count":1}];
+const INS = {"highlights":[{"text":"Facilidad de uso de la plataforma respecto a competencia","count":18,"categoria":"UX","companies":[{"empresa":"DIEGO FERNANDO BARRETO PIRATEQUE","link":"https://docs.google.com/document/d/1v1boTVOgzwFkc0aI2tjMG5ArK2_KVAtJNFwIrso1uvw/edit?tab=t.vy4pit5mdqka","plan":"Plan Pyme","icp":"Core","id":"2196473.0"},{"empresa":"A3 LABORATORIO CLINICO VETERINARIO SAS","link":"https://docs.google.com/document/d/1IK9ePu7Cey-aLoRt8rgAI_ZMIhyg5lQG41a_Lmga3NU/edit?tab=t.og7149owyqzr","plan":"Plan Plus","icp":"Core","id":"2191327.0"},{"empresa":"EDALEZ SAS","link":"https://docs.google.com/document/d/1M134xZ-B0zv7ayRXFYcgKfvzzQr9OEjOau84gB0RlN0/edit?tab=t.jyjo32p424j7","plan":"Plan Plus","icp":"Core","id":"326498.0"},{"empresa":"FRESCO ANC, SRL.","link":"https://docs.google.com/document/d/1lfpgWz8HosTvncaqRQ28CZMN_EbzvSmjIFGNVErdBLY/edit?tab=t.bsjuexhvo6ov","plan":"Plan Pro","icp":"Core","id":"1026671.0"},{"empresa":"KAGILI,SRL","link":"https://docs.google.com/document/d/1ON7Egb61NM8mqLXPZCi9kEDA-m0KqS33GVatJUml5Bw/edit?usp=meet_tnfm_calendar","plan":"Plan Pyme","icp":"Core","id":"1497243.0"},{"empresa":"PAL HORNO BY LOZADA SRL","link":"https://docs.google.com/document/d/1LaPJ-1uvAUlPqB9Droukmf9umjq0lgUfV44Tp6fPywo/edit?tab=t.ut2xl7axsz02","plan":"Plan Emprendedor","icp":"Core","id":"462772.0"}],"quote":"La plataforma es mucho más intuitiva que el sistema anterior, mi equipo la adoptó sin capacitación."},{"text":"Rapidez en soporte y atención al cliente","count":14,"categoria":"Soporte","companies":[{"empresa":"ZU EVENTOS ELISA UCROS","link":"https://docs.google.com/document/d/1K1jMkFpVztFDyypyO93coBYQtwJLfS823R_uPJZqdss/edit?tab=t.8s7lvlu8dg4","plan":"Plan Pro","icp":"Lite","id":"252220.0"},{"empresa":"A3 LABORATORIO CLINICO VETERINARIO SAS","link":"https://docs.google.com/document/d/1IK9ePu7Cey-aLoRt8rgAI_ZMIhyg5lQG41a_Lmga3NU/edit?tab=t.og7149owyqzr","plan":"Plan Plus","icp":"Core","id":"2191327.0"},{"empresa":"Carlos Tamayo","link":"https://docs.google.com/document/d/1mktqAzUTDrgeEtrHpLb4WzRt6KnVuBwbTBwPzifA1yo/edit?tab=t.qbdxa0cymrvy","plan":"Contador","icp":"Contador","id":"Carlos Tamayo"},{"empresa":"EDALEZ SAS","link":"https://docs.google.com/document/d/1M134xZ-B0zv7ayRXFYcgKfvzzQr9OEjOau84gB0RlN0/edit?tab=t.jyjo32p424j7","plan":"Plan Plus","icp":"Core","id":"326498.0"},{"empresa":"FRESCO ANC, SRL.","link":"https://docs.google.com/document/d/1lfpgWz8HosTvncaqRQ28CZMN_EbzvSmjIFGNVErdBLY/edit?tab=t.bsjuexhvo6ov","plan":"Plan Pro","icp":"Core","id":"1026671.0"},{"empresa":"KAGILI,SRL","link":"https://docs.google.com/document/d/1ON7Egb61NM8mqLXPZCi9kEDA-m0KqS33GVatJUml5Bw/edit?usp=meet_tnfm_calendar","plan":"Plan Pyme","icp":"Core","id":"1497243.0"}],"quote":"Cada vez que tenemos un problema, el soporte responde en minutos. Eso nos da tranquilidad."},{"text":"Integración bancaria funciona muy bien","count":11,"categoria":"Bancos","companies":[{"empresa":"SUPER BRILLO DIAZ SAS","link":"https://docs.google.com/document/d/1O9qHeh5IvLkZIRchTER7NS7ZUXmYqrsoFuLsKzh0KVE/edit?usp=meet_tnfm_calendar","plan":"Plan Pro","icp":"Lite","id":"2207742.0"},{"empresa":"Carolina Salamanca","link":"https://docs.google.com/document/d/1R6_KH-PUZ6xkj27CE8Z36XqQN1jWVKjtsvR5uqEOdxA/edit?tab=t.dtp1jx4ogjux","plan":"Plan Premium","icp":"Contador","id":"684541.0"},{"empresa":"ZU EVENTOS ELISA UCROS","link":"https://docs.google.com/document/d/1K1jMkFpVztFDyypyO93coBYQtwJLfS823R_uPJZqdss/edit?tab=t.8s7lvlu8dg4","plan":"Plan Pro","icp":"Lite","id":"252220.0"},{"empresa":"A3 LABORATORIO CLINICO VETERINARIO SAS","link":"https://docs.google.com/document/d/1IK9ePu7Cey-aLoRt8rgAI_ZMIhyg5lQG41a_Lmga3NU/edit?tab=t.og7149owyqzr","plan":"Plan Plus","icp":"Core","id":"2191327.0"},{"empresa":"EDALEZ SAS","link":"https://docs.google.com/document/d/1M134xZ-B0zv7ayRXFYcgKfvzzQr9OEjOau84gB0RlN0/edit?tab=t.jyjo32p424j7","plan":"Plan Plus","icp":"Core","id":"326498.0"}],"quote":"La conciliación bancaria automática nos ahorra horas cada semana."},{"text":"La facturación electrónica ahorra tiempo","count":9,"categoria":"Reportes","companies":[{"empresa":"DIEGO FERNANDO BARRETO PIRATEQUE","link":"https://docs.google.com/document/d/1v1boTVOgzwFkc0aI2tjMG5ArK2_KVAtJNFwIrso1uvw/edit?tab=t.vy4pit5mdqka","plan":"Plan Pyme","icp":"Core","id":"2196473.0"},{"empresa":"A3 LABORATORIO CLINICO VETERINARIO SAS","link":"https://docs.google.com/document/d/1IK9ePu7Cey-aLoRt8rgAI_ZMIhyg5lQG41a_Lmga3NU/edit?tab=t.og7149owyqzr","plan":"Plan Plus","icp":"Core","id":"2191327.0"},{"empresa":"EDALEZ SAS","link":"https://docs.google.com/document/d/1M134xZ-B0zv7ayRXFYcgKfvzzQr9OEjOau84gB0RlN0/edit?tab=t.jyjo32p424j7","plan":"Plan Plus","icp":"Core","id":"326498.0"},{"empresa":"KAGILI,SRL","link":"https://docs.google.com/document/d/1ON7Egb61NM8mqLXPZCi9kEDA-m0KqS33GVatJUml5Bw/edit?usp=meet_tnfm_calendar","plan":"Plan Pyme","icp":"Core","id":"1497243.0"},{"empresa":"HSEC INNOVATION","link":"https://docs.google.com/document/d/1W-RTYp5yDTlW_oS6jZ3ozY0u_UBiSMTg2vsT5-ogsC8/edit?usp=meet_tnfm_email&urp=gmail_link","plan":"Plan Plus","icp":"Core","id":"272286.0"}],"quote":"Antes tardábamos dos días en facturar, ahora lo hacemos en horas con Alegra."},{"text":"App móvil muy práctica para consultas rápidas","count":8,"categoria":"App","companies":[{"empresa":"LILIA ANGELICA CARDOZO LEAL","link":"https://docs.google.com/document/d/1L9uFKAuJpddyMBBMHYOwtJXgT24rNND6-i4zx78y7pc/edit?tab=t.mvazkssucq9e","plan":"Contador","icp":"Contador","id":"1390775.0"},{"empresa":"PAL HORNO BY LOZADA SRL","link":"https://docs.google.com/document/d/1LaPJ-1uvAUlPqB9Droukmf9umjq0lgUfV44Tp6fPywo/edit?tab=t.ut2xl7axsz02","plan":"Plan Emprendedor","icp":"Core","id":"462772.0"},{"empresa":"SERVICIOS INTEGRALES LANDIN","link":"https://www.notion.so/alegraweb/Mariana-Landin-25584de535dc4977889b53c0d8049b0d","plan":"Contador","icp":"Supercontador","id":"2165779.0"},{"empresa":"Elpidio Flores Ortiz","link":"https://www.notion.so/alegraweb/Elpidio-30a55f93676580ec8399fef96829e9a9","plan":"MultiRFC Contador","icp":"Supercontador","id":"1078385.0"},{"empresa":"HSEC INNOVATION","link":"https://docs.google.com/document/d/1W-RTYp5yDTlW_oS6jZ3ozY0u_UBiSMTg2vsT5-ogsC8/edit?usp=meet_tnfm_email&urp=gmail_link","plan":"Plan Plus","icp":"Core","id":"272286.0"},{"empresa":"REDUCOL","link":"https://docs.google.com/document/d/18SJr1wd2OH7CH2dt12cCfOVfo8o5ogKhLd6zn4iN2_c/edit?tab=t.1lp6fgzak4b0","plan":"Plan Premium","icp":"Core","id":"1962386.0"}],"quote":"Puedo revisar el estado de mis cobros desde el celular en cualquier momento."},{"text":"Precio competitivo versus otras soluciones","count":7,"categoria":"Otros","companies":[{"empresa":"SAMUEL RENDON S.A.S","link":"https://docs.google.com/document/d/1GLpJtAQsJmOzY00FttuaOrDlzvY_p76W1kP8AxG9gZs/edit?tab=t.4k2omjxdk5on","plan":"Plan Plus","icp":"Core","id":"59847.0"},{"empresa":"TRANSPORTES Y GRUAS H & O","link":"https://docs.google.com/document/d/1cFYoJ0q0PqeUTxbrd1e9Xu3VCX5gK_KZc6QuPR0UAG8/edit?usp=meet_tnfm_email&urp=gmail_link","plan":"Plan Plus","icp":"Core","id":"1685950.0"},{"empresa":"JEMM DAHIANA ARENIS","link":"https://docs.google.com/document/d/1RylbHmrO5vLpClxlwDYhLFGn1qKsJ6oSzfXB8xT5QZk/edit?usp=meet_tnfm_email&urp=gmail_link","plan":"Plan Pyme","icp":"Core","id":"2038312.0"},{"empresa":"PROVEEDOR INDUSTRIAL DE COLOMBIA","link":"https://docs.google.com/document/d/1iQaaXMuoD3eXNXPCQVvCuS390YSYjaLrJl_ieTenRV4/edit?usp=meet_tnfm_email&urp=gmail_link","plan":"Plan Pro","icp":"Core","id":"187349.0"},{"empresa":"2M CREACIONES EN TELAS & AZAHAR SRL","link":"https://docs.google.com/document/d/1faLZFtlwr1QfKAIHpd2PiKWIssXdS7j5F_sLJQ_kddM/edit?usp=meet_tnfm_email&urp=gmail_link","plan":"Plan Pro","icp":"Core","id":"2188210.0"},{"empresa":"SERVICIOS HIDRÁULICOS DIÉSEL Y TECNOLOGÍA SAS","link":"https://docs.google.com/document/d/1G90yjM3NrwT87WCSRgH0ZcZVRX6yb3QhEUtcfj8q3XM/edit?usp=meet_tnfm_email&urp=gmail_link","plan":"Plan Pro","icp":"Core","id":"1471875.0"}],"quote":"Por el precio que pagamos, la funcionalidad que ofrece Alegra es imbatible."},{"text":"Actualizaciones frecuentes alineadas a regulación local","count":6,"categoria":"Reportes","companies":[{"empresa":"3 EVENTOS S.A.S","link":"https://docs.google.com/document/d/1KQM7Ju26g5jIeKRpTv4p6j-uKXAXwlOurnN8okNfCQU/edit?tab=t.g3vhfsv2ozm","plan":"Plan Plus","icp":"Core","id":"1713186.0"},{"empresa":"DistriDago S.A.S.","link":"https://docs.google.com/document/d/1z90Gu1t2aTk9AKMHtxtKSt1maTSi_MNhXJZeLhTFpdY/edit?tab=t.sliof5dp3lhj","plan":"Plan Pro","icp":"Core","id":"314536.0"},{"empresa":"EDUARDO LINARES RAMIREZ","link":"https://docs.google.com/document/d/1wBpo1ddz2lctru7Vrt-9kfwoUjyps4ndlBGlPp-iO50/edit?tab=t.u1a298i5r15c","plan":"Plan Pro","icp":"Core","id":"1647965.0"},{"empresa":"Maria Elena Martinez Salazar","link":"https://docs.google.com/document/d/1uGemPNEsM2V5ecnP1Pvs-HAG6C1_lsjvbF8zb9O26aM/edit?tab=t.6outf8r2g8s1","plan":"Plan Plus","icp":"Lite","id":"1788003.0"},{"empresa":"Pura Prote SRL","link":"https://docs.google.com/document/d/1M6AabXVB32wjcfhF6CnP41xbc3RnD9-OxjwSoyp3ISU/edit?tab=t.nvzxtyve05vu","plan":"Plan Plus","icp":"Core","id":"2127790.0"},{"empresa":"Adrian de la Cruz","link":"https://docs.google.com/document/d/1N3J64XLXjv0QlGgrujC31qCguk-5lNz2JdSxCTPvQ1g/edit?tab=t.0","plan":"Multicuenta Contador","icp":"Contador","id":"adriand@andujarasociados.com"}],"quote":"Alegra siempre actualiza antes de que los cambios regulatorios entren en vigor."}],"lowlights":[{"text":"Curva de aprendizaje alta para usuarios nuevos","count":15,"categoria":"UX","companies":[{"empresa":"SUPER BRILLO DIAZ SAS","link":"https://docs.google.com/document/d/1O9qHeh5IvLkZIRchTER7NS7ZUXmYqrsoFuLsKzh0KVE/edit?usp=meet_tnfm_calendar","plan":"Plan Pro","icp":"Lite","id":"2207742.0"},{"empresa":"MARISOL RAMIREZ","link":"https://docs.google.com/document/d/1TEaz6863UWXKn3uw7smA4nQzE1fuOGt6UFJulYgLrZ4/edit?usp=meet_tnfm_calendar","plan":"Plan Consulta","icp":"Lite","id":"2211619.0"},{"empresa":"Carolina Salamanca","link":"https://docs.google.com/document/d/1R6_KH-PUZ6xkj27CE8Z36XqQN1jWVKjtsvR5uqEOdxA/edit?tab=t.dtp1jx4ogjux","plan":"Plan Premium","icp":"Contador","id":"684541.0"},{"empresa":"DIEGO FERNANDO BARRETO PIRATEQUE","link":"https://docs.google.com/document/d/1v1boTVOgzwFkc0aI2tjMG5ArK2_KVAtJNFwIrso1uvw/edit?tab=t.vy4pit5mdqka","plan":"Plan Pyme","icp":"Core","id":"2196473.0"},{"empresa":"Tatina Merchan","link":"https://docs.google.com/document/d/18a1zq2QCnKM2BkexfLaG2JsWEvk_4mXPHij3K-72dkE/edit?usp=meet_tnfm_calendar","plan":"Contador","icp":"Contador","id":"1819336.0"}],"quote":"Me costó mucho al principio, necesité apoyo constante del equipo de soporte para entender los módulos básicos."},{"text":"Lentitud en módulo de reportes con muchos datos","count":12,"categoria":"Reportes","companies":[{"empresa":"SALUD FISCAL Y PATRIMONIAL","link":"https://docs.google.com/document/d/16Vy1GprVXnNG92lVNVLmbodr3lYXnAESFL0hMw1T8zY/edit?tab=t.ciy4ktk6vqoe","plan":"MultiRFC Contador","icp":"MultiRFC","id":"2042305.0"},{"empresa":"ZU EVENTOS ELISA UCROS","link":"https://docs.google.com/document/d/1K1jMkFpVztFDyypyO93coBYQtwJLfS823R_uPJZqdss/edit?tab=t.8s7lvlu8dg4","plan":"Plan Pro","icp":"Lite","id":"252220.0"},{"empresa":"A3 LABORATORIO CLINICO VETERINARIO SAS","link":"https://docs.google.com/document/d/1IK9ePu7Cey-aLoRt8rgAI_ZMIhyg5lQG41a_Lmga3NU/edit?tab=t.og7149owyqzr","plan":"Plan Plus","icp":"Core","id":"2191327.0"},{"empresa":"Carlos Tamayo","link":"https://docs.google.com/document/d/1mktqAzUTDrgeEtrHpLb4WzRt6KnVuBwbTBwPzifA1yo/edit?tab=t.qbdxa0cymrvy","plan":"Contador","icp":"Contador","id":"Carlos Tamayo"},{"empresa":"EDALEZ SAS","link":"https://docs.google.com/document/d/1M134xZ-B0zv7ayRXFYcgKfvzzQr9OEjOau84gB0RlN0/edit?tab=t.jyjo32p424j7","plan":"Plan Plus","icp":"Core","id":"326498.0"}],"quote":"Cuando genero reportes de varios meses, el sistema se demora demasiado. Con más de 500 registros se vuelve lento."},{"text":"Falta integración con plataformas de e-commerce locales","count":10,"categoria":"Integraciones","companies":[{"empresa":"FRESCO ANC, SRL.","link":"https://docs.google.com/document/d/1lfpgWz8HosTvncaqRQ28CZMN_EbzvSmjIFGNVErdBLY/edit?tab=t.bsjuexhvo6ov","plan":"Plan Pro","icp":"Core","id":"1026671.0"},{"empresa":"KAGILI,SRL","link":"https://docs.google.com/document/d/1ON7Egb61NM8mqLXPZCi9kEDA-m0KqS33GVatJUml5Bw/edit?usp=meet_tnfm_calendar","plan":"Plan Pyme","icp":"Core","id":"1497243.0"},{"empresa":"LILIA ANGELICA CARDOZO LEAL","link":"https://docs.google.com/document/d/1L9uFKAuJpddyMBBMHYOwtJXgT24rNND6-i4zx78y7pc/edit?tab=t.mvazkssucq9e","plan":"Contador","icp":"Contador","id":"1390775.0"},{"empresa":"PAL HORNO BY LOZADA SRL","link":"https://docs.google.com/document/d/1LaPJ-1uvAUlPqB9Droukmf9umjq0lgUfV44Tp6fPywo/edit?tab=t.ut2xl7axsz02","plan":"Plan Emprendedor","icp":"Core","id":"462772.0"},{"empresa":"SERVICIOS INTEGRALES LANDIN","link":"https://www.notion.so/alegraweb/Mariana-Landin-25584de535dc4977889b53c0d8049b0d","plan":"Contador","icp":"Supercontador","id":"2165779.0"}],"quote":"Tenemos ventas en Mercado Libre y no hay forma de sincronizar automáticamente. Tocá hacerlo manual."},{"text":"Soporte técnico tarda en resolver tickets complejos","count":9,"categoria":"Soporte","companies":[{"empresa":"Elpidio Flores Ortiz","link":"https://www.notion.so/alegraweb/Elpidio-30a55f93676580ec8399fef96829e9a9","plan":"MultiRFC Contador","icp":"Supercontador","id":"1078385.0"},{"empresa":"HSEC INNOVATION","link":"https://docs.google.com/document/d/1W-RTYp5yDTlW_oS6jZ3ozY0u_UBiSMTg2vsT5-ogsC8/edit?usp=meet_tnfm_email&urp=gmail_link","plan":"Plan Plus","icp":"Core","id":"272286.0"},{"empresa":"REDUCOL","link":"https://docs.google.com/document/d/18SJr1wd2OH7CH2dt12cCfOVfo8o5ogKhLd6zn4iN2_c/edit?tab=t.1lp6fgzak4b0","plan":"Plan Premium","icp":"Core","id":"1962386.0"},{"empresa":"SAMUEL RENDON S.A.S","link":"https://docs.google.com/document/d/1GLpJtAQsJmOzY00FttuaOrDlzvY_p76W1kP8AxG9gZs/edit?tab=t.4k2omjxdk5on","plan":"Plan Plus","icp":"Core","id":"59847.0"},{"empresa":"TRANSPORTES Y GRUAS H & O","link":"https://docs.google.com/document/d/1cFYoJ0q0PqeUTxbrd1e9Xu3VCX5gK_KZc6QuPR0UAG8/edit?usp=meet_tnfm_email&urp=gmail_link","plan":"Plan Plus","icp":"Core","id":"1685950.0"}],"quote":"Los casos simples los resuelven rápido, pero cuando el problema es más técnico puede pasar una semana sin respuesta."},{"text":"App móvil tiene funciones limitadas vs web","count":7,"categoria":"App","companies":[{"empresa":"JEMM DAHIANA ARENIS","link":"https://docs.google.com/document/d/1RylbHmrO5vLpClxlwDYhLFGn1qKsJ6oSzfXB8xT5QZk/edit?usp=meet_tnfm_email&urp=gmail_link","plan":"Plan Pyme","icp":"Core","id":"2038312.0"},{"empresa":"PROVEEDOR INDUSTRIAL DE COLOMBIA","link":"https://docs.google.com/document/d/1iQaaXMuoD3eXNXPCQVvCuS390YSYjaLrJl_ieTenRV4/edit?usp=meet_tnfm_email&urp=gmail_link","plan":"Plan Pro","icp":"Core","id":"187349.0"},{"empresa":"2M CREACIONES EN TELAS & AZAHAR SRL","link":"https://docs.google.com/document/d/1faLZFtlwr1QfKAIHpd2PiKWIssXdS7j5F_sLJQ_kddM/edit?usp=meet_tnfm_email&urp=gmail_link","plan":"Plan Pro","icp":"Core","id":"2188210.0"},{"empresa":"SERVICIOS HIDRÁULICOS DIÉSEL Y TECNOLOGÍA SAS","link":"https://docs.google.com/document/d/1G90yjM3NrwT87WCSRgH0ZcZVRX6yb3QhEUtcfj8q3XM/edit?usp=meet_tnfm_email&urp=gmail_link","plan":"Plan Pro","icp":"Core","id":"1471875.0"},{"empresa":"3 EVENTOS S.A.S","link":"https://docs.google.com/document/d/1KQM7Ju26g5jIeKRpTv4p6j-uKXAXwlOurnN8okNfCQU/edit?tab=t.g3vhfsv2ozm","plan":"Plan Plus","icp":"Core","id":"1713186.0"}],"quote":"Desde el celular no puedo hacer el mismo trabajo que en el computador. Falta que la app tenga más funciones."},{"text":"Proceso de onboarding poco guiado","count":6,"categoria":"UX","companies":[{"empresa":"DistriDago S.A.S.","link":"https://docs.google.com/document/d/1z90Gu1t2aTk9AKMHtxtKSt1maTSi_MNhXJZeLhTFpdY/edit?tab=t.sliof5dp3lhj","plan":"Plan Pro","icp":"Core","id":"314536.0"},{"empresa":"EDUARDO LINARES RAMIREZ","link":"https://docs.google.com/document/d/1wBpo1ddz2lctru7Vrt-9kfwoUjyps4ndlBGlPp-iO50/edit?tab=t.u1a298i5r15c","plan":"Plan Pro","icp":"Core","id":"1647965.0"},{"empresa":"Maria Elena Martinez Salazar","link":"https://docs.google.com/document/d/1uGemPNEsM2V5ecnP1Pvs-HAG6C1_lsjvbF8zb9O26aM/edit?tab=t.6outf8r2g8s1","plan":"Plan Plus","icp":"Lite","id":"1788003.0"},{"empresa":"Pura Prote SRL","link":"https://docs.google.com/document/d/1M6AabXVB32wjcfhF6CnP41xbc3RnD9-OxjwSoyp3ISU/edit?tab=t.nvzxtyve05vu","plan":"Plan Plus","icp":"Core","id":"2127790.0"},{"empresa":"Adrian de la Cruz","link":"https://docs.google.com/document/d/1N3J64XLXjv0QlGgrujC31qCguk-5lNz2JdSxCTPvQ1g/edit?tab=t.0","plan":"Multicuenta Contador","icp":"Contador","id":"adriand@andujarasociados.com"}],"quote":"Cuando empecé no sabía por dónde arrancar. No hay una guía paso a paso que me diga qué configurar primero."}],"bugs":[{"title":"Error en conciliación bancaria","desc":"Al importar extracto bancario, movimientos no reconocen código de referencia y quedan sin conciliar. Afecta múltiples bancos en Colombia.","categoria":"Bancos","severity":"Alta","status":"pendiente","reportes":8,"companies":[{"empresa":"SUPER BRILLO DIAZ SAS","link":"https://docs.google.com/document/d/1O9qHeh5IvLkZIRchTER7NS7ZUXmYqrsoFuLsKzh0KVE/edit?usp=meet_tnfm_calendar","plan":"Plan Pro","icp":"Lite","id":"2207742.0"},{"empresa":"Carolina Salamanca","link":"https://docs.google.com/document/d/1R6_KH-PUZ6xkj27CE8Z36XqQN1jWVKjtsvR5uqEOdxA/edit?tab=t.dtp1jx4ogjux","plan":"Plan Premium","icp":"Contador","id":"684541.0"},{"empresa":"ZU EVENTOS ELISA UCROS","link":"https://docs.google.com/document/d/1K1jMkFpVztFDyypyO93coBYQtwJLfS823R_uPJZqdss/edit?tab=t.8s7lvlu8dg4","plan":"Plan Pro","icp":"Lite","id":"252220.0"},{"empresa":"A3 LABORATORIO CLINICO VETERINARIO SAS","link":"https://docs.google.com/document/d/1IK9ePu7Cey-aLoRt8rgAI_ZMIhyg5lQG41a_Lmga3NU/edit?tab=t.og7149owyqzr","plan":"Plan Plus","icp":"Core","id":"2191327.0"},{"empresa":"EDALEZ SAS","link":"https://docs.google.com/document/d/1M134xZ-B0zv7ayRXFYcgKfvzzQr9OEjOau84gB0RlN0/edit?tab=t.jyjo32p424j7","plan":"Plan Plus","icp":"Core","id":"326498.0"}]},{"title":"Falla en facturación electrónica","desc":"En Colombia, facturas con notas de crédito parciales generan error de validación DIAN en planes Plus y Pro.","categoria":"Reportes","severity":"Alta","status":"pendiente","reportes":6,"companies":[{"empresa":"Carolina Salamanca","link":"https://docs.google.com/document/d/1R6_KH-PUZ6xkj27CE8Z36XqQN1jWVKjtsvR5uqEOdxA/edit?tab=t.dtp1jx4ogjux","plan":"Plan Premium","icp":"Contador","id":"684541.0"},{"empresa":"ZU EVENTOS ELISA UCROS","link":"https://docs.google.com/document/d/1K1jMkFpVztFDyypyO93coBYQtwJLfS823R_uPJZqdss/edit?tab=t.8s7lvlu8dg4","plan":"Plan Pro","icp":"Lite","id":"252220.0"},{"empresa":"A3 LABORATORIO CLINICO VETERINARIO SAS","link":"https://docs.google.com/document/d/1IK9ePu7Cey-aLoRt8rgAI_ZMIhyg5lQG41a_Lmga3NU/edit?tab=t.og7149owyqzr","plan":"Plan Plus","icp":"Core","id":"2191327.0"},{"empresa":"EDALEZ SAS","link":"https://docs.google.com/document/d/1M134xZ-B0zv7ayRXFYcgKfvzzQr9OEjOau84gB0RlN0/edit?tab=t.jyjo32p424j7","plan":"Plan Plus","icp":"Core","id":"326498.0"}]},{"title":"Sincronización app móvil","desc":"Movimientos de caja registrados en app no se reflejan en tiempo real en la versión web. Requiere recarga manual.","categoria":"App","severity":"Media","status":"pendiente","reportes":5,"companies":[{"empresa":"DIEGO FERNANDO BARRETO PIRATEQUE","link":"https://docs.google.com/document/d/1v1boTVOgzwFkc0aI2tjMG5ArK2_KVAtJNFwIrso1uvw/edit?tab=t.vy4pit5mdqka","plan":"Plan Pyme","icp":"Core","id":"2196473.0"},{"empresa":"A3 LABORATORIO CLINICO VETERINARIO SAS","link":"https://docs.google.com/document/d/1IK9ePu7Cey-aLoRt8rgAI_ZMIhyg5lQG41a_Lmga3NU/edit?tab=t.og7149owyqzr","plan":"Plan Plus","icp":"Core","id":"2191327.0"},{"empresa":"EDALEZ SAS","link":"https://docs.google.com/document/d/1M134xZ-B0zv7ayRXFYcgKfvzzQr9OEjOau84gB0RlN0/edit?tab=t.jyjo32p424j7","plan":"Plan Plus","icp":"Core","id":"326498.0"},{"empresa":"FRESCO ANC, SRL.","link":"https://docs.google.com/document/d/1lfpgWz8HosTvncaqRQ28CZMN_EbzvSmjIFGNVErdBLY/edit?tab=t.bsjuexhvo6ov","plan":"Plan Pro","icp":"Core","id":"1026671.0"}]},{"title":"Bug en nómina Venezuela","desc":"Cálculo de bonificaciones no considera tipo de cambio actualizado, generando descuadre en recibo de pago.","categoria":"Reportes","severity":"Alta","status":"pendiente","reportes":4,"companies":[{"empresa":"DIEGO FERNANDO BARRETO PIRATEQUE","link":"https://docs.google.com/document/d/1v1boTVOgzwFkc0aI2tjMG5ArK2_KVAtJNFwIrso1uvw/edit?tab=t.vy4pit5mdqka","plan":"Plan Pyme","icp":"Core","id":"2196473.0"},{"empresa":"KAGILI,SRL","link":"https://docs.google.com/document/d/1ON7Egb61NM8mqLXPZCi9kEDA-m0KqS33GVatJUml5Bw/edit?usp=meet_tnfm_calendar","plan":"Plan Pyme","icp":"Core","id":"1497243.0"},{"empresa":"JEMM DAHIANA ARENIS","link":"https://docs.google.com/document/d/1RylbHmrO5vLpClxlwDYhLFGn1qKsJ6oSzfXB8xT5QZk/edit?usp=meet_tnfm_email&urp=gmail_link","plan":"Plan Pyme","icp":"Core","id":"2038312.0"}]},{"title":"Error en módulo POS","desc":"Al aplicar descuentos en porcentaje sobre productos con precio variable, el redondeo genera diferencias de 1-2 centavos.","categoria":"POS","severity":"Baja","status":"pendiente","reportes":4,"companies":[{"empresa":"DIEGO FERNANDO BARRETO PIRATEQUE","link":"https://docs.google.com/document/d/1v1boTVOgzwFkc0aI2tjMG5ArK2_KVAtJNFwIrso1uvw/edit?tab=t.vy4pit5mdqka","plan":"Plan Pyme","icp":"Core","id":"2196473.0"},{"empresa":"A3 LABORATORIO CLINICO VETERINARIO SAS","link":"https://docs.google.com/document/d/1IK9ePu7Cey-aLoRt8rgAI_ZMIhyg5lQG41a_Lmga3NU/edit?tab=t.og7149owyqzr","plan":"Plan Plus","icp":"Core","id":"2191327.0"},{"empresa":"EDALEZ SAS","link":"https://docs.google.com/document/d/1M134xZ-B0zv7ayRXFYcgKfvzzQr9OEjOau84gB0RlN0/edit?tab=t.jyjo32p424j7","plan":"Plan Plus","icp":"Core","id":"326498.0"}]},{"title":"Exportación PDF con caracteres especiales","desc":"Nombres de clientes con tildes o eñes se corrompen al exportar reportes en PDF en Windows 10.","categoria":"Reportes","severity":"Media","status":"pendiente","reportes":3,"companies":[{"empresa":"Euclides Garrido","link":"https://docs.google.com/document/d/1N3J64XLXjv0QlGgrujC31qCguk-5lNz2JdSxCTPvQ1g/edit?tab=t.0","plan":"Multicuenta Contador","icp":"Supercontador","id":"euclides.garrido@garridocorporan.com"},{"empresa":"HOSTING COFFE","link":"https://docs.google.com/document/d/1YwRzhYAWkH6ymSTbAsVqS-NGlKkUOaLocBn5xTYQUlE/edit?tab=t.vnegqbsks4f0","plan":"Plan Pyme","icp":"Lite","id":"294185.0"},{"empresa":"Master Barf","link":"https://docs.google.com/document/d/1qA88SaprChMmPAvsYvnUf51DCd35wvmS38aadexlvP4/edit?tab=t.keyvk5569u5q","plan":"Plan Pyme","icp":"Lite","id":"1549618.0"}]},{"title":"Módulo de usuarios — permisos incorrectos","desc":"Usuario con rol 'Consultor' puede editar registros de clientes aunque no debería tener permisos de escritura.","categoria":"UX","severity":"Alta","status":"pendiente","reportes":3,"companies":[{"empresa":"Cristian & Diana Hernández","link":"https://docs.google.com/document/d/1N3J64XLXjv0QlGgrujC31qCguk-5lNz2JdSxCTPvQ1g/edit?tab=t.0","plan":"Multicuenta Contador","icp":"Supercontador","id":"449134.0"},{"empresa":"FABER ADELSON AGUDELO GUTIERREZ","link":"https://docs.google.com/document/d/1VTpeNCrzNYHAbCfp4DpbI_KD8xdt119Rs0AiLpBWxX0/edit?usp=meet_tnfm_email&urp=gmail_link","plan":"Plan Pro","icp":"Core","id":"1930503.0"},{"empresa":"Juan Carlos Paulino","link":"https://docs.google.com/document/d/1N3J64XLXjv0QlGgrujC31qCguk-5lNz2JdSxCTPvQ1g/edit?tab=t.0","plan":"Multicuenta Contador","icp":"Contador","id":"144547.0"}]},{"title":"MultiRFC — cambio de cuenta","desc":"Al cambiar entre cuentas MultiRFC, el dashboard no refresca datos del período seleccionado hasta volver a elegir fechas.","categoria":"Reportes","severity":"Media","status":"pendiente","reportes":3,"companies":[{"empresa":"SALUD FISCAL Y PATRIMONIAL","link":"https://docs.google.com/document/d/16Vy1GprVXnNG92lVNVLmbodr3lYXnAESFL0hMw1T8zY/edit?tab=t.ciy4ktk6vqoe","plan":"MultiRFC Contador","icp":"MultiRFC","id":"2042305.0"},{"empresa":"Oscar Rodriguez","link":"https://docs.google.com/document/d/1ikNGXUxUYRE_XhNZlcaey0QN4Di0tT1I58auZ2SLd7o/edit?usp=meet_tnfm_email&urp=gmail_link","plan":"MultiRFC Contador","icp":"MultiRFC","id":"2183007.0"},{"empresa":"DAYSTON CONSULTORES","link":"https://docs.google.com/document/d/1CHkkP--41l9T8xS3jJBo-q8-gfJeSC6HHOJTG9JpErE/edit?usp=meet_tnfm_email&urp=gmail_link","plan":"MultiRFC Contador","icp":"MultiRFC","id":"2001761.0"},{"empresa":"UZZIEL NUÑEZ CAZALES","link":"https://docs.google.com/document/d/1_AEItJR_jEe7ZO50EAHIiljRXrDD6ALxmMppJeiRAfw/edit?tab=t.ym4gzgwdyjr8","plan":"MultiRFC Contador","icp":"MultiRFC","id":"1991702.0"}]}]};
+const LIN = [{"id":"TTS8REV-249","title":"Entrevista presencial 27/02/2026: Carolina Salamanca / 684541 / jeycarosalamanaca@gmail.com","status":"sin asignar","desc":"Revisión de los compromisos acordados a corto plazo con el cliente","equipo":"@agustin.mair @young.rubio @hillary.cuervo @yobana.ardila","subtasks":[{"title":"Sesión contable y de saldos (Cita conta): Se acordó una segunda sesión para el martes a las 9:00 a.m. enfocada en revisión contable y saldos","done":false},{"title":"Sesión especializada de Nómina (Cita nómin): El equipo de Alegra agendó inmediatamente una sesión con An...","done":false}]},{"id":"TTS8REV-246","title":"Entrevista presencial 27/02/2026: Diego Fernando Barreto / 2196473 / oclusiva9204@gmail.com","status":"sin asignar","desc":"Seguimiento compromisos post-visita presencial","equipo":"","subtasks":[{"title":"Compromiso 1 — revisión de cuenta","done":false},{"title":"Compromiso 2 — demo producto","done":false}]},{"id":"TTS8REV-242","title":"Entrevista presencial 27/02/2026: Tatiana Merchan Bahamón / 1819336 / contabilidad@unimagico.edu.co","status":"sin asignar","desc":"Seguimiento compromisos post-visita presencial","equipo":"","subtasks":[{"title":"Compromiso 1 — integración contable","done":false},{"title":"Compromiso 2 — capacitación módulo reportes","done":false},{"title":"Compromiso 3 — revisión plan","done":false}]},{"id":"TTS8REV-240","title":"Entrevista presencial 25/03/2026: Lilia Cardozo Leal / 1390775 / liliacardozo@hotmail.com","status":"sin asignar","desc":"Seguimiento compromisos post-visita presencial","equipo":"","subtasks":[{"title":"Compromiso acordado en visita — pendiente de detallar","done":false}]},{"id":"TTS8REV-237","title":"Entrevista Presencial 25/02/2026: A3 Laboratorio Clínico Veterinario / 2191327 / analistaa3@gmail.com","status":"sin asignar","desc":"Seguimiento compromisos post-visita presencial","equipo":"","subtasks":[{"title":"Compromiso 1 — presentación propuesta","done":false},{"title":"Compromiso 2 — revisión módulo inventarios","done":false}]},{"id":"TTS8REV-233","title":"Entrevista Presencial 25/02/2026: Edalez SAS / 326498 / administracion@edalez.com.co","status":"sin asignar","desc":"Seguimiento compromisos post-visita presencial","equipo":"","subtasks":[{"title":"Compromiso 1 — seguimiento onboarding","done":false},{"title":"Compromiso 2 — capacitación equipo","done":false},{"title":"Compromiso 3 — revisión facturación","done":false}]},{"id":"TTS8REV-230","title":"Entrevista Presencial 25/02/2026: Contadora Angélica Angesanro / angesanro@hotmail.com","status":"sin asignar","desc":"Seguimiento compromisos post-visita presencial","equipo":"","subtasks":[{"title":"Compromiso 1 — revisión módulo contable","done":false},{"title":"Compromiso 2 — propuesta upgrade plan","done":false}]},{"id":"TTS8REV-227","title":"Entrevistas Presencial 25/02/2026: Supercontador Carlos Tamayo / carlostamayo_contador@hotmail.com","status":"sin asignar","desc":"Seguimiento compromisos post-visita presencial","equipo":"","subtasks":[{"title":"Compromiso 1 — sesión especializada contabilidad","done":false},{"title":"Compromiso 2 — demo funcionalidades avanzadas","done":false}]}];
+const LIDER_MES = {"alejandro.aguilar@alegra.com":{"marzo":1},"ibsen.herreno@alegra.com":{"marzo":1},"bryan.lebro@alegra.com":{"marzo":1},"dbedoya@alegra.com":{"marzo":2,"febrero":8},"gianluca.osorio@alegra.com":{"marzo":2,"febrero":3},"edgar.castellanos@alegra.com":{"marzo":1,"febrero":1},"luis.caro@alegra.com":{"marzo":1},"young.rubio@alegra.com":{"marzo":1,"febrero":4},"juan.montero@alegra.com":{"marzo":1},"pablo.rios@alegra.com":{"marzo":2,"febrero":4},"stefany.bonilla@alegra.com":{"marzo":2},"santiago.higuera@alegra.com":{"marzo":3},"jahzeel.cordero@alegra.com":{"marzo":1},"cristian.albornoz@alegra.com":{"marzo":1},"richard.garcia@alegra.com":{"marzo":2},"anyi.cardozo@alegra.com":{"marzo":2},"alejandra.gomez@alegra.com":{"marzo":1,"febrero":4,"enero":3},"deisy.mayo@alegra.com":{"marzo":1,"febrero":1},"saidy.carrion@alegra.com":{"marzo":1},"sebastian@alegra.com":{"marzo":1},"juan.burgos@alegra.com":{"marzo":1},"jose.peinado@alegra.com":{"marzo":1,"enero":1},"dana.becerra@alegra.com":{"marzo":1},"david.sanchez@alegra.com":{"marzo":3,"febrero":10,"enero":1},"kellynr@alegra.com":{"marzo":1,"febrero":5,"enero":4},"javiera.cerpa@alegra.com":{"marzo":1,"febrero":3},"muriel.trujillo@alegra.com":{"marzo":3},"isabel.londono@alegra.com":{"marzo":1,"febrero":1},"julian.orrego@alegra.com":{"marzo":1,"enero":1},"abraham.garcia@alegra.com":{"marzo":3,"febrero":5},"jennifer.queque@alegra.com":{"marzo":1,"febrero":12,"enero":2},"renzo.avalos@alegra.com":{"marzo":1},"NA":{"marzo":1},"jakub.roubal@alegra.com":{"marzo":1},"isabel.jaramillo@alegra.com":{"marzo":2,"febrero":2},"juan.alvarez@alegra.com":{"marzo":1,"febrero":4,"enero":3},"lizeth.florez@alegra.com":{"marzo":1},"hugo.urrea@alegra.com":{"marzo":1,"febrero":4},"agustin.mair@alegra.com":{"febrero":4},"ana.aponte@alegra.com":{"febrero":3},"hillary.cuervo@alegra.com":{"febrero":5},"yobana.ardila@alegra.com":{"febrero":5},"cristina.barrales@alegra.com":{"febrero":3},"paula.tkaczuk@alegra.com":{"febrero":3},"alberto.robles@alegra.com":{"febrero":5},"clarey.vanegas@alegra.com":{"febrero":1},"alejandra.arciniegas@alegra.com":{"febrero":2,"enero":4},"getsemani.castillo@alegra.com":{"febrero":5},"cristian.guerrero@alegra.com":{"febrero":4},"camila.becerra@alegra.com":{"febrero":8,"enero":2},"deiby.rayo@alegra.com":{"febrero":8},"mariapaula.morales@alegra.com":{"febrero":1},"carlos.quispe@alegra.com":{"febrero":8},"andres.campo@alegra.com":{"febrero":10,"enero":1},"haydee.cabrera@alegra.com":{"febrero":1},"karen.canas@alegra.com":{"febrero":1},"tatiana.guzman@alegra.com":{"febrero":1},"maryi.ramirez@alegra.com":{"febrero":1},"camilo.ramos@alegra.com":{"febrero":1},"miguel.buritica@alegra.com":{"febrero":8},"sebastian.baez@alegra.com":{"febrero":1},"camilo.bermeo@alegra.com":{"febrero":9,"enero":1},"juandavid.salazar@alegra.com":{"febrero":7,"enero":2},"alejandro.montealegre@alegra.com":{"febrero":5},"daniela.amado@alegra.com":{"febrero":2},"oscar.gonzalez@alegra.com":{"febrero":5},"andres.orozco@alegra.com":{"febrero":2},"daniel.galeano@alegra.com":{"febrero":1},"paola.moreno@alegra.com":{"febrero":5},"carmen.leyva@alegra.com":{"febrero":1,"enero":1},"daniela.yepes@alegra.com":{"febrero":2},"felipe.varon@alegra.com":{"febrero":1},"gabriel.ramirezmora@alegra.com":{"febrero":1},"santiago.delacruz@alegra.com":{"febrero":2},"yohana.munoz@alegra.com":{"febrero":1},"yasmin.alcantara@alegra.com":{"febrero":2},"gerardo.castro@alegra.com":{"febrero":1},"leonardo.guerra@alegra.com":{"febrero":1,"enero":1},"sandra.herrera@alegra.com":{"febrero":1},"ralfin.restrepo@alegra.com":{"febrero":2,"enero":1},"henry.ceballos@alegra.com":{"febrero":2},"andres.torres@alegra.com":{"febrero":6},"juan.lopez@alegra.com":{"febrero":2},"daniela.villegas@alegra.com":{"febrero":1,"enero":1},"juliana.restrepo@alegra.com":{"febrero":1,"enero":1},"marina.bensusan@alegra.com":{"febrero":7,"enero":3},"daniel.medina@alegra.com":{"enero":3},"mariana.luna@alegra.com":{"enero":3},"sofia.gutierrez@alegra.com":{"enero":2},"kevin.lupera@alegra.com":{"enero":1},"moises.alvarenga@alegra.com":{"enero":1},"irvis.ozuna@alegra.com":{"enero":1}};
+
+// Chart registry
+const charts={};
+function mkChart(id,cfg){if(charts[id]){charts[id].destroy();delete charts[id]}charts[id]=new Chart(document.getElementById(id),cfg);return charts[id]}
+
+// Colors
+const PAL=['#00D6BC','#26C578','#3B82F6','#F59E0B','#8B5CF6','#0CB09D','#1EA862','#EF4444','#D97706','#1E40AF','#5B21B6','#065F46'];
+const DLI={display:true,color:'#fff',font:{weight:'700',size:11},formatter:v=>v>0?v:''};
+const DLO={display:true,color:'#1A2332',font:{weight:'600',size:11},anchor:'end',align:'end',offset:4,formatter:v=>v>0?v:''};
+const DLP={display:true,color:'#fff',font:{weight:'700',size:12},formatter:(v,ctx)=>{const s=ctx.chart.data.datasets[ctx.datasetIndex].data.reduce((a,b)=>a+b,0);return s>0?Math.round(v/s*100)+'%':''}};
+
+// Board navigation
+function showBoard(id){
+  document.querySelectorAll('.board').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  ['b1','b2','b3','b4'].forEach((b,i)=>{if(b===id)document.querySelectorAll('.ni')[i].classList.add('active')});
+  if(id==='b2')setTimeout(initB2,10);
+  if(id==='b3')setTimeout(initB3,10);
+  if(id==='b4')setTimeout(initB4,10);
+}
+
+// ========= TABLERO 1 =========
+function initB1(){
+  const emp=new Set(E.map(r=>r.empresa).filter(Boolean));
+  document.getElementById('kpi-emp').textContent=emp.size;
+
+  // Monthly
+  const meses=['enero','febrero','marzo'],labels=['Enero','Febrero','Marzo'];
+  const dSI=meses.map(m=>E.filter(r=>r.mes===m&&r.efectividad==='SI').length);
+  const dNO=meses.map(m=>E.filter(r=>r.mes===m&&r.efectividad==='NO').length);
+  const dPe=meses.map(m=>E.filter(r=>r.mes===m&&r.efectividad!=='SI'&&r.efectividad!=='NO').length);
+  mkChart('chMonthly',{type:'bar',data:{labels,datasets:[
+    {label:'Efectivas',data:dSI,backgroundColor:'#00D6BC',borderRadius:4,stack:'s'},
+    {label:'No efectivas',data:dNO,backgroundColor:'#F59E0B',borderRadius:4,stack:'s'},
+    {label:'Pendientes',data:dPe,backgroundColor:'#8B5CF6',borderRadius:4,stack:'s'},
+  ]},options:{responsive:true,plugins:{legend:{position:'top',labels:{font:{size:11},boxWidth:12}},datalabels:DLI},scales:{x:{grid:{display:false},stacked:true},y:{stacked:true,grid:{color:'#F1F5F9'}}}}});
+
+  // Efectividad %
+  const pct=meses.map((_,i)=>{const t=dSI[i]+dNO[i];return t>0?Math.round(dSI[i]/t*100):0});
+  mkChart('chEfect',{type:'line',data:{labels,datasets:[{label:'% Efectividad',data:pct,borderColor:'#00D6BC',backgroundColor:'rgba(0,214,188,.1)',borderWidth:3,pointBackgroundColor:'#00D6BC',pointRadius:6,fill:true,tension:.3}]},
+    options:{responsive:true,plugins:{legend:{display:false},datalabels:{display:true,color:'#0CB09D',font:{weight:'700',size:13},formatter:v=>v+'%',anchor:'top',align:'top',offset:5}},scales:{y:{min:0,max:100,ticks:{callback:v=>v+'%'},grid:{color:'#F1F5F9'}},x:{grid:{display:false}}}}});
+
+  // Motivos
+  mkChart('chMotivos',{type:'bar',data:{labels:['No respondió / contestó (7)','Conflicto agenda / trabajo (5)','Sin motivo registrado (8)'],datasets:[{data:[7,5,8],backgroundColor:['#F59E0B','#8B5CF6','#94A3B8'],borderRadius:4}]},
+    options:{indexAxis:'y',responsive:true,plugins:{legend:{display:false},datalabels:{display:true,color:'#fff',font:{weight:'700',size:11},formatter:v=>v,anchor:'end',align:'start'}},scales:{x:{grid:{color:'#F1F5F9'}},y:{grid:{display:false}}}}});
+
+  // Modalidad — sin rojo
+  mkChart('chModal',{type:'doughnut',data:{labels:['Remoto','Presencial'],datasets:[{data:[86,30],backgroundColor:['#00D6BC','#3B82F6'],borderWidth:0}]},
+    options:{responsive:true,cutout:'65%',plugins:{legend:{position:'bottom',labels:{font:{size:11},boxWidth:12}},datalabels:DLP}}});
+
+  // ICP
+  const icpD={Core:64,Lite:20,Contador:11,MultiRFC:11,Supercontador:7,Partner:2};
+  mkChart('chICP',{type:'bar',data:{labels:Object.keys(icpD),datasets:[{data:Object.values(icpD),backgroundColor:PAL,borderRadius:5}]},
+    options:{indexAxis:'y',responsive:true,plugins:{legend:{display:false},datalabels:{display:true,color:'#fff',font:{weight:'700',size:11},formatter:v=>v,anchor:'end',align:'start'}},scales:{x:{grid:{color:'#F1F5F9'}},y:{grid:{display:false}}}}});
+
+  // Plan
+  const planD={'Plan Plus':22,'Plan Pro':22,'Plan Pyme':19,'Contador':14,'Plan Premium':11,'MultiRFC Ctr.':10,'Multicuenta Ctr.':7,'P. Emprend.':3,'Plan Consulta':3,'Emprendedor':3,'Lead':2};
+  mkChart('chPlan',{type:'bar',data:{labels:Object.keys(planD),datasets:[{data:Object.values(planD),backgroundColor:PAL,borderRadius:4}]},
+    options:{indexAxis:'y',responsive:true,plugins:{legend:{display:false},datalabels:{display:true,color:'#fff',font:{weight:'700',size:10},formatter:v=>v,anchor:'end',align:'start'}},scales:{x:{grid:{color:'#F1F5F9'}},y:{grid:{display:false},ticks:{font:{size:10}}}}}});
+
+  renderTopEntrev('');
+  renderTableEntrev();
+}
+
+// TOP ENTREVISTADORES (from all 337 rows, not deduped)
+const maxEv=EV.length>0?EV[0].count:1;
+function renderTopEntrev(s){
+  const filtered=s?EV.filter(r=>r.name.toLowerCase().includes(s.toLowerCase())):EV;
+  const show=filtered.slice(0,15);
+  const el=document.getElementById('topEvList');
+  if(!show.length){el.innerHTML='<div style="color:var(--tm);font-size:12px;padding:10px">Sin resultados</div>';return}
+  el.innerHTML=show.map(({name,count},i)=>`<div class="ti">
+    <div class="tr ${i===0?'gold':i===1?'silver':i===2?'bronze':''}">${i+1}</div>
+    <div class="tn">${name}</div>
+    <div class="tb"><div class="tb-inner" style="width:${Math.round(count/maxEv*100)}%"></div></div>
+    <div class="tc">${count}</div>
+  </div>`).join('');
+}
+function filterEntrev(v){renderTopEntrev(v)}
+
+// TABLE ENTREVISTAS
+let dtEv=null;
+function renderTableEntrev(){
+  const tb=document.getElementById('tbodyEv');
+  tb.innerHTML=E.map((r,i)=>{
+    const ef=r.efectividad==='SI'?'<span class="bx xg">SI</span>':r.efectividad==='NO'?'<span class="bx xo">NO</span>':'<span class="bx xp">Pendiente</span>';
+    const mod=r.modalidad==='Presencial'?'<span class="bx xb">Presencial</span>':'<span class="bx xt">Remoto</span>';
+    const link=r.link?`<a href="${r.link}" target="_blank" class="bx xt" title="Ver transcripción" onclick="event.stopPropagation()"><i class="fa fa-file-alt"></i> Ver</a>`:'-';
+    const idShort=r.id.length>12?r.id.substring(0,12)+'…':r.id;
+    return `<tr onclick="openEPanel(${i})">
+      <td style="font-family:'DM Mono',monospace;font-size:10px;color:var(--tm)" title="${r.id}">${idShort}</td>
+      <td style="font-weight:600;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${r.empresa}">${r.empresa||'—'}</td>
+      <td style="white-space:nowrap;font-size:11px">${r.fecha||'—'}</td>
+      <td style="font-size:11px;max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${r.solicitud}">${r.solicitud||'—'}</td>
+      <td>${mod}</td><td>${ef}</td>
+      <td><span class="bx xgr">${r.icp||'—'}</span></td>
+      <td><span class="bx xp" style="font-size:9px">${r.plan||'—'}</span></td>
+      <td onclick="event.stopPropagation()">${link}</td>
+    </tr>`;
+  }).join('');
+  if(dtEv){dtEv.destroy();dtEv=null}
+  dtEv=$('#tblEntrev').DataTable({
+    language:{search:'',searchPlaceholder:'Buscar empresa o cliente…',url:'//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'},
+    pageLength:15,order:[[2,'desc']],
+    columnDefs:[{orderable:false,targets:[8]}]
+  });
+  // Override search label
+  $('.dataTables_filter label').html('<span style="font-size:12px;color:var(--tm);margin-right:6px">Escribe el nombre del cliente:</span><input type="search" placeholder="Buscar empresa…">');
+}
+
+const rowStatus={};
+function openEPanel(i){
+  const r=E[i];
+  const st=rowStatus[i]||'pendiente';
+  const sOpts=[{v:'pendiente',l:'⬜ Pendiente'},{v:'revisado',l:'✅ Revisado'},{v:'linear',l:'🔗 En Linear'},{v:'comprometido',l:'🤝 Comprometido'}]
+    .map(o=>`<option value="${o.v}" ${o.v===st?'selected':''}>${o.l}</option>`).join('');
+  document.getElementById('pTt').textContent=r.empresa||'Detalle';
+  document.getElementById('pBd').innerHTML=`
+    <div class="pr"><div class="prl">ID cliente</div><div class="prv" style="font-family:'DM Mono',monospace;font-size:12px">${r.id}</div></div>
+    <div class="pr"><div class="prl">Empresa</div><div class="prv">${r.empresa||'—'}</div></div>
+    <div class="pr"><div class="prl">Fecha</div><div class="prv">${r.fecha||'—'}</div></div>
+    <div class="pr"><div class="prl">A solicitud de</div><div class="prv">${r.solicitud||'—'}</div></div>
+    <div class="pr"><div class="prl">Entrevistadores</div><div class="prv">${r.entrevistadores&&r.entrevistadores.length?r.entrevistadores.join(', '):r.correo||'—'}</div></div>
+    <div class="pr"><div class="prl">Modalidad</div><div class="prv">${r.modalidad||'—'}</div></div>
+    <div class="pr"><div class="prl">Efectividad</div><div class="prv">${r.efectividad||'—'}</div></div>
+    ${r.motivo?`<div class="pr"><div class="prl">Motivo no efectividad</div><div class="prv" style="color:var(--og)">${r.motivo}</div></div>`:''}
+    <div class="pdiv"></div>
+    <div class="pr"><div class="prl">ICP / Tipo usuario</div><div class="prv">${r.icp||'—'}</div></div>
+    <div class="pr"><div class="prl">Plan</div><div class="prv">${r.plan||'—'}</div></div>
+    <div class="pr"><div class="prl">Origen</div><div class="prv">${r.origen||'—'}</div></div>
+    ${r.link?`<div class="pr"><div class="prl">Transcripción</div><div class="prv"><a href="${r.link}" target="_blank"><i class="fa fa-external-link-alt"></i> Ver grabación / transcripción</a></div></div>`:''}
+    <div class="pdiv"></div>
+    <div class="pr"><div class="prl">Estado del seguimiento</div>
+      <select style="width:100%;padding:8px;border:1px solid var(--bd);border-radius:8px;font-size:13px;font-family:inherit;margin-top:4px" onchange="rowStatus[${i}]=this.value">
+        ${sOpts}
+      </select>
+    </div>
+    <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">
+      <button class="btn bg bsm" style="flex:1;justify-content:center" onclick="rowStatus[${i}]='revisado'">✅ Revisado</button>
+      <button class="btn bg bsm" style="flex:1;justify-content:center" onclick="rowStatus[${i}]='linear'">🔗 Linear</button>
+      <button class="btn bg bsm" style="flex:1;justify-content:center" onclick="rowStatus[${i}]='comprometido'">🤝 Comprometido</button>
+    </div>`;
+  document.getElementById('pO').classList.add('open');
+  document.getElementById('sP').classList.add('open');
+}
+function closePanel(){document.getElementById('pO').classList.remove('open');document.getElementById('sP').classList.remove('open')}
+
+// ========= TABLERO 2 =========
+let b2i=false,flid=[...L];
+function initB2(){if(b2i)return;b2i=true;renderLCharts(L);renderLTable(L)}
+
+function renderLCharts(data){
+  const teams=['Developer','Revenue','Product','Finance','People','Data','CEO'];
+  const tA=teams.map(t=>data.filter(l=>l.technical_team===t&&l.activo===1).length);
+  const tP=teams.map(t=>data.filter(l=>l.technical_team===t&&l.activo===0).length);
+
+  mkChart('chTT',{type:'bar',data:{labels:teams,datasets:[
+    {label:'Activos',data:tA,backgroundColor:'#26C578',borderRadius:4,stack:'s'},
+    {label:'Pendientes',data:tP,backgroundColor:'#F59E0B',borderRadius:4,stack:'s'}
+  ]},options:{responsive:true,plugins:{legend:{position:'top',labels:{font:{size:11},boxWidth:12}},datalabels:DLI},
+    scales:{x:{grid:{display:false},stacked:true},y:{stacked:true,grid:{color:'#F1F5F9'}}},
+    onClick:(_,el)=>{if(el.length){const t=teams[el[0].index];document.getElementById('fTT').value=t;applyLF()}}}});
+
+  const top10=[...data].filter(l=>l.activo).sort((a,b)=>b.total-a.total).slice(0,10);
+  mkChart('chTop10',{type:'bar',data:{
+    labels:top10.map(l=>l.nombre.split(' ').map(w=>w[0]?w[0].toUpperCase()+w.slice(1):w).join(' ')),
+    datasets:[{data:top10.map(l=>l.total),backgroundColor:top10.map((_,i)=>`rgba(0,${Math.round(214*(1-i/10))},${Math.round(188*(1-i/10))},0.85)`),borderRadius:4}]
+  },options:{indexAxis:'y',responsive:true,plugins:{legend:{display:false},datalabels:{display:true,color:'#fff',font:{weight:'700',size:11},formatter:v=>v,anchor:'end',align:'start',offset:4}},
+    scales:{x:{grid:{color:'#F1F5F9'}},y:{grid:{display:false},ticks:{font:{size:11}}}},
+    onClick:(_,el)=>{if(el.length){const l=top10[el[0].index];document.getElementById('fLNm').value=l.nombre;flid=[l];renderLCharts([l]);renderLTable([l])}}}});
+
+  // Mes chart — entrevistas por mes para los líderes filtrados (suma de LIDER_MES)
+  let ene=0,feb=0,mar=0;
+  data.forEach(l=>{
+    const lm=LIDER_MES[l.correo]||{};
+    ene+=(lm['enero']||0);
+    feb+=(lm['febrero']||0);
+    mar+=(lm['marzo']||0);
+  });
+  // Chart title changes based on how many liders are filtered
+  const mesTitle=data.length===1?`Entrevistas de ${data[0].nombre.split(' ').map(w=>w[0]?w[0].toUpperCase()+w.slice(1):w).join(' ')} por mes`:'Entrevistas por mes (líderes filtrados)';
+  document.querySelector('#chLMes').closest('.cc').querySelector('.ctt').textContent=mesTitle;
+  document.querySelector('#chLMes').closest('.cc').querySelector('.cts').textContent=data.length===1?'Visitas realizadas por este líder':'Suma de visitas de los líderes mostrados';
+  mkChart('chLMes',{type:'bar',data:{labels:['Enero','Febrero','Marzo'],datasets:[{label:'Entrevistas',data:[ene,feb,mar],backgroundColor:['#00D6BC','#26C578','#F59E0B'],borderRadius:5}]},
+    options:{responsive:true,plugins:{legend:{display:false},datalabels:DLO},scales:{x:{grid:{display:false}},y:{grid:{color:'#F1F5F9'},ticks:{stepSize:1}}}}});
+
+  // Modalidad — from filtered data using entrevistas
+  const filteredEmails=new Set(data.map(l=>l.correo));
+  const filteredE=E.filter(r=>filteredEmails.has(r.correo));
+  const totV=filteredE.filter(r=>r.modalidad==='Remoto').length;
+  const totP=filteredE.filter(r=>r.modalidad==='Presencial').length;
+  mkChart('chLMod',{type:'doughnut',data:{labels:['Virtual','Presencial'],datasets:[{data:[totV||data.reduce((s,l)=>s+l.virtuales,0),totP||data.reduce((s,l)=>s+l.presenciales,0)],backgroundColor:['#00D6BC','#3B82F6'],borderWidth:0}]},
+    options:{responsive:true,cutout:'65%',plugins:{legend:{position:'bottom',labels:{font:{size:11},boxWidth:12}},datalabels:DLP}}});
+
+  const act=data.filter(l=>l.activo);
+  // Total efectivas: count from entrevistas_116 where efectividad=SI and correo matches filtered liders
+  const filtEmails=new Set(data.map(l=>l.correo));
+  const totEf=E.filter(r=>r.efectividad==='SI'&&filtEmails.has(r.correo)).length;
+  // Fallback: if no E matches (different correos), use lider.total sum
+  const totForAvg=act.reduce((s,l)=>s+l.total,0);
+  const displayTot=totEf>0?totEf:totForAvg;
+  document.getElementById('k2tot').textContent=displayTot;
+  document.getElementById('k2avg').textContent=act.length?(Math.round(totForAvg/act.length*10)/10):0;
+}
+
+function handleLAC(v){
+  const d=document.getElementById('lac');
+  if(!v||v.length<2){d.style.display='none';return}
+  const m=L.filter(l=>l.nombre&&l.nombre.toLowerCase().includes(v.toLowerCase())).slice(0,8);
+  if(!m.length){d.style.display='none';return}
+  d.innerHTML=m.map(l=>`<div class="aci" onclick="selectL('${l.nombre.replace(/'/g,"\\'")}')">
+    <div><div class="acn">${l.nombre.replace(/\b\w/g,c=>c.toUpperCase())}</div><div class="act">${l.technical_team||''} · ${l.pais||''}</div></div>
+    <div class="acc">${l.total}</div>
+  </div>`).join('');
+  d.style.display='block';
+}
+function selectL(n){document.getElementById('fLNm').value=n;document.getElementById('lac').style.display='none';applyLF()}
+document.addEventListener('click',e=>{if(!e.target.closest('.acw')){const d=document.getElementById('lac');if(d)d.style.display='none'}});
+
+function applyLF(){
+  const nm=document.getElementById('fLNm').value.toLowerCase();
+  const tt=document.getElementById('fTT').value;
+  const pl=document.getElementById('fPL').value;
+  const el=document.getElementById('fEL').value;
+  flid=L.filter(l=>{
+    if(nm&&!l.nombre.toLowerCase().includes(nm))return false;
+    if(tt&&l.technical_team!==tt)return false;
+    if(pl&&l.pais!==pl)return false;
+    if(el!==''&&String(l.activo)!==el)return false;
+    return true;
+  });
+  renderLCharts(flid);renderLTable(flid);
+}
+function resetLF(){['fLNm','fTT','fPL','fEL'].forEach(id=>{const e=document.getElementById(id);if(e)e.value=''});flid=[...L];renderLCharts(L);renderLTable(L)}
+
+let dtLid=null;
+function renderLTable(data){
+  const tb=document.getElementById('tbodyLid');
+  tb.innerHTML=data.map(l=>{
+    const n=l.nombre.replace(/\b\w/g,c=>c.toUpperCase());
+    const st=l.activo?'<span class="bx xg">Activo</span>':'<span class="bx xo">Pendiente</span>';
+    return `<tr><td style="font-weight:600">${n}</td><td><span class="bx xt">${l.technical_team||'—'}</span></td><td>${l.pais||'—'}</td>
+      <td style="text-align:center;font-weight:600">${l.virtuales}</td>
+      <td style="text-align:center;font-weight:600">${l.presenciales}</td>
+      <td style="text-align:center;font-weight:800;color:var(--p)">${l.total}</td>
+      <td>${st}</td></tr>`;
+  }).join('');
+  if(dtLid){dtLid.destroy();dtLid=null}
+  dtLid=$('#tblLid').DataTable({language:{url:'//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'},pageLength:15,order:[[5,'desc']]});
+}
+
+// ========= TABLERO 3 =========
+let b3i=false;
+const taskAssignees={};
+const taskStatus={};
+const taskExpanded={};
+const subStatus={};
+function initB3(){if(b3i)return;b3i=true;renderLinear();renderPipeline()}
+
+function renderLinear(){
+  const el=document.getElementById('linBoard');
+  const statuses=['sin asignar','tomada','asignada','cerrada'];
+  const stColors={'sin asignar':'xr','tomada':'xo','asignada':'xb','cerrada':'xg'};
+  const stIcons={'sin asignar':'fa-exclamation-circle','tomada':'fa-hand-paper','asignada':'fa-user-check','cerrada':'fa-check-circle'};
+  el.innerHTML=LIN.map((task,ti)=>{
+    const cur=taskStatus[ti]||task.status||'sin asignar';
+    const stCls=stColors[cur]||'xgr';
+    const stIc=stIcons[cur]||'fa-circle';
+    const expanded=taskExpanded[ti]||false;
+    const subDone=task.subtasks.filter(s=>subStatus[ti+'_'+task.subtasks.indexOf(s)]).length;
+    const subTotal=task.subtasks.length;
+    // Parse title for display: extract empresa from format "Entrevista presencial DATE: EMPRESA / ID / EMAIL"
+    const titleParts=task.title.split(':');
+    const datePrefix=titleParts.length>1?titleParts[0].trim():'';
+    const rest=titleParts.length>1?titleParts.slice(1).join(':').trim():task.title;
+    const parts=rest.split('/');
+    const empresa=parts[0]?parts[0].trim():'';
+    const idNum=parts[1]?parts[1].trim():'';
+    const email=parts[2]?parts[2].trim():'';
+    const subtasksHtml=task.subtasks.map((s,si)=>{
+      const done=subStatus[ti+'_'+si]||false;
+      return `<div class="subtask-row" style="padding:8px 14px 8px 32px;display:flex;align-items:flex-start;gap:8px;border-bottom:1px solid var(--bdl);position:relative">
+        <div style="position:absolute;left:13px;color:var(--tm);font-size:11px;top:10px">└</div>
+        <div onclick="toggleSub(${ti},${si})" style="width:16px;height:16px;border:2px solid ${done?'var(--g)':'var(--bd)'};border-radius:50%;flex-shrink:0;margin-top:2px;cursor:pointer;background:${done?'var(--g)':'transparent'};display:flex;align-items:center;justify-content:center">
+          ${done?'<i class="fa fa-check" style="font-size:8px;color:#fff"></i>':''}
+        </div>
+        <div style="flex:1;font-size:12px;color:${done?'var(--tm)':'var(--t1)'};text-decoration:${done?'line-through':''};line-height:1.4">${s.title}</div>
+      </div>`;
+    }).join('');
+    return `<div class="lp" style="margin-bottom:10px">
+      <div class="lph" onclick="toggleTask(${ti})" style="cursor:pointer;user-select:none">
+        <span class="lpid" style="flex-shrink:0">${task.id}</span>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:13px;font-weight:700;color:var(--t1);line-height:1.3">${empresa}</div>
+          <div style="font-size:11px;color:var(--tm);margin-top:2px">${datePrefix}${idNum?' · #'+idNum:''}${email?' · '+email:''}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
+          <span style="font-size:11px;color:var(--tm);background:var(--bdl);padding:2px 8px;border-radius:20px;font-family:'DM Mono',monospace">${subDone}/${subTotal}</span>
+          <select class="bx ${stCls}" onclick="event.stopPropagation()" onchange="taskStatus[${ti}]=this.value;renderLinear()" style="border:none;font-size:10px;cursor:pointer;background:transparent;font-family:inherit;padding:3px 6px">
+            ${statuses.map(s=>`<option value="${s}" ${s===cur?'selected':''}><i class="fa ${stIcons[s]}"></i> ${s.charAt(0).toUpperCase()+s.slice(1)}</option>`).join('')}
+          </select>
+          <i class="fa fa-chevron-${expanded?'up':'down'}" style="font-size:11px;color:var(--tm)"></i>
+        </div>
+      </div>
+      ${expanded?`<div class="lss">
+        ${task.desc?`<div style="padding:8px 14px;font-size:12px;color:var(--t2);background:#FAFBFC;border-bottom:1px solid var(--bdl)">${task.desc}${task.equipo?`<div style="margin-top:4px;font-size:11px;color:var(--tm)">Equipo: ${task.equipo}</div>`:''}</div>`:''}
+        ${subtasksHtml}
+      </div>`:''}
+    </div>`;
+  }).join('');
+}
+
+function toggleAssign(ti,si,correo){
+  const key=`${ti}-${si}`;
+  const cur=taskAssignees[key]!==undefined?taskAssignees[key]:!!correo;
+  taskAssignees[key]=!cur;
+  renderLinear();
+}
+function toggleTask(ti){taskExpanded[ti]=!taskExpanded[ti];renderLinear()}
+function toggleSub(ti,si){const k=ti+'_'+si;subStatus[k]=!subStatus[k];renderLinear()}
+
+function renderPipeline(){
+  const pres=E.filter(r=>r.modalidad==='Presencial');
+  const ef=pres.filter(r=>r.efectividad==='SI');
+  const pend=pres.filter(r=>r.efectividad!=='SI'&&r.efectividad!=='NO');
+  const no=pres.filter(r=>r.efectividad==='NO');
+  const cols=[{t:'Efectivas',c:'var(--g)',items:ef},{t:'Pendientes',c:'var(--og)',items:pend},{t:'No efectivas',c:'var(--og)',items:no}];
+  document.getElementById('pipeLine').innerHTML=cols.map(col=>`
+    <div class="pcol">
+      <div class="pcolh"><div class="pcoltt" style="color:${col.c}">${col.t}</div><div class="pcoln">${col.items.length} visitas</div></div>
+      ${col.items.map(r=>`<div class="pcard" onclick="openEPanel(${E.indexOf(r)})">
+        <div class="pco">${r.empresa||'Sin empresa'}</div>
+        <div class="pmeta"><span>${r.fecha||''}</span><span>${r.solicitud||''}</span></div>
+      </div>`).join('')}
+    </div>`).join('');
+}
+
+// ========= TABLERO 4 =========
+let b4i=false;
+function initB4(){if(b4i)return;b4i=true;renderInsCharts();renderInsClusters('all');renderBugs(null)}
+
+function renderInsCharts(){
+  // Category chart (all types combined)
+  const cats={};
+  ['highlights','lowlights'].forEach(type=>{
+    INS[type].forEach(item=>{cats[item.categoria]=(cats[item.categoria]||0)+item.count});
+  });
+  const cLabels=Object.keys(cats).sort((a,b)=>cats[b]-cats[a]);
+  mkChart('chInsCat',{type:'bar',data:{labels:cLabels,datasets:[{data:cLabels.map(c=>cats[c]),backgroundColor:PAL,borderRadius:4}]},
+    options:{indexAxis:'y',responsive:true,
+      plugins:{legend:{display:false},datalabels:{display:true,color:'#fff',font:{weight:'700',size:11},formatter:v=>v,anchor:'end',align:'start'}},
+      scales:{x:{grid:{color:'#F1F5F9'}},y:{grid:{display:false}}},
+      onClick:(_,el)=>{if(el.length){const cat=cLabels[el[0].index];fIns('all');
+        setTimeout(()=>{const sec=document.getElementById('insClusters');if(sec)sec.scrollIntoView({behavior:'smooth'})},200)}}}});
+
+  // Bugs chart
+  const bCats={};
+  INS.bugs.forEach(b=>bCats[b.categoria]=(bCats[b.categoria]||0)+b.reportes);
+  const bLabels=Object.keys(bCats).sort((a,b)=>bCats[b]-bCats[a]);
+  mkChart('chBugs',{type:'bar',data:{labels:bLabels,datasets:[{data:bLabels.map(c=>bCats[c]),backgroundColor:bLabels.map(()=>'#EF4444'),borderRadius:4}]},
+    options:{indexAxis:'y',responsive:true,
+      plugins:{legend:{display:false},datalabels:{display:true,color:'#fff',font:{weight:'700',size:11},formatter:v=>v,anchor:'end',align:'start'}},
+      scales:{x:{grid:{color:'#F1F5F9'}},y:{grid:{display:false}}},
+      onClick:(_,el)=>{if(el.length){renderBugs(bLabels[el[0].index]);document.getElementById('bugSecTt').innerHTML=`<i class="fa fa-bug" style="color:var(--rd);margin-right:6px"></i>Bugs · ${bLabels[el[0].index]}`;document.getElementById('bugsSec').scrollIntoView({behavior:'smooth'})}}}});
+}
+
+function fIns(type){
+  ['bAll','bHL','bLL','bBug','bOp'].forEach(id=>document.getElementById(id).className='btn bg bsm');
+  const map={all:'bAll',highlights:'bHL',lowlights:'bLL',bugs:'bBug'};
+  if(map[type])document.getElementById(map[type]).className='btn ba bsm';
+  renderInsClusters(type);
+  document.getElementById('bugsSec').style.display=(type==='all'||type==='bugs')?'block':'none';
+  if(type==='bugs'){renderBugs(null);document.getElementById('bugsSec').scrollIntoView({behavior:'smooth'})}
+}
+
+function renderInsClusters(filter){
+  const el=document.getElementById('insClusters');
+  const show=filter==='all'?['highlights','lowlights']:filter==='bugs'?[]:filter==='highlights'?['highlights']:filter==='lowlights'?['lowlights']:[];
+  const cfg={
+    highlights:{label:'Highlights',emoji:'⭐',color:'#1EA862',bg:'#EAFBF2',quote:true},
+    lowlights:{label:'Lowlights',emoji:'📉',color:'#991B1B',bg:'#FEF2F2',quote:true},
+    oportunidades:{label:'Oportunidades',emoji:'💡',color:'#92400E',bg:'#FFFBEB',quote:false}
+  };
+  if(!show.length){el.innerHTML='';return}
+  el.innerHTML=show.map(type=>{
+    const c=cfg[type];
+    const items=INS[type];
+    return `<div class="sd"><div class="sdt" style="color:${c.color}">${c.emoji} ${c.label}</div><div class="sdl"></div><span style="font-size:11px;color:var(--tm)">Clic en tarjeta para ver empresas y citas</span></div>
+    <div class="clgrid">
+      ${items.map((item,idx)=>`
+        <div class="clcard" id="cl-${type}-${idx}" onclick="toggleCluster('${type}',${idx})">
+          <div class="cltop">
+            <div class="cltxt">${item.text}</div>
+            <div class="clcnt">${item.count} menciones</div>
+          </div>
+          <div class="clcat"><span class="bx xgr">${item.categoria}</span></div>
+          <div class="cl-detail">
+            ${item.quote?`<div class="cl-quote">"${item.quote}"</div>`:''}
+            ${item.companies&&item.companies.length?`
+              <div style="font-size:11px;font-weight:600;color:var(--tm);margin-bottom:6px">Empresas que lo mencionan:</div>
+              ${item.companies.map(co=>`<div class="cl-co-item">
+                <span style="font-size:12px;font-weight:600;flex:1">${co.empresa}</span>
+                <span class="bx xgr" style="font-size:9px">${co.plan||''}</span>
+                ${co.link?`<a href="${co.link}" target="_blank" onclick="event.stopPropagation()"><i class="fa fa-external-link-alt"></i> Trans.</a>`:''}
+              </div>`).join('')}
+            `:'<div style="font-size:11px;color:var(--tm)">Sin empresas vinculadas aún</div>'}
+          </div>
+        </div>`).join('')}
+    </div>`;
+  }).join('');
+}
+
+function toggleCluster(type,idx){
+  const el=document.getElementById(`cl-${type}-${idx}`);
+  if(el)el.classList.toggle('expanded');
+}
+
+const bugStatus={};
+function renderBugs(filterCat){
+  const bugs=filterCat?INS.bugs.filter(b=>b.categoria===filterCat):INS.bugs;
+  const sevCls={Alta:'xr',Media:'xo',Baja:'xgr'};
+  document.getElementById('bugSecTt').innerHTML=`<i class="fa fa-bug" style="color:var(--rd);margin-right:6px"></i>${filterCat?'Bugs · '+filterCat:'Todos los bugs'}`;
+  document.getElementById('bugsGrid').innerHTML=bugs.map((b,i)=>{
+    const st=bugStatus[i]||b.status||'pendiente';
+    const opts=[{v:'pendiente',l:'⬜ Pendiente'},{v:'investigando',l:'🔍 Investigando'},{v:'en-linear',l:'🔗 Llevado a Linear'},{v:'resuelto',l:'✅ Resuelto'},{v:'visitaton',l:'🏷 En revisión Visitatón'}]
+      .map(o=>`<option value="${o.v}" ${o.v===st?'selected':''}>${o.l}</option>`).join('');
+    const coList=b.companies&&b.companies.length?`
+      <div style="font-size:10px;font-weight:600;color:var(--tm);margin:7px 0 4px">Empresas que lo reportan:</div>
+      ${b.companies.map(co=>`<div class="bug-co-item">
+        <span style="flex:1;font-weight:600">${co.empresa}</span>
+        <span class="bx xgr" style="font-size:9px">${co.plan||''}</span>
+        ${co.link?`<a href="${co.link}" target="_blank" title="Ver transcripción"><i class="fa fa-external-link-alt"></i></a>`:''}
+      </div>`).join('')}`:'';
+    return `<div class="bgc" id="bgc-${i}">
+      <div class="bgct"><span><i class="fa fa-bug" style="margin-right:4px"></i>${b.title}</span><span class="bx ${sevCls[b.severity]||'xgr'}">${b.severity}</span></div>
+      <div class="bgcd">${b.desc}</div>
+      <div class="bgcm"><span class="bx xr">${b.categoria}</span><span class="bx xgr">${b.reportes} reportes</span></div>
+      ${coList}
+      <select class="bgs" style="margin-top:${b.companies&&b.companies.length?'8':'0'}px" onchange="bugStatus[${i}]=this.value;updBug(${i})">${opts}</select>
+      <div style="display:flex;gap:6px;margin-top:7px">
+        <button class="btn bg bsm" style="flex:1;justify-content:center" onclick="openBugLin(${i})"><i class="fa fa-external-link-alt"></i> Crear en Linear</button>
+        <button class="btn bg bsm" style="flex:1;justify-content:center" onclick="bugStatus[${i}]='en-linear';updBug(${i})">✓ En Linear</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function updBug(i){
+  const card=document.getElementById('bgc-'+i);
+  if(!card)return;
+  const cols={pendiente:'var(--rd)',investigando:'var(--og)',['en-linear']:'var(--p)',resuelto:'var(--g)',visitaton:'var(--pu)'};
+  card.style.borderLeftColor=cols[bugStatus[i]]||'var(--rd)';
+}
+
+function openBugLin(i){
+  const b=INS.bugs[i];
+  document.getElementById('mTt').textContent='Crear Issue en Linear — '+b.title;
+  const empresasHtml=b.companies&&b.companies.length?b.companies.map(c=>`• ${c.empresa} (${c.plan||''})`).join('\n'):'Sin empresas vinculadas';
+  document.getElementById('mBd').innerHTML=`
+    <div style="background:var(--rdl);border:1px solid #FECACA;border-radius:8px;padding:12px;margin-bottom:14px">
+      <strong style="color:var(--rd)">${b.title}</strong> · <span class="bx xr">${b.severity}</span>
+      <p style="font-size:12px;margin-top:6px;color:#374151">${b.desc}</p>
+    </div>
+    <pre id="linTxt" style="background:#F8FAFC;border:1px solid var(--bd);border-radius:8px;padding:14px;font-size:12px;overflow-x:auto;white-space:pre-wrap;font-family:'DM Mono',monospace">## Bug: ${b.title}
+
+**Categoría:** ${b.categoria}
+**Severidad:** ${b.severity}
+**Reportes:** ${b.reportes} clientes
+
+**Descripción:**
+${b.desc}
+
+**Empresas que lo reportan:**
+${empresasHtml}
+
+**Origen:** Visitatón 2026 — Feedback post-visita
+**Tablero:** tts-revops-feedback-post-visitaton
+**Labels:** bug, visitaton-2026, ${b.categoria.toLowerCase()}, severidad-${b.severity.toLowerCase()}</pre>`;
+  document.getElementById('mO').classList.add('open');
+}
+function copyMod(){const el=document.getElementById('linTxt');if(el){navigator.clipboard.writeText(el.textContent);el.style.borderColor='var(--g)';setTimeout(()=>el.style.borderColor='var(--bd)',1500)}}
+function closeMod(){document.getElementById('mO').classList.remove('open')}
+
+// INIT
+initB1();
+</script>
+</body>
+</html>
