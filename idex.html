@@ -1,0 +1,1522 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Visitatón · Guía de Entrevistas Virtuales</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Syne:wght@600;700&family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #040c18;
+    --bg2: #071224;
+    --card: #0b1a30;
+    --card2: #0f2040;
+    --teal: #00d4b4;
+    --teal-dim: rgba(0, 212, 180, 0.12);
+    --coral: #ff5e5e;
+    --coral-dim: rgba(255, 94, 94, 0.12);
+    --gold: #f9c846;
+    --gold-dim: rgba(249, 200, 70, 0.12);
+    --purple: #9b7bff;
+    --purple-dim: rgba(155, 123, 255, 0.12);
+    --green: #4ade80;
+    --green-dim: rgba(74, 222, 128, 0.1);
+    --text: #dde6f0;
+    --text-muted: #6b86a3;
+    --border: rgba(0, 212, 180, 0.12);
+    --border-strong: rgba(0, 212, 180, 0.3);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 15px;
+    line-height: 1.65;
+    overflow-x: hidden;
+  }
+
+  /* ─── NOISE OVERLAY ─── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
+  }
+
+  /* ─── GLOWS ─── */
+  .glow-teal {
+    position: fixed;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(0,212,180,0.07) 0%, transparent 70%);
+    top: -100px; right: -100px;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .glow-purple {
+    position: fixed;
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(155,123,255,0.06) 0%, transparent 70%);
+    bottom: 200px; left: -100px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ─── NAV ─── */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(4, 12, 24, 0.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 40px;
+  }
+  .nav-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 56px;
+  }
+  .nav-logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--teal);
+  }
+  .nav-logo span { color: var(--text-muted); }
+  .nav-links {
+    display: flex;
+    gap: 28px;
+    list-style: none;
+  }
+  .nav-links a {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--teal); }
+
+  /* ─── LAYOUT ─── */
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 40px;
+    position: relative;
+    z-index: 1;
+  }
+
+  section { padding: 80px 0; }
+
+  /* ─── HERO ─── */
+  .hero {
+    padding: 100px 0 80px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--teal-dim);
+    border: 1px solid var(--border-strong);
+    border-radius: 100px;
+    padding: 6px 16px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--teal);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 28px;
+    animation: fadeUp 0.6s ease both;
+  }
+  .hero-tag::before {
+    content: '';
+    width: 6px; height: 6px;
+    background: var(--teal);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.3); }
+  }
+  h1 {
+    font-family: 'Outfit', sans-serif;
+    font-size: clamp(36px, 4.5vw, 58px);
+    font-weight: 600;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: #fff;
+    margin-bottom: 24px;
+    animation: fadeUp 0.6s 0.1s ease both;
+  }
+  h1 em {
+    font-style: normal;
+    color: var(--teal);
+    position: relative;
+  }
+  .hero-sub {
+    font-size: 18px;
+    color: var(--text-muted);
+    max-width: 560px;
+    line-height: 1.7;
+    animation: fadeUp 0.6s 0.2s ease both;
+  }
+  .hero-grid {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 60px;
+    align-items: center;
+    margin-top: 16px;
+  }
+  .hero-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    animation: fadeUp 0.6s 0.3s ease both;
+  }
+  .stat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+  }
+  .stat-card .num {
+    font-family: 'Outfit', sans-serif;
+    font-size: 26px;
+    font-weight: 600;
+    color: var(--teal);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .stat-card .label {
+    font-size: 12px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  /* ─── OBJETIVO BANNER ─── */
+  .objetivo-banner {
+    background: linear-gradient(135deg, rgba(0,212,180,0.08) 0%, rgba(155,123,255,0.08) 100%);
+    border: 1px solid var(--border-strong);
+    border-radius: 20px;
+    padding: 32px 40px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    margin-bottom: 0;
+  }
+  .objetivo-icon {
+    font-size: 48px;
+    flex-shrink: 0;
+  }
+  .objetivo-text h2 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 6px;
+  }
+  .objetivo-text p {
+    color: var(--text-muted);
+    font-size: 15px;
+    max-width: 700px;
+  }
+  .objetivo-text strong { color: var(--teal); }
+
+  /* ─── SECTION HEADERS ─── */
+  .section-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--teal);
+    margin-bottom: 12px;
+  }
+  h2.section-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: clamp(24px, 2.8vw, 32px);
+    font-weight: 600;
+    color: #fff;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+    margin-bottom: 10px;
+  }
+  .section-desc {
+    color: var(--text-muted);
+    font-size: 15px;
+    max-width: 540px;
+    margin-bottom: 48px;
+  }
+
+  /* ─── ROLES ─── */
+  .roles-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+  .role-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 32px 28px;
+    transition: transform 0.3s, border-color 0.3s, box-shadow 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+  .role-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, var(--accent-dim) 0%, transparent 60%);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .role-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+  }
+  .role-card:hover::before { opacity: 1; }
+  .role-card.owner { --accent: var(--teal); --accent-dim: var(--teal-dim); }
+  .role-card.co { --accent: var(--purple); --accent-dim: var(--purple-dim); }
+  .role-card.obs { --accent: var(--gold); --accent-dim: var(--gold-dim); }
+  .role-card:hover { border-color: var(--accent); }
+  .role-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    border-radius: 100px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    background: var(--accent-dim);
+    color: var(--accent);
+    border: 1px solid var(--accent);
+  }
+  .role-card h3 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 8px;
+  }
+  .role-card .role-sub {
+    font-size: 13px;
+    color: var(--accent);
+    font-weight: 500;
+    margin-bottom: 16px;
+  }
+  .role-card p {
+    font-size: 14px;
+    color: var(--text-muted);
+    line-height: 1.6;
+    margin-bottom: 20px;
+  }
+  .role-tasks {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .role-tasks li {
+    display: flex;
+    gap: 10px;
+    font-size: 13.5px;
+    color: var(--text);
+    line-height: 1.5;
+  }
+  .role-tasks li::before {
+    content: '→';
+    color: var(--accent);
+    flex-shrink: 0;
+    font-weight: 600;
+  }
+
+  /* ─── JOURNEY ─── */
+  .journey-phases {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 3px;
+    margin-bottom: 40px;
+  }
+  .phase-tab {
+    padding: 14px 20px;
+    text-align: center;
+    cursor: pointer;
+    background: var(--card);
+    border: 1px solid var(--border);
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 0.04em;
+    color: var(--text-muted);
+    transition: all 0.3s;
+    position: relative;
+  }
+  .phase-tab:first-child { border-radius: 14px 0 0 14px; }
+  .phase-tab:last-child { border-radius: 0 14px 14px 0; }
+  .phase-tab.active {
+    background: var(--card2);
+    color: var(--phase-color);
+    border-color: var(--phase-color);
+    z-index: 1;
+  }
+  .phase-tab.antes { --phase-color: var(--teal); }
+  .phase-tab.durante { --phase-color: var(--purple); }
+  .phase-tab.despues { --phase-color: var(--gold); }
+  .phase-tab .phase-num {
+    display: block;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    opacity: 0.6;
+    margin-bottom: 2px;
+    text-transform: uppercase;
+  }
+  
+  .phase-content { display: none; }
+  .phase-content.active { display: block; animation: fadeIn 0.4s ease; }
+  
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  .phase-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    margin-bottom: 32px;
+    padding: 28px 32px;
+    background: var(--card);
+    border-radius: 16px;
+    border: 1px solid var(--border);
+  }
+  .phase-icon {
+    font-size: 40px;
+    flex-shrink: 0;
+  }
+  .phase-header h3 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--accent-color);
+    margin-bottom: 6px;
+  }
+  .phase-header p { color: var(--text-muted); font-size: 14.5px; max-width: 600px; }
+  .phase-antes { --accent-color: var(--teal); }
+  .phase-durante { --accent-color: var(--purple); }
+  .phase-despues { --accent-color: var(--gold); }
+
+  .steps-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+  .step-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    display: flex;
+    gap: 16px;
+    transition: border-color 0.2s, transform 0.2s;
+    position: relative;
+  }
+  .step-card:hover {
+    border-color: var(--sc, var(--teal));
+    transform: translateY(-2px);
+  }
+  .step-num {
+    font-family: 'Outfit', sans-serif;
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--sc, var(--teal));
+    opacity: 0.3;
+    line-height: 1;
+    flex-shrink: 0;
+    width: 36px;
+  }
+  .step-card h4 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 6px;
+  }
+  .step-card p { font-size: 13.5px; color: var(--text-muted); line-height: 1.6; }
+  .step-card .tip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 10px;
+    font-size: 12px;
+    color: var(--sc, var(--teal));
+    background: rgba(0,212,180,0.07);
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-weight: 500;
+  }
+
+  /* QUÉ SÍ / NO */
+  .dos-donts {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-top: 24px;
+  }
+  .do-col, .dont-col {
+    background: var(--card);
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .col-header {
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+  }
+  .do-col .col-header { background: rgba(74,222,128,0.08); color: var(--green); border-bottom: 1px solid rgba(74,222,128,0.15); }
+  .dont-col .col-header { background: rgba(255,94,94,0.08); color: var(--coral); border-bottom: 1px solid rgba(255,94,94,0.15); }
+  .col-items { padding: 20px 24px; display: flex; flex-direction: column; gap: 14px; }
+  .col-item {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    font-size: 13.5px;
+    color: var(--text);
+    line-height: 1.55;
+  }
+  .col-item .icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+
+  /* ─── HALLAZGOS ─── */
+  .hallazgos-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+  .hallazgo-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 28px 24px;
+    transition: transform 0.3s, border-color 0.3s;
+    text-align: center;
+  }
+  .hallazgo-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--hc);
+  }
+  .hallazgo-card .h-icon {
+    font-size: 36px;
+    margin-bottom: 14px;
+    display: block;
+  }
+  .hallazgo-card .h-tag {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 100px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    background: rgba(var(--hc-rgb),0.12);
+    color: var(--hc);
+    margin-bottom: 12px;
+  }
+  .hallazgo-card h4 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 17px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 8px;
+  }
+  .hallazgo-card p {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+  .h-dolor { --hc: #ff5e5e; --hc-rgb: 255,94,94; }
+  .h-oportunidad { --hc: #00d4b4; --hc-rgb: 0,212,180; }
+  .h-bug { --hc: #f9c846; --hc-rgb: 249,200,70; }
+  .h-compromiso { --hc: #9b7bff; --hc-rgb: 155,123,255; }
+
+  /* ─── POST FLUJO ─── */
+  .flujo-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    position: relative;
+    padding-left: 50px;
+  }
+  .flujo-step {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 24px;
+    align-items: start;
+    position: relative;
+  }
+  .flujo-step:not(:last-child)::before {
+    content: '';
+    position: absolute;
+    left: -28px;
+    top: 52px;
+    bottom: -20px;
+    width: 2px;
+    background: linear-gradient(to bottom, var(--fs-color), transparent);
+    opacity: 0.3;
+  }
+  .flujo-step-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    background: rgba(var(--fs-rgb),0.12);
+    border: 1px solid rgba(var(--fs-rgb),0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+    margin-top: 4px;
+    position: relative;
+    left: -50px;
+  }
+  .flujo-step-body {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px 28px;
+    margin-bottom: 16px;
+    margin-left: -26px;
+    transition: border-color 0.3s;
+  }
+  .flujo-step-body:hover { border-color: var(--fs-color); }
+  .flujo-step .step-tag {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 100px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    background: rgba(var(--fs-rgb),0.1);
+    color: var(--fs-color);
+    margin-bottom: 8px;
+  }
+  .flujo-step h4 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 6px;
+  }
+  .flujo-step p { color: var(--text-muted); font-size: 14px; line-height: 1.6; }
+  .flujo-step .channel-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 12px;
+    padding: 8px 14px;
+    background: var(--card2);
+    border: 1px solid var(--border-strong);
+    border-radius: 10px;
+    font-size: 12.5px;
+    font-weight: 500;
+    color: var(--text);
+  }
+  .flujo-step .channel-badge a {
+    color: var(--fs-color);
+    text-decoration: none;
+    font-weight: 600;
+  }
+  .flujo-step .channel-badge a:hover { text-decoration: underline; }
+  
+  .fs-chat { --fs-color: var(--green); --fs-rgb: 74,222,128; }
+  .fs-visitaton { --fs-color: var(--teal); --fs-rgb: 0,212,180; }
+  .fs-linear { --fs-color: var(--purple); --fs-rgb: 155,123,255; }
+
+  /* ─── TIPS VIRTUALES ─── */
+  .tips-virtual {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+  .tip-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    transition: transform 0.3s, border-color 0.3s;
+  }
+  .tip-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--teal);
+  }
+  .tip-card .tip-emoji { font-size: 28px; margin-bottom: 14px; display: block; }
+  .tip-card h4 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 8px;
+  }
+  .tip-card p { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+
+  /* ─── CHECKLIST ─── */
+  .checklist-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+  .checklist-col {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+  .checklist-col .col-title {
+    padding: 14px 20px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--border);
+  }
+  .checklist-items { padding: 16px 20px; }
+  .check-item {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    font-size: 13.5px;
+    color: var(--text);
+    line-height: 1.5;
+  }
+  .check-item:last-child { border-bottom: none; }
+  .check-box {
+    width: 18px; height: 18px;
+    border-radius: 5px;
+    border: 1.5px solid var(--cc);
+    flex-shrink: 0;
+    margin-top: 2px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+    font-size: 11px;
+    user-select: none;
+  }
+  .check-box.checked { background: var(--cc); }
+  .antes-col { --cc: var(--teal); }
+  .durante-col { --cc: var(--purple); }
+  .despues-col { --cc: var(--gold); }
+  .col-title.antes-col { color: var(--teal); }
+  .col-title.durante-col { color: var(--purple); }
+  .col-title.despues-col { color: var(--gold); }
+
+  /* ─── FOOTER ─── */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 40px 0;
+    margin-top: 40px;
+  }
+  .footer-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .footer-logo {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 800;
+    font-size: 16px;
+    color: var(--teal);
+  }
+  .footer-links {
+    display: flex;
+    gap: 24px;
+    list-style: none;
+  }
+  .footer-links a {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 13px;
+    transition: color 0.2s;
+  }
+  .footer-links a:hover { color: var(--teal); }
+  .footer-copy { font-size: 12px; color: var(--text-muted); }
+
+  /* ─── ANIMATIONS ─── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .fade-up {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  .fade-up.visible { opacity: 1; transform: translateY(0); }
+
+  /* ─── SEPARATOR ─── */
+  .sep {
+    height: 1px;
+    background: var(--border);
+    margin: 0;
+  }
+
+  /* ─── VIRTUAL BADGE ─── */
+  .virtual-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(0,212,180,0.06);
+    border: 1px solid var(--border-strong);
+    border-radius: 12px;
+    padding: 10px 20px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--teal);
+    margin-bottom: 32px;
+  }
+  .virtual-badge img { width: 18px; height: 18px; }
+
+  /* ─── ESCUCHA BOX ─── */
+  .escucha-box {
+    background: linear-gradient(135deg, rgba(155,123,255,0.1) 0%, rgba(0,212,180,0.08) 100%);
+    border: 1px solid rgba(155,123,255,0.3);
+    border-radius: 20px;
+    padding: 40px;
+    text-align: center;
+    margin-top: 60px;
+  }
+  .escucha-box .big-text {
+    font-family: 'Outfit', sans-serif;
+    font-size: 28px;
+    font-weight: 800;
+    color: #fff;
+    line-height: 1.3;
+    margin-bottom: 12px;
+  }
+  .escucha-box .big-text em {
+    font-style: normal;
+    color: var(--teal);
+  }
+  .escucha-box p { color: var(--text-muted); font-size: 15px; }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 768px) {
+    .container { padding: 0 20px; }
+    .hero-grid { grid-template-columns: 1fr; }
+    .hero-stats { display: none; }
+    .roles-grid { grid-template-columns: 1fr; }
+    .steps-grid { grid-template-columns: 1fr; }
+    .hallazgos-grid { grid-template-columns: repeat(2, 1fr); }
+    .tips-virtual { grid-template-columns: 1fr; }
+    .checklist-grid { grid-template-columns: 1fr; }
+    .dos-donts { grid-template-columns: 1fr; }
+    .nav-links { display: none; }
+    .objetivo-banner { flex-direction: column; }
+    section { padding: 50px 0; }
+  }
+</style>
+</head>
+<body>
+
+<div class="glow-teal"></div>
+<div class="glow-purple"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <div class="nav-logo">Visitatón <span>· Entrevistas Virtuales</span></div>
+    <ul class="nav-links">
+      <li><a href="#roles">Roles</a></li>
+      <li><a href="#journey">Journey</a></li>
+      <li><a href="#hallazgos">Hallazgos</a></li>
+      <li><a href="#post">Post-Entrevista</a></li>
+      <li><a href="#checklist">Checklist</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="container">
+  <div class="hero">
+    <div class="hero-tag">🎤 Guía de Buenas Prácticas</div>
+    <div class="hero-grid">
+      <div>
+        <h1>Entrevista<br><em>virtual</em> que<br>transforma.</h1>
+        <p class="hero-sub">Todo lo que necesitas saber para conducir una entrevista de usuario en Google Meet: roles, preguntas, actitudes y cómo documentar hallazgos que generen impacto real.</p>
+        <div class="virtual-badge" style="margin-top: 28px;">
+          <svg width="18" height="18" viewBox="0 0 48 48" fill="none"><rect width="48" height="48" rx="8" fill="#1a73e8"/><path d="M27 20L38 13v22L27 28v3a3 3 0 01-3 3H13a3 3 0 01-3-3V19a3 3 0 013-3h11a3 3 0 013 3v1z" fill="white"/></svg>
+          Modalidad Google Meet · Reuniones ya agendadas por Carlos Posada
+        </div>
+      </div>
+      <div class="hero-stats">
+        <div class="stat-card">
+          <div class="num">30'</div>
+          <div class="label">Duración estándar</div>
+        </div>
+        <div class="stat-card">
+          <div class="num">3</div>
+          <div class="label">Roles en equipo</div>
+        </div>
+        <div class="stat-card">
+          <div class="num">4</div>
+          <div class="label">Tipos de hallazgos</div>
+        </div>
+        <div class="stat-card">
+          <div class="num">100%</div>
+          <div class="label">Escucha activa</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="sep"></div>
+
+<!-- OBJETIVO -->
+<section style="padding: 48px 0;">
+  <div class="container">
+    <div class="objetivo-banner fade-up">
+      <div class="objetivo-icon">🎯</div>
+      <div class="objetivo-text">
+        <h2>Objetivo del espacio</h2>
+        <p><strong>Escuchar al usuario.</strong> Conocer sus dolores, oportunidades y experiencia con Alegra. Entenderlo. Esto es <strong>research, no una prueba de usabilidad.</strong></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="sep"></div>
+
+<!-- ROLES -->
+<section id="roles">
+  <div class="container">
+    <div class="section-label">El Equipo</div>
+    <h2 class="section-title">Tres roles.<br>Un propósito.</h2>
+    <p class="section-desc">Antes de entrar a la llamada, el equipo debe tener claro quién hace qué.</p>
+
+    <!-- Prompt de rol -->
+    <div style="background: var(--card2); border: 1px solid var(--border-strong); border-radius: 16px; padding: 24px 32px; margin-bottom: 32px; display: flex; align-items: flex-start; gap: 20px;">
+      <div style="font-size: 32px; flex-shrink: 0; margin-top: 2px;">🤔</div>
+      <div>
+        <div style="font-family: 'Outfit', sans-serif; font-size: 17px; font-weight: 700; color: #fff; margin-bottom: 6px;">¿Ya sabes cuál es tu rol?</div>
+        <p style="color: var(--text-muted); font-size: 14px; line-height: 1.6; margin-bottom: 12px;">Conversa con tu equipo antes de la llamada y defínelo. La configuración recomendada es <strong style="color: var(--teal);">1 Owner · 2 Co-entrevistadores · 1 Observador</strong>. También es útil repartir los temas: uno lidera preguntas generales, otro profundiza en producto, otro en soporte.</p>
+        <a href="https://docs.google.com/document/d/1dsa_OCuVTPWTwg5B9HoFPuyNeB2AHqD1sVOwEn5FvHg/edit?tab=t.0" target="_blank" style="display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; background: var(--teal-dim); border: 1px solid var(--border-strong); border-radius: 8px; color: var(--teal); font-size: 13px; font-weight: 500; text-decoration: none; transition: background 0.2s;" onmouseover="this.style.background='rgba(0,212,180,0.2)'" onmouseout="this.style.background='var(--teal-dim)'">
+          📋 Ver Playbook de Preguntas oficial →
+        </a>
+      </div>
+    </div>
+
+    <div class="roles-grid fade-up">
+      <!-- OWNER -->
+      <div class="role-card owner">
+        <div class="role-badge">👑 Rol 1</div>
+        <h3>Owner</h3>
+        <div class="role-sub">Conduce la entrevista</div>
+        <p>Es el líder de la conversación. Dirige el diálogo, gestiona los tiempos y mantiene el foco en los objetivos sin perder la naturalidad.</p>
+        <ul class="role-tasks">
+          <li>Inicia la llamada en Meet y activa la IA de grabación</li>
+          <li>Presenta al equipo y explica el propósito</li>
+          <li>Solicita permiso para grabar ("¿Está bien si grabamos?") </li>
+          <li>Conduce las preguntas de forma conversacional</li>
+          <li>Gestiona los tiempos (30 min en total)</li>
+          <li>Cierra, agradece y coordina compromisos</li>
+        </ul>
+      </div>
+
+      <!-- CO-ENTREVISTADOR -->
+      <div class="role-card co">
+        <div class="role-badge">🤝 Rol 2</div>
+        <h3>Co-entrevistador</h3>
+        <div class="role-sub">Apoya y profundiza</div>
+        <p>Acompaña activamente. Hace preguntas de seguimiento, toma notas estructuradas y cubre los temas asignados en la repartición previa.</p>
+        <ul class="role-tasks">
+          <li>Toma notas claras y ordenadas durante la llamada</li>
+          <li>Hace preguntas de seguimiento que enriquezcan el diálogo</li>
+          <li>Captura citas textuales relevantes del usuario</li>
+          <li>Registra el tipo de hallazgo (dolor, oportunidad, bug, compromiso)</li>
+          <li>Apoya el cierre reforzando puntos clave</li>
+        </ul>
+      </div>
+
+      <!-- OBSERVADOR -->
+      <div class="role-card obs">
+        <div class="role-badge">👁️ Rol 3</div>
+        <h3>Observador</h3>
+        <div class="role-sub">Escucha, registra y apoya si es necesario</div>
+        <p>Su foco es observar con atención y capturar matices que el equipo podría perder. Puede intervenir puntualmente para apoyar si el Owner lo necesita.</p>
+        <ul class="role-tasks">
+          <li>Prioriza la escucha y observación durante la entrevista</li>
+          <li>Observa el lenguaje no verbal del usuario (aunque sea virtual)</li>
+          <li>Toma notas de patrones, contradicciones o emociones</li>
+          <li>Puede hacer preguntas de apoyo si el Owner se lo indica</li>
+          <li>Comparte sus hallazgos en el debriefing post-entrevista</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="sep"></div>
+
+<!-- JOURNEY -->
+<section id="journey">
+  <div class="container">
+    <div class="section-label">El Journey</div>
+    <h2 class="section-title">Antes · Durante · Después</h2>
+    <p class="section-desc">Cada fase tiene sus propias reglas de juego. Conocerlas reduce el estrés y eleva la calidad de lo que aprendes.</p>
+
+    <div class="journey-phases">
+      <div class="phase-tab antes active" onclick="showPhase('antes')">
+        <span class="phase-num">Fase 01</span>
+        🕐 Antes
+      </div>
+      <div class="phase-tab durante" onclick="showPhase('durante')">
+        <span class="phase-num">Fase 02</span>
+        🎙️ Durante
+      </div>
+      <div class="phase-tab despues" onclick="showPhase('despues')">
+        <span class="phase-num">Fase 03</span>
+        📝 Después
+      </div>
+    </div>
+
+    <!-- ANTES -->
+    <div class="phase-content antes-phase active" id="phase-antes">
+      <div class="phase-header phase-antes">
+        <div class="phase-icon">🕐</div>
+        <div>
+          <h3>Antes de la entrevista</h3>
+          <p>La mayoría del trabajo ocurre aquí. Llegar bien preparado es la diferencia entre una conversación superficial y una que revela insights reales.</p>
+        </div>
+      </div>
+      <div class="steps-grid">
+        <div class="step-card" style="--sc: var(--teal)">
+          <div class="step-num">01</div>
+          <div>
+            <h4>Revisa el perfil del usuario</h4>
+            <p>Antes de la llamada, conoce la empresa, los productos activos, el tiempo que llevan con Alegra y tickets abiertos. Entrar con contexto demuestra respeto por su tiempo.</p>
+            <div class="tip">💡 Tip virtual: Abre el perfil en otra pestaña durante la llamada</div>
+          </div>
+        </div>
+        <div class="step-card" style="--sc: var(--teal)">
+          <div class="step-num">02</div>
+          <div>
+            <h4>Repasa las preguntas del guión</h4>
+            <p>No las memorices, pero sí interiorízalas. Sabe cuáles son las más importantes y cuáles son opcionales. Ten claro el propósito de cada bloque.</p>
+            <div class="tip">🔗 Playbook de preguntas oficial Visitatón</div>
+          </div>
+        </div>
+        <div class="step-card" style="--sc: var(--teal)">
+          <div class="step-num">03</div>
+          <div>
+            <h4>Verifica tu setup técnico</h4>
+            <p>Abre Meet 5 minutos antes. Verifica micrófono, cámara y conexión a internet. Cierra notificaciones del computador y aplicaciones innecesarias.</p>
+            <div class="tip">📶 Tip: Usa conexión por cable si puedes</div>
+          </div>
+        </div>
+        <div class="step-card" style="--sc: var(--teal)">
+          <div class="step-num">04</div>
+          <div>
+            <h4>Prepara tu espacio visual</h4>
+            <p>Fondo neutro o usa el fondo de Alegra si está disponible. Buena iluminación de frente (no contraluz). Apariencia profesional y sobria.</p>
+            <div class="tip">🎥 Tu imagen también comunica profesionalismo</div>
+          </div>
+        </div>
+        <div class="step-card" style="--sc: var(--teal)">
+          <div class="step-num">05</div>
+          <div>
+            <h4>Coordina internamente con el equipo</h4>
+            <p>Define quién es Owner, Co-entrevistador y Observador. Alineen el orden de los temas a abordar: onboarding, soporte, producto, generales.</p>
+            <div class="tip">💬 Canal: tp-visitaton-feedback-post-entrevista</div>
+          </div>
+        </div>
+        <div class="step-card" style="--sc: var(--teal)">
+          <div class="step-num">06</div>
+          <div>
+            <h4>Avisa a Visitatón del inicio</h4>
+            <p>Al iniciar la entrevista, el Owner debe avisar a Visitatón para activar la IA de registro y grabación en tiempo real.</p>
+            <div class="tip">🤖 Esto garantiza transcripción completa</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DURANTE -->
+    <div class="phase-content durante-phase" id="phase-durante">
+      <div class="phase-header phase-durante">
+        <div class="phase-icon">🎙️</div>
+        <div>
+          <h3>Durante la entrevista</h3>
+          <p>Aquí es donde todo sucede. El arte está en escuchar más de lo que hablas, y dejar que el usuario lleve la conversación adonde tiene sentido ir.</p>
+        </div>
+      </div>
+
+      <div style="margin-bottom: 24px;">
+        <div style="background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 20px 28px; margin-bottom: 16px;">
+          <div style="font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 700; color: var(--purple); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 16px;">📋 Protocolo de apertura (primeros 2 minutos)</div>
+          <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;">
+            <div style="text-align: center; padding: 16px 12px; background: var(--card2); border-radius: 12px;">
+              <div style="font-size: 24px; margin-bottom: 8px;">👋</div>
+              <div style="font-size: 12px; color: var(--text-muted);">Saluda y agradece</div>
+            </div>
+            <div style="text-align: center; padding: 16px 12px; background: var(--card2); border-radius: 12px;">
+              <div style="font-size: 24px; margin-bottom: 8px;">🎙️</div>
+              <div style="font-size: 12px; color: var(--text-muted);">Pide permiso para grabar</div>
+            </div>
+            <div style="text-align: center; padding: 16px 12px; background: var(--card2); border-radius: 12px;">
+              <div style="font-size: 24px; margin-bottom: 8px;">👥</div>
+              <div style="font-size: 12px; color: var(--text-muted);">Presenta al equipo</div>
+            </div>
+            <div style="text-align: center; padding: 16px 12px; background: var(--card2); border-radius: 12px;">
+              <div style="font-size: 24px; margin-bottom: 8px;">📋</div>
+              <div style="font-size: 12px; color: var(--text-muted);">Explica propósito y agenda</div>
+            </div>
+          </div>
+          <div style="margin-top: 16px; padding: 12px 16px; background: rgba(155,123,255,0.07); border-radius: 10px; font-size: 13px; color: var(--text-muted); font-style: italic;">
+            "Hola [nombre], gracias por regalarnos este espacio. La idea es escucharte y aprender de tu experiencia con Alegra."
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-bottom: 24px; background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 24px 28px;">
+        <div style="font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 700; color: var(--purple); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 16px;">⏱ Estructura de 30 minutos</div>
+        <div style="display: flex; gap: 0; border-radius: 10px; overflow: hidden;">
+          <div style="flex: 2; background: rgba(0,212,180,0.1); padding: 14px 12px; text-align: center; border-right: 1px solid rgba(255,255,255,0.05);">
+            <div style="font-family: 'Outfit', sans-serif; font-weight: 700; color: var(--teal); font-size: 15px;">0–2'</div>
+            <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Apertura</div>
+          </div>
+          <div style="flex: 8; background: rgba(155,123,255,0.08); padding: 14px 12px; text-align: center; border-right: 1px solid rgba(255,255,255,0.05);">
+            <div style="font-family: 'Outfit', sans-serif; font-weight: 700; color: var(--purple); font-size: 15px;">2–10'</div>
+            <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Arquetipos</div>
+          </div>
+          <div style="flex: 3; background: rgba(249,200,70,0.08); padding: 14px 12px; text-align: center; border-right: 1px solid rgba(255,255,255,0.05);">
+            <div style="font-family: 'Outfit', sans-serif; font-weight: 700; color: var(--gold); font-size: 15px;">10–13'</div>
+            <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Éxito</div>
+          </div>
+          <div style="flex: 9; background: rgba(255,94,94,0.08); padding: 14px 12px; text-align: center; border-right: 1px solid rgba(255,255,255,0.05);">
+            <div style="font-family: 'Outfit', sans-serif; font-weight: 700; color: var(--coral); font-size: 15px;">13–22'</div>
+            <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Dolores</div>
+          </div>
+          <div style="flex: 4; background: rgba(0,212,180,0.08); padding: 14px 12px; text-align: center; border-right: 1px solid rgba(255,255,255,0.05);">
+            <div style="font-family: 'Outfit', sans-serif; font-weight: 700; color: var(--teal); font-size: 15px;">22–26'</div>
+            <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Oportunidades</div>
+          </div>
+          <div style="flex: 2; background: rgba(155,123,255,0.1); padding: 14px 12px; text-align: center; border-right: 1px solid rgba(255,255,255,0.05);">
+            <div style="font-family: 'Outfit', sans-serif; font-weight: 700; color: var(--purple); font-size: 15px;">26–28'</div>
+            <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Priorizar</div>
+          </div>
+          <div style="flex: 2; background: rgba(249,200,70,0.1); padding: 14px 12px; text-align: center;">
+            <div style="font-family: 'Outfit', sans-serif; font-weight: 700; color: var(--gold); font-size: 15px;">28–30'</div>
+            <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Cierre</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="dos-donts">
+        <div class="do-col">
+          <div class="col-header">✅ Sí hacer</div>
+          <div class="col-items">
+            <div class="col-item"><span class="icon">💬</span> Hacer preguntas abiertas y curiosas: "¿Cómo fue tu primera experiencia al emitir una factura?"</div>
+            <div class="col-item"><span class="icon">🤫</span> Dejar pausas y silencios. Muchas veces las mejores respuestas salen después del silencio.</div>
+            <div class="col-item"><span class="icon">👂</span> Escuchar activamente: asentir, parafrasear, mostrar interés genuino en lo que cuentan.</div>
+            <div class="col-item"><span class="icon">🗺️</span> Usar la guía como apoyo, no como guión rígido. Seguir el hilo de la conversación.</div>
+            <div class="col-item"><span class="icon">🙏</span> Validar y agradecer cada respuesta: "Súper, gracias por contarnos eso".</div>
+            <div class="col-item"><span class="icon">🎥</span> Mantener la cámara encendida y buena postura durante toda la llamada.</div>
+            <div class="col-item"><span class="icon">📝</span> Co-entrevistador y Observador toman notas silenciosamente con micrófono off.</div>
+          </div>
+        </div>
+        <div class="dont-col">
+          <div class="col-header">❌ No hacer</div>
+          <div class="col-items">
+            <div class="col-item"><span class="icon">🚫</span> No prometas cambios ni soluciones inmediatas. El objetivo es entender, no resolver en el momento.</div>
+            <div class="col-item"><span class="icon">🚫</span> No uses tecnicismos: "bug", "issue", "ticket", "backend". Usa lenguaje cotidiano y cercano.</div>
+            <div class="col-item"><span class="icon">🚫</span> No interrumpas. Deja que el usuario termine su respuesta por completo antes de seguir.</div>
+            <div class="col-item"><span class="icon">🚫</span> No hagas preguntas cerradas: "¿Sabes emitir facturas?" no revela nada.</div>
+            <div class="col-item"><span class="icon">🚫</span> No evalúes ni juzgues las respuestas. Este no es un espacio para defender el producto.</div>
+            <div class="col-item"><span class="icon">🚫</span> No uses la entrevista para vender o convencer. Solo escuchar.</div>
+            <div class="col-item"><span class="icon">🚫</span> No te distraigas con el chat, celular o notificaciones durante la llamada.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DESPUÉS -->
+    <div class="phase-content despues-phase" id="phase-despues">
+      <div class="phase-header phase-despues">
+        <div class="phase-icon">📝</div>
+        <div>
+          <h3>Después de la entrevista</h3>
+          <p>La entrevista no termina cuando se corta la llamada. Lo que haces en las siguientes 24 horas determina si los insights se pierden o generan cambio real.</p>
+        </div>
+      </div>
+      <div class="steps-grid">
+        <div class="step-card" style="--sc: var(--gold)">
+          <div class="step-num">01</div>
+          <div>
+            <h4>Re-escribe tus notas en 24h</h4>
+            <p>Traduce palabras clave y frases sueltas en oraciones lógicas completas. Mientras la memoria está fresca es cuando más valor generas.</p>
+            <div class="tip">⏱ No esperes más de 24 horas</div>
+          </div>
+        </div>
+        <div class="step-card" style="--sc: var(--gold)">
+          <div class="step-num">02</div>
+          <div>
+            <h4>Responde las preguntas clave</h4>
+            <p>¿Qué observé? ¿Qué aprendí? ¿Qué me sorprendió? ¿Qué patrones noté? ¿Qué vacíos quedaron? ¿Qué compromisos surgieron?</p>
+            <div class="tip">✍️ Escribe oraciones, no listas de palabras</div>
+          </div>
+        </div>
+        <div class="step-card" style="--sc: var(--gold)">
+          <div class="step-num">03</div>
+          <div>
+            <h4>Clasifica los hallazgos</h4>
+            <p>Cada cosa que anotaste es un Dolor, Oportunidad, Bug o Compromiso. Clasificarlos es clave para que lleguen al equipo correcto.</p>
+            <div class="tip">🏷 Ver sección Tipos de Hallazgos ↓</div>
+          </div>
+        </div>
+        <div class="step-card" style="--sc: var(--gold)">
+          <div class="step-num">04</div>
+          <div>
+            <h4>Comparte en Google Chat</h4>
+            <p>Publica un resumen corto en el canal tp-visitaton-feedback-post-entrevista para alinear al equipo sobre qué llevar a cada área.</p>
+            <div class="tip">💬 Canal exclusivo de coordinación</div>
+          </div>
+        </div>
+        <div class="step-card" style="--sc: var(--gold)">
+          <div class="step-num">05</div>
+          <div>
+            <h4>Registra TODO en LINEAR</h4>
+            <p>Cada tarea y compromiso acordado debe quedar documentado en el tablero de Visitatón post-visitas en LINEAR. Sin excepción.</p>
+            <div class="tip">⚡ Tablero Visitatón Post-Visitas en LINEAR</div>
+          </div>
+        </div>
+        <div class="step-card" style="--sc: var(--gold)">
+          <div class="step-num">06</div>
+          <div>
+            <h4>Mejora el guión</h4>
+            <p>Reflexiona sobre preguntas que fallaron o temas que no pudiste explorar. Cada entrevista debe mejorar la siguiente.</p>
+            <div class="tip">🔄 Proceso de mejora continua</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<div class="sep"></div>
+
+<!-- HALLAZGOS -->
+<section id="hallazgos">
+  <div class="container">
+    <div class="section-label">Tipos de Hallazgos</div>
+    <h2 class="section-title">¿Qué estás capturando?</h2>
+    <p class="section-desc">Cada cosa que el usuario dice cae en una de estas cuatro categorías. Clasificarlo bien desde el inicio agiliza el trabajo del equipo.</p>
+
+    <div class="hallazgos-grid fade-up">
+      <div class="hallazgo-card h-dolor">
+        <span class="h-icon">😤</span>
+        <span class="h-tag">Dolor</span>
+        <h4>Dolor</h4>
+        <p>Una fricción, frustración o problema que el usuario experimenta en su día a día con Alegra. Algo que le genera esfuerzo o lo detiene.</p>
+      </div>
+      <div class="hallazgo-card h-oportunidad">
+        <span class="h-icon">💡</span>
+        <span class="h-tag">Oportunidad</span>
+        <h4>Oportunidad</h4>
+        <p>Una mejora potencial identificada. Algo que no necesariamente duele hoy, pero que si se resuelve elevaría significativamente su experiencia.</p>
+      </div>
+      <div class="hallazgo-card h-bug">
+        <span class="h-icon">🐛</span>
+        <span class="h-tag">Bug</span>
+        <h4>Bug</h4>
+        <p>Un error técnico detectado durante la conversación. Algo que no funciona como debería en la plataforma o en un flujo específico.</p>
+      </div>
+      <div class="hallazgo-card h-compromiso">
+        <span class="h-icon">🤝</span>
+        <span class="h-tag">Compromiso</span>
+        <h4>Compromiso</h4>
+        <p>Una acción acordada con el usuario a corto plazo. Algo que el equipo de Alegra se comprometió a revisar, resolver o hacer seguimiento.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="sep"></div>
+
+<!-- TIPS VIRTUALES -->
+<section>
+  <div class="container">
+    <div class="section-label">Virtualidad</div>
+    <h2 class="section-title">Tips exclusivos<br>para Google Meet</h2>
+    <p class="section-desc">Las entrevistas virtuales tienen sus propias reglas. Estos tips ayudan a construir la misma confianza que se genera en persona.</p>
+
+    <div class="tips-virtual fade-up">
+      <div class="tip-card">
+        <span class="tip-emoji">📸</span>
+        <h4>Cámara siempre encendida</h4>
+        <p>La cámara encendida genera confianza y humaniza la conversación. Si algún participante la tiene apagada, el usuario lo nota.</p>
+      </div>
+      <div class="tip-card">
+        <span class="tip-emoji">🔇</span>
+        <h4>Micrófono controlado</h4>
+        <p>Co-entrevistadores y Observadores mantienen el micrófono silenciado cuando no hablan. Reducir el ruido de fondo mejora la calidad de la grabación.</p>
+      </div>
+      <div class="tip-card">
+        <span class="tip-emoji">🖼️</span>
+        <h4>Fondo neutro o de marca</h4>
+        <p>Un fondo limpio o el fondo corporativo de Alegra refuerza la imagen profesional y ayuda al usuario a concentrarse en la conversación.</p>
+      </div>
+      <div class="tip-card">
+        <span class="tip-emoji">💡</span>
+        <h4>Iluminación frontal</h4>
+        <p>La luz debe venir de frente. Una ventana detrás crea contraluz y hace que no se vea el rostro. La cara visible transmite más confianza.</p>
+      </div>
+      <div class="tip-card">
+        <span class="tip-emoji">👁️</span>
+        <h4>Mira a la cámara, no a la pantalla</h4>
+        <p>Mirar a la cámara simula el contacto visual. Es difícil al principio, pero hace una diferencia enorme en cómo el usuario percibe tu atención.</p>
+      </div>
+      <div class="tip-card">
+        <span class="tip-emoji">🗂️</span>
+        <h4>Ventanas preparadas</h4>
+        <p>Ten el guión de preguntas y el perfil del usuario en pestañas listas antes de comenzar. Buscar mientras el usuario habla rompe el flujo.</p>
+      </div>
+      <div class="tip-card">
+        <span class="tip-emoji">🤖</span>
+        <h4>Activa la IA desde el inicio</h4>
+        <p>Avisa a Visitatón al empezar para activar la grabación con IA. Esto garantiza transcripción completa y facilita el análisis posterior.</p>
+      </div>
+      <div class="tip-card">
+        <span class="tip-emoji">⏸️</span>
+        <h4>Abraza el silencio virtual</h4>
+        <p>En llamadas virtuales el silencio se siente más incómodo y se tiende a llenar rápido. Resiste. Los mejores insights nacen después de 3-5 segundos de pausa.</p>
+      </div>
+      <div class="tip-card">
+        <span class="tip-emoji">🚨</span>
+        <h4>Plan B técnico</h4>
+        <p>Si hay problemas de conexión, ten el teléfono a mano. Si la llamada se cae, el Owner reenvía el link inmediatamente y retoma donde quedó.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="sep"></div>
+
+<!-- POST ENTREVISTA -->
+<section id="post">
+  <div class="container">
+    <div class="section-label">Post-Entrevista</div>
+    <h2 class="section-title">Del insight a la acción.<br>Así funciona el flujo.</h2>
+    <p class="section-desc">Hay un flujo concreto para que cada hallazgo llegue al lugar correcto y no se pierda en el camino.</p>
+
+    <div class="flujo-wrap fade-up">
+      <div class="flujo-step fs-chat">
+        <div class="flujo-step-icon">💬</div>
+        <div class="flujo-step-body">
+          <span class="step-tag">Paso 01 · Coordinación</span>
+          <h4>Google Chat · Alineación del equipo</h4>
+          <p>Inmediatamente después de la entrevista, el equipo se alinea en el canal dedicado: qué llevar a cada área, qué compromisos surgieron, cómo priorizar.</p>
+          <div class="channel-badge">💬 Canal: <a href="#">tp-visitaton-feedback-post-entrevista</a></div>
+        </div>
+      </div>
+
+      <div class="flujo-step fs-visitaton">
+        <div class="flujo-step-icon">🤖</div>
+        <div class="flujo-step-body">
+          <span class="step-tag">Paso 02 · Automático · IA de Visitatón</span>
+          <h4>Visitatón procesa la grabación</h4>
+          <p>Visitatón toma la transcripción completa de la entrevista y la pasa por IA. El sistema identifica automáticamente highlights, lowlights, compromisos y oportunidades. Este paso es <strong style="color: var(--teal);">automático</strong> — no requiere acción manual del equipo entrevistador.</p>
+          <div style="margin-top: 14px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+            <div style="text-align: center; padding: 12px; background: var(--bg2); border-radius: 10px; border: 1px solid var(--border);">
+              <div style="font-size: 20px; margin-bottom: 4px;">🎙️</div>
+              <div style="font-size: 11px; color: var(--text-muted);">Transcripción completa</div>
+            </div>
+            <div style="text-align: center; padding: 12px; background: var(--bg2); border-radius: 10px; border: 1px solid var(--border);">
+              <div style="font-size: 20px; margin-bottom: 4px;">🧠</div>
+              <div style="font-size: 11px; color: var(--text-muted);">IA clasifica insights</div>
+            </div>
+            <div style="text-align: center; padding: 12px; background: var(--bg2); border-radius: 10px; border: 1px solid var(--border);">
+              <div style="font-size: 20px; margin-bottom: 4px;">⚡</div>
+              <div style="font-size: 11px; color: var(--text-muted);">Tareas creadas en LINEAR</div>
+            </div>
+          </div>
+          <div class="channel-badge" style="margin-top: 12px;">🔗 Dashboard: <a href="https://carlosposada-png.github.io/visitaton-2026/" target="_blank">visitaton-2026</a> &nbsp;·&nbsp; Vista global del programa</div>
+        </div>
+      </div>
+
+      <div class="flujo-step fs-linear">
+        <div class="flujo-step-icon">⚡</div>
+        <div class="flujo-step-body">
+          <span class="step-tag">Paso 03 · Seguimiento · Tu responsabilidad</span>
+          <h4>LINEAR · Seguimiento hasta cerrar</h4>
+          <p>Las tareas llegan a LINEAR de forma automática. Pero el seguimiento es responsabilidad del equipo entrevistador: coordinar con los equipos correspondientes (Soporte, Producto, Contabilidad), mantener informado a Visitatón sobre el avance, y cerrar la tarea cuando el compromiso esté resuelto.</p>
+          <div style="margin-top: 14px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: 6px; padding: 8px 14px; background: rgba(155,123,255,0.08); border: 1px solid rgba(155,123,255,0.2); border-radius: 8px; font-size: 12.5px; color: var(--text-muted);">
+              <span style="color: var(--purple);">1.</span> Tarea creada por IA
+            </div>
+            <span style="color: var(--text-muted); font-size: 14px;">→</span>
+            <div style="display: flex; align-items: center; gap: 6px; padding: 8px 14px; background: rgba(155,123,255,0.08); border: 1px solid rgba(155,123,255,0.2); border-radius: 8px; font-size: 12.5px; color: var(--text-muted);">
+              <span style="color: var(--purple);">2.</span> Entrevistador la toma
+            </div>
+            <span style="color: var(--text-muted); font-size: 14px;">→</span>
+            <div style="display: flex; align-items: center; gap: 6px; padding: 8px 14px; background: rgba(155,123,255,0.08); border: 1px solid rgba(155,123,255,0.2); border-radius: 8px; font-size: 12.5px; color: var(--text-muted);">
+              <span style="color: var(--purple);">3.</span> Coordina con el equipo
+            </div>
+            <span style="color: var(--text-muted); font-size: 14px;">→</span>
+            <div style="display: flex; align-items: center; gap: 6px; padding: 8px 14px; background: rgba(155,123,255,0.15); border: 1px solid rgba(155,123,255,0.4); border-radius: 8px; font-size: 12.5px; color: var(--purple); font-weight: 600;">
+              ✓ Cierra la tarea
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="sep"></div>
+
+<!-- CHECKLIST -->
+<section id="checklist">
+  <div class="container">
+    <div class="section-label">Checklist</div>
+    <h2 class="section-title">¿Estás listo<br>para entrar?</h2>
+    <p class="section-desc">Usa este checklist interactivo antes de cada entrevista. Márcalo todo en verde y entra con confianza.</p>
+
+    <div class="checklist-grid fade-up">
+      <div class="checklist-col antes-col">
+        <div class="col-title antes-col">🕐 Antes</div>
+        <div class="checklist-items">
+          <div class="check-item"><div class="check-box" onclick="toggleCheck(this)"></div> Revisé el perfil del usuario (empresa, productos, tiempo en Alegra)</div>
+          <div class="check-item"><div class="check-box" onclick="toggleCheck(this)"></div> Repasé las preguntas del guión oficial</div>
+          <div class="check-item"><div class="check-box" onclick="toggleCheck(this)"></div> Definimos los roles con el equipo (Owner, Co, Observador)</div>
+          <div class="check-item"><div class="check-box" onclick="toggleCheck(this)"></div> Abrí Meet 5 min antes y verifiqué micrófono y cámara</div>
+          <div class="check-item"><div class="check-box" onclick="toggleCheck(this)"></div> Tengo fondo neutro o corporativo activado</div>
+          <div class="check-item"><div class="check-box" onclick="toggleCheck(this)"></div> Silencié notificaciones y cerré apps innecesarias</div>
+          <div class="check-item"><div class="check-box" onclick="toggleCheck(this)"></div> Tengo el guión en una pestaña lista</div>
+        </div>
+      </div>
+
+      <div class="checklist-col durante-col">
+        <div class="col-title durante-col">🎙️ Durante</div>
+        <div class="checklist-items">
+          <div class="check-item"><div class="check-box" onclick="toggleCheck(this)"></div> Avisé a Visitatón para activar grabación con IA</div>
+          <div class="check-item"><div class="check-box" onclick="toggleCheck(this)"></div> Pedí permiso para grabar al usuario</div>
+          <div class="check-item"><div class="check-box" onclick="toggleCheck(this)"></div> Presenté al equipo y expliqué el propósito</div>
+          <div class="check-item"><div class="check-box" onclick="toggleCheck(this)"></div> Co-entrevistador tomando notas con mic en mute</div>
+          <div class="check-item"><div class="check-box" onclick="toggleCheck(this)"></div> Observador silenciado y atento</div>
+          <div class="check-item"><div class="check-box" onclick="toggleCheck(this)"></div> Estoy clasificando hallazgos (dolor/oportunidad/bug/compromiso)</div>
+          <div class="check-item"><div class="check-box" onclick="toggleCheck(this)"></div> Controlo el tiempo sin interrumpir el flujo</div>
+        </div>
+      </div>
+
+      <div class="checklist-col despues-col">
+        <div class="col-title despues-col">📝 Después</div>
+        <div class="checklist-items">
+          <div class="check-item"><div class="check-box" onclick="toggleCheck(this)"></div> Re-escribí mis notas en oraciones completas (dentro de 24h)</div>
+          <div class="check-item"><div class="check-box" onclick="toggleCheck(this)"></div> Clasifiqué todos los hallazgos por tipo</div>
+          <div class="check-item"><div class="check-box" onclick="toggleCheck(this)"></div> Publiqué resumen en Google Chat (canal tp-visitaton)</div>
+          <div class="check-item"><div class="check-box" onclick="toggleCheck(this)"></div> Registré mejoras en el dashboard de Visitatón</div>
+          <div class="check-item"><div class="check-box" onclick="toggleCheck(this)"></div> Creé las tareas/compromisos en LINEAR</div>
+          <div class="check-item"><div class="check-box" onclick="toggleCheck(this)"></div> Reflexioné sobre cómo mejorar el guión</div>
+          <div class="check-item"><div class="check-box" onclick="toggleCheck(this)"></div> Envié mensaje de agradecimiento al usuario</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="escucha-box">
+      <div class="big-text">El usuario es la única fuente de verdad.<br>Tu trabajo: <em>escuchar de verdad.</em></div>
+      <p>No evaluamos, no vendemos, no convencemos. Solo escuchamos, aprendemos y documentamos. Cada conversación es una oportunidad para entender mejor a quienes construimos Alegra.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="footer-inner">
+      <div class="footer-logo">Visitatón 2026</div>
+      <ul class="footer-links">
+        <li><a href="https://carlosposada-png.github.io/visitaton-2026/" target="_blank">Dashboard Visitatón</a></li>
+        <li><a href="#">Playbook de Preguntas</a></li>
+        <li><a href="#">Protocolo de Entrevistas</a></li>
+      </ul>
+      <div class="footer-copy">Alegra · Programa de Research con Usuarios</div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Phase tabs
+  function showPhase(phase) {
+    document.querySelectorAll('.phase-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.phase-content').forEach(c => c.classList.remove('active'));
+    document.querySelector(`.phase-tab.${phase}`).classList.add('active');
+    document.getElementById(`phase-${phase}`).classList.add('active');
+  }
+
+  // Checklist toggle
+  function toggleCheck(el) {
+    el.classList.toggle('checked');
+    el.textContent = el.classList.contains('checked') ? '✓' : '';
+  }
+
+  // Fade up on scroll
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) e.target.classList.add('visible');
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+  // Stagger animation for grids
+  document.querySelectorAll('.roles-grid .role-card, .hallazgos-grid .hallazgo-card, .tips-virtual .tip-card').forEach((el, i) => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(20px)';
+    el.style.transition = `opacity 0.5s ${i * 0.08}s ease, transform 0.5s ${i * 0.08}s ease`;
+    el.style.transitionDelay = `${i * 0.08}s`;
+    observer.observe(el);
+  });
+
+  const staggerObs = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.style.opacity = '1';
+        e.target.style.transform = 'translateY(0)';
+      }
+    });
+  }, { threshold: 0.05 });
+
+  document.querySelectorAll('.roles-grid .role-card, .hallazgos-grid .hallazgo-card, .tips-virtual .tip-card').forEach(el => staggerObs.observe(el));
+</script>
+</body>
+</html>
