@@ -1740,77 +1740,201 @@ function _renderHsNoData(r){
 }
 
 function _renderHsPanel(hs,r){
-  // Use real AI summary from HS_DATA if available, else fall back to smart questions
-  const ai = hs.ai_summary || null;
-  const preguntas = (ai && ai.preguntas) ? ai.preguntas : _smartQuestions(r);
-  const hallazgos = (ai && ai.hallazgos) ? ai.hallazgos : [];
-  const resumen   = (ai && ai.resumen)   ? ai.resumen   : null;
-  const chMax = Math.max(...(hs.canales||[]).map(c=>c.pct||0),1);
+  const ai        = hs.ai_summary || {};
+  const hallazgos = (ai.hallazgos||[]).slice(0,6);
+  const tickets   = hs.tickets_recientes || [];
+  const canales   = hs.canales || [];
+  const chMax     = Math.max(...canales.map(c=>c.pct||0),1);
 
-  let html = `
-    <div class="hs-sec">🏢 Empresa en HubSpot</div>
-    <div style="background:var(--gray-50);border-radius:8px;padding:10px 12px;margin-bottom:8px;display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:8px">
-      <div>
-        <div style="font-size:13px;font-weight:700;color:var(--gray-800)">${hs.name||hs.empresa||'—'}</div>
-        <div style="font-size:11px;color:var(--gray-400);margin-top:2px">${[hs.antiguedad,hs.pais,hs.contacts?hs.contacts+' contactos':''].filter(Boolean).join(' · ')}</div>
-      </div>
-      <a href="${hs.hs_url||'https://app.hubspot.com'}" target="_blank" style="font-size:11px;font-weight:600;color:var(--teal-600);text-decoration:none;border:1px solid var(--teal-300);border-radius:6px;padding:4px 10px;white-space:nowrap;flex-shrink:0">🔗 Ver en HubSpot</a>
-    </div>
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-bottom:14px">
-      ${[
-        ['Tickets',hs.total_tickets||0,'var(--teal-400)'],
-        ['Abiertos',hs.open_tickets||0,hs.open_tickets>0?'var(--amber)':'var(--em-700)'],
-        ['Cerrados',hs.closed_tickets||0,'var(--em-700)'],
-        ['Contactos',hs.contacts||0,'#8B5CF6']
-      ].map(([l,v,c])=>`<div style="background:white;border:1px solid var(--gray-200);border-radius:6px;padding:7px 5px;text-align:center;border-top:3px solid ${c}"><div style="font-size:9px;font-weight:700;color:var(--gray-400);text-transform:uppercase;letter-spacing:.3px;margin-bottom:3px">${l}</div><div style="font-size:18px;font-weight:700;color:var(--gray-800)">${v}</div></div>`).join('')}
+  // ── Lifecycle + riesgo ───────────────────────────────────────
+  const lcColors = {customer:'#059669',lead:'#D97706',opportunity:'#7C3AED',subscriber:'#2563EB'};
+  const lc = (hs.lifecyclestage||'').toLowerCase();
+  const lcColor = lcColors[lc]||'#6B7280';
+  const lcLabel = lc ? lc.charAt(0).toUpperCase()+lc.slice(1) : '—';
+
+  // Detectar señales automáticas de riesgo/satisfacción en tickets
+  const allSubjects = tickets.map(t=>(t.subject||'').toLowerCase()).join(' ');
+  const isChurn    = /cancel|retiro|abandon|salida|baja/.test(allSubjects);
+  const isPromotor = /promotor|nps|encuesta|happy|satisfech/.test(allSubjects);
+  const isDunning  = /dunning|pago pendiente|cobro/.test(allSubjects);
+  const openCount  = (hs.open_tickets||0);
+
+  // ── Señal de riesgo global ───────────────────────────────────
+  let riesgoHtml = '';
+  if(isChurn){
+    riesgoHtml = `<div style="background:#FEE2E2;border:1px solid #EF4444;border-radius:7px;padding:8px 12px;margin-bottom:10px;display:flex;align-items:center;gap:8px">
+      <span style="font-size:18px">🚨</span>
+      <div><div style="font-size:12px;font-weight:700;color:#991B1B">Riesgo de churn detectado</div>
+      <div style="font-size:11px;color:#B91C1C">Historial de solicitudes de cancelación o retiro — entrevista crítica de retención</div></div>
     </div>`;
-
-  // Resumen ejecutivo IA
-  if(resumen){
-    html+=`<div class="hs-sec">🤖 Resumen ejecutivo</div>
-    <div style="font-size:12.5px;color:var(--gray-700);line-height:1.6;padding:10px 12px;background:rgba(0,214,188,.06);border-left:3px solid var(--teal-400);border-radius:0 8px 8px 0;margin-bottom:4px">${resumen}</div>`;
+  } else if(openCount>0){
+    riesgoHtml = `<div style="background:#FEF3C7;border:1px solid #F59E0B;border-radius:7px;padding:8px 12px;margin-bottom:10px;display:flex;align-items:center;gap:8px">
+      <span style="font-size:18px">⚠️</span>
+      <div style="font-size:12px;font-weight:700;color:#92400E">${openCount} ticket${openCount>1?'s':''} abierto${openCount>1?'s':''} — verificar estado antes de la visita</div>
+    </div>`;
+  } else if(isPromotor){
+    riesgoHtml = `<div style="background:#ECFDF5;border:1px solid #10B981;border-radius:7px;padding:8px 12px;margin-bottom:10px;display:flex;align-items:center;gap:8px">
+      <span style="font-size:18px">😊</span>
+      <div style="font-size:12px;font-weight:700;color:#065F46">Cliente satisfecho / Promotor NPS — candidato a caso de éxito</div>
+    </div>`;
   }
 
-  // Hallazgos IA
+  let html = riesgoHtml;
+
+  // ── Tarjeta resumen empresa ───────────────────────────────────
+  html += `
+  <div style="border:1px solid var(--gray-200);border-radius:10px;overflow:hidden;margin-bottom:14px">
+    <div style="background:var(--gray-50);padding:10px 14px;display:flex;align-items:center;justify-content:space-between;gap:8px">
+      <div style="min-width:0">
+        <div style="font-size:13px;font-weight:700;color:var(--gray-800);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${hs.name||hs.empresa||'—'}</div>
+        <div style="font-size:11px;color:var(--gray-400);margin-top:2px">${[hs.pais,hs.plan,hs.antiguedad].filter(Boolean).join(' · ')}</div>
+      </div>
+      <a href="${hs.hs_url||'#'}" target="_blank" style="flex-shrink:0;font-size:11px;font-weight:600;color:#FF7A59;text-decoration:none;border:1px solid #FF7A59;border-radius:6px;padding:4px 9px">HubSpot ↗</a>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0">
+      ${[
+        ['Tickets', (hs.total_tickets||0).toString(), openCount>0?'#F59E0B':'var(--em-700)'],
+        ['Abiertos', openCount.toString(), openCount>0?'#EF4444':'var(--gray-400)'],
+        ['Contactos', (hs.contacts||0).toString(), '#8B5CF6'],
+        ['Estado', lcLabel, lcColor]
+      ].map(([l,v,c],i)=>`
+        <div style="padding:8px 6px;text-align:center;border-top:1px solid var(--gray-100);${i>0?'border-left:1px solid var(--gray-100)':''}">
+          <div style="font-size:9px;font-weight:700;color:var(--gray-400);text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px">${l}</div>
+          <div style="font-size:13px;font-weight:700;color:${c};line-height:1.2">${v}</div>
+        </div>`).join('')}
+    </div>
+  </div>`;
+
+  // ── Conclusión ejecutiva ─────────────────────────────────────
+  if(ai.resumen){
+    html+=`<div class="hs-sec">📋 Conclusión ejecutiva</div>
+    <div style="font-size:12.5px;color:var(--gray-700);line-height:1.7;padding:10px 14px;background:rgba(0,214,188,.05);border-left:3px solid var(--teal-400);border-radius:0 8px 8px 0;margin-bottom:12px">${ai.resumen}</div>`;
+  }
+
+  // ── Historial: qué ha dicho este cliente en Alegra ───────────
+  if(tickets.length){
+    // ── Detectar issues abiertos (alerta especial) ────────────
+    const openTickets = tickets.filter(t=>t.status==='open');
+    if(openTickets.length){
+      openTickets.forEach(t=>{
+        html+=`<div style="background:#FEF3C7;border:1px solid #F59E0B;border-radius:7px;padding:7px 12px;margin-bottom:6px;display:flex;align-items:flex-start;gap:8px">
+          <span style="font-size:14px;flex-shrink:0">🔓</span>
+          <div>
+            <div style="font-size:11.5px;font-weight:700;color:#92400E">Issue abierto — sin resolver</div>
+            <div style="font-size:11.5px;color:#B45309;margin-top:1px">${(t.subject||'Sin título').substring(0,65)} <span style="color:#9CA3AF">· ${t.fecha||''} · ${t.source||''}</span></div>
+          </div>
+        </div>`;
+      });
+    }
+
+    // ── Generar viñetas de insights por tema ──────────────────
+    const REGLAS = [
+      {
+        re:/cancel|retiro|baja|abandon/i,
+        icon:'🚨', color:'#EF4444', bg:'#FEF2F2', border:'#FECACA',
+        fn: (tks)=>`Ha solicitado <strong>cancelar o darse de baja</strong> en ${tks.length>1?tks.length+' ocasiones':'una ocasión'} — riesgo de churn activo. Entrevista de retención.`
+      },
+      {
+        re:/dunning|pago pendiente|cobro|factura.*suscri|suscri.*pago/i,
+        icon:'💳', color:'#D97706', bg:'#FFFBEB', border:'#FDE68A',
+        fn: (tks)=>`Tiene historial de <strong>problemas con pagos o suscripción</strong> (${tks.length} contacto${tks.length>1?'s':''}). Posible fricción con cobros o renovación.`
+      },
+      {
+        re:/promotor|nps|happy|satisf|encuesta/i,
+        icon:'😊', color:'#059669', bg:'#ECFDF5', border:'#A7F3D0',
+        fn: (tks)=>`Fue calificado como <strong>Promotor NPS</strong> — cliente satisfecho que recomendaría Alegra. Candidato a caso de éxito.`
+      },
+      {
+        re:/nómina|nomina|liquidaci|contrato.*labor/i,
+        icon:'👥', color:'#7C3AED', bg:'#F5F3FF', border:'#DDD6FE',
+        fn: (tks)=>`Ha contactado por temas de <strong>Nómina</strong> en ${tks.length} ocasión${tks.length>1?'es':''}. Módulo activo con posibles fricciones en liquidación o pagos de nómina.`
+      },
+      {
+        re:/factur|invoice|cfdi|dian|dgii|ncf|electronica|emit/i,
+        icon:'🧾', color:'#2563EB', bg:'#EFF6FF', border:'#BFDBFE',
+        fn: (tks)=>`${tks.length} contacto${tks.length>1?'s':''} relacionado${tks.length>1?'s':''} con <strong>Facturación electrónica</strong>. Ha tenido dudas o errores al emitir documentos.`
+      },
+      {
+        re:/inventario|bodega|stock|producto|item/i,
+        icon:'📦', color:'#0891B2', bg:'#ECFEFF', border:'#A5F3FC',
+        fn: (tks)=>`${tks.length} consulta${tks.length>1?'s':''} sobre <strong>Inventarios o productos</strong>. Puede tener dificultades con la gestión de stock o bodegas.`
+      },
+      {
+        re:/error|bug|fallo|issue|no funciona|no carga|no aparece/i,
+        icon:'🐛', color:'#EA580C', bg:'#FFF7ED', border:'#FED7AA',
+        fn: (tks)=>`Reportó <strong>${tks.length} error${tks.length>1?'es':''} o fallo${tks.length>1?'s':''}</strong> en la plataforma. Revisar si quedaron resueltos antes de la visita.`
+      },
+      {
+        re:/chat|llamada|soporte|contabilidad|consulta|ayuda/i,
+        icon:'💬', color:'#6B7280', bg:'#F9FAFB', border:'#E5E7EB',
+        fn: (tks)=>`${tks.length} interacción${tks.length>1?'es':''} de <strong>soporte general</strong> (consultas, ayuda con el uso de la plataforma). Canal preferido: ${canales.length?canales[0].canal:'—'}.`
+      },
+    ];
+
+    const viñetas = [];
+    const usadas  = new Set();
+    REGLAS.forEach(regla=>{
+      const matches = tickets.filter(t=>!usadas.has(t.subject) && (t.subject||'').match(regla.re));
+      if(matches.length){
+        matches.forEach(t=>usadas.add(t.subject));
+        viñetas.push({...regla, matches});
+      }
+    });
+
+    if(viñetas.length){
+      html+=`<div class="hs-sec">📞 Por qué nos ha contactado este cliente</div>
+      <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:12px">`;
+      viñetas.forEach(v=>{
+        html+=`<div style="display:flex;gap:9px;align-items:flex-start;padding:8px 11px;background:${v.bg};border:1px solid ${v.border};border-radius:8px">
+          <span style="font-size:16px;flex-shrink:0;line-height:1.3">${v.icon}</span>
+          <div style="font-size:12.5px;color:#374151;line-height:1.6">${v.fn(v.matches)}</div>
+        </div>`;
+      });
+      html+=`</div>`;
+    }
+
+  } else {
+    html+=`<div class="hs-sec">📞 Historial de contacto</div>
+    <div style="background:var(--gray-50);border-radius:7px;padding:10px 12px;font-size:12.5px;color:var(--gray-400);margin-bottom:12px;border:1px dashed var(--gray-200)">
+      Sin tickets de soporte registrados — cliente autónomo o sin contacto previo con Alegra.
+    </div>`;
+  }
+
+  // ── Canal preferido ───────────────────────────────────────────
+  if(canales.length){
+    html+=`<div class="hs-sec">📡 Canal preferido de soporte</div>
+    <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:12px">`;
+    canales.slice(0,3).forEach(c=>{
+      html+=`<div><div style="display:flex;justify-content:space-between;font-size:11.5px;margin-bottom:3px">
+        <span style="color:var(--gray-600);font-weight:600">${c.canal}</span>
+        <span style="color:var(--gray-400);font-weight:700">${c.pct}%</span>
+      </div>
+      <div style="height:7px;background:var(--gray-100);border-radius:4px">
+        <div style="height:100%;border-radius:4px;background:var(--teal-400);width:${Math.round((c.pct/chMax)*100)}%"></div>
+      </div></div>`;
+    });
+    html+=`</div>`;
+  }
+
+  // ── Hallazgos adicionales del AI ─────────────────────────────
   if(hallazgos.length){
-    html+=`<div class="hs-sec" style="margin-top:14px">🔎 Hallazgos clave</div>`;
+
+    html+=`<div class="hs-sec">🔎 Hallazgos adicionales</div>`;
     hallazgos.forEach(h=>{
-      // Parse bold **text**
-      const fmt = h.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>');
-      html+=`<div class="hs-bullet">${fmt}</div>`;
+      const fmt = h.replace(/\*\*(.*?)\*\*/g,'<strong style="color:var(--gray-800)">$1</strong>');
+      html+=`<div style="display:flex;gap:7px;padding:5px 0;border-bottom:1px solid var(--gray-50);font-size:12px;color:var(--gray-600);line-height:1.5;align-items:flex-start">
+        <span style="color:var(--teal-500);flex-shrink:0;margin-top:3px;font-size:8px">◆</span>${fmt}
+      </div>`;
     });
   }
 
-  // Canal dominante
-  if(hs.canales&&hs.canales.length){
-    html+=`<div class="hs-sec" style="margin-top:14px">📡 Canal dominante de soporte</div>`;
-    hs.canales.forEach(c=>{
-      html+=`<div class="hs-ch-bar"><div class="hs-ch-lbl"><span>${c.canal}</span><span>${c.pct}%</span></div><div class="hs-ch-bg"><div class="hs-ch-fill" style="width:${Math.round((c.pct/chMax)*100)}%"></div></div></div>`;
-    });
-  }
+  // ── Playbook ─────────────────────────────────────────────────
+  html+=`<div class="hs-sec" style="margin-top:14px">📖 Guía de entrevista</div>${_renderPlaybook(r)}`;
 
-  // Tickets recientes
-  if(hs.tickets_recientes&&hs.tickets_recientes.length){
-    html+=`<div class="hs-sec" style="margin-top:14px">🎫 Tickets recientes (últ. 6 meses)</div>`;
-    hs.tickets_recientes.forEach(t=>{
-      const srcMap={'Email':'var(--blue)','Chat':'var(--teal-600)','Teléfono':'#8B5CF6','Sistema':'var(--amber)','Issue':'#F97316','Web':'var(--gray-500)'};
-      const srcColor=srcMap[t.source]||'var(--gray-500)';
-      const sta=t.status==='open'?'<span style="color:var(--amber);font-weight:700">🟡 Abierto</span>':'<span style="color:var(--em-700)">✅ Cerrado</span>';
-      html+=`<div class="hs-tk"><span class="hs-tk-src" style="color:${srcColor}">${t.source||'—'}</span><div style="flex:1"><div style="font-size:12px;font-weight:500;color:var(--gray-800);margin-bottom:1px">${(t.subject||'Sin título').substring(0,65)}</div><div style="font-size:10.5px;color:var(--gray-400)">${t.fecha||''} · ${sta}</div></div></div>`;
-    });
-  }
-
-  // Playbook
-  html+=`<div class="hs-sec" style="margin-top:16px">📖 Guía de entrevista (Playbook)</div>${_renderPlaybook(r)}`;
-
-  // Preguntas sugeridas
-  html+=`<div class="hs-sec" style="margin-top:16px">💬 Preguntas contextuales (HubSpot)</div>`;
-  preguntas.forEach(q=>{html+=`<div class="hs-question">❓ ${q}</div>`;});
-
-  // Entrevistadores
+  // ── Equipo ────────────────────────────────────────────────────
   if(r.entrevistadores&&r.entrevistadores.length){
-    html+=`<div class="hs-sec" style="margin-top:14px">👥 Entrevistadores asignados</div>
-    <div style="display:flex;flex-wrap:wrap;gap:5px">${r.entrevistadores.map(e=>`<span class="badge b-teal" style="font-size:11px">${e.split('@')[0]}</span>`).join('')}</div>`;
+    html+=`<div class="hs-sec" style="margin-top:12px">👥 Equipo asignado</div>
+    <div style="display:flex;flex-wrap:wrap;gap:5px">${r.entrevistadores.map(e=>`<span style="background:rgba(0,214,188,.1);color:var(--teal-600);font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px">${e.split('@')[0]}</span>`).join('')}</div>`;
   }
 
   $('hs-body').innerHTML=html;
