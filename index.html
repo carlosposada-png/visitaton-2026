@@ -1032,6 +1032,11 @@ function renderIcp(data) {
     scales:{
       x:{grid:{color:'rgba(0,0,0,.04)'},ticks:{font:{family:'Inter',size:10},color:'#94A3B8'}},
       y:{grid:{display:false},ticks:{font:{family:'Inter',size:11},color:'#334155'}}
+    },
+    onClick(evt,els){
+      if(!els.length) return;
+      const clickedMes=mesesPresentes[els[0].index];
+      const s=$('f2-mes'); if(s){s.value=s.value===clickedMes?'':clickedMes; updateT2();}
     }
   });
 }
@@ -1390,18 +1395,25 @@ function renderT2LidMes(data) {
           ticks:{font:{family:'Inter',size:10},color:'#F59E0B',callback:v=>v+'%'},
           min:0,max:100,
           title:{display:true,text:'% participación',font:{family:'Inter',size:10},color:'#F59E0B'}}
+    },
+    onClick(evt,els){
+      if(!els.length) return;
+      const clickedMes=mesesPresentes[els[0].index];
+      const s=$('f2-mes'); if(s){s.value=s.value===clickedMes?'':clickedMes; updateT2();}
     }
   });
 }
 
 function renderT2PartMes(data) {
-  // Total participations per month
   const ene=data.reduce((s,l)=>s+(l.enero||0),0);
   const feb=data.reduce((s,l)=>s+(l.febrero||0),0);
   const mar=data.reduce((s,l)=>s+(l.marzo||0),0);
+  const abr=data.reduce((s,l)=>s+(l.abril||0),0);
+  const meses=['Enero','Febrero','Marzo','Abril'];
+  const vals=[ene,feb,mar,abr];
   mkChart('ch2-partmes','bar',{
-    labels:['Enero','Febrero','Marzo'],
-    datasets:[{data:[ene,feb,mar],backgroundColor:['#00D6BC','#13AA6A','#B0EE44'],borderRadius:5}]
+    labels:meses,
+    datasets:[{data:vals,backgroundColor:['#00D6BC','#13AA6A','#B0EE44','#06B6D4'],borderRadius:5}]
   },{
     plugins:{
       legend:{display:false},
@@ -1410,6 +1422,11 @@ function renderT2PartMes(data) {
     scales:{
       x:{grid:{display:false},ticks:{font:{family:'Inter',size:12},color:'#64748B'}},
       y:{grid:{color:'rgba(0,0,0,.04)'},ticks:{font:{family:'Inter',size:10},color:'#94A3B8'}}
+    },
+    onClick(evt,els){
+      if(!els.length) return;
+      const m=['enero','febrero','marzo','abril'][els[0].index];
+      const s=$('f2-mes'); if(s){s.value=s.value===m?'':m; updateT2();}
     }
   });
 }
@@ -1643,7 +1660,7 @@ function switchTab(id, btn) {
 }
 
 // ─── INIT ─────────────────────────────────────────────────────
-function init(){ populateT1(); populateT2(); updateT1(); }
+function init(){ populateT1(); populateT2(); updateT1(); updateT2(); }
 document.addEventListener('DOMContentLoaded', init);
 
 // ══════════════════════════════════════════════════════════════
@@ -1823,7 +1840,9 @@ function openHsPanel(r){
   const empresa=(r.empresa||'').trim();
   $('hs-empresa').textContent=empresa;
   const _efBadge=_efN(r.ef)==='si'?'<span class="badge b-teal">✅ Realizada</span>':_efN(r.ef)==='no'?'<span class="badge b-red">❌ No efectiva</span>':'<span class="badge b-amber">⏳ Pendiente</span>';
-  $('hs-meta').innerHTML=_efBadge+`<span class="badge b-gray">${r.fecha||''}</span><span class="badge b-teal">${r.pais||''}</span><span class="badge b-gray">${r.modal||''}</span><span class="badge b-purple">${r.plan||''}</span><span class="badge b-gray">ICP: ${r.icp||'—'}</span>`;
+  const hsIdBadge=r.hs_id?`<a href="https://app.hubspot.com/contacts/6180490/company/${r.hs_id}/" target="_blank" class="badge b-gray" style="text-decoration:none;cursor:pointer;color:inherit" title="Ver empresa en HubSpot">&#x1F517; HS: ${r.hs_id}</a>`:'';
+  const entsBadges=(r.entrevistadores||[]).map(e=>`<span class="badge b-teal" style="font-size:10px">&#x1F464; ${e.split('@')[0]}</span>`).join('');
+  $('hs-meta').innerHTML=_efBadge+`<span class="badge b-gray">${r.fecha||''}</span><span class="badge b-teal">${r.pais||''}</span><span class="badge b-gray">${r.modal||''}</span><span class="badge b-purple">${r.plan||''}</span><span class="badge b-gray">ICP: ${r.icp||'—'}</span>`+hsIdBadge+(entsBadges?`<div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:4px">${entsBadges}</div>`:'');
   $('hs-overlay').classList.add('open');
   _buildFooter(r);
   // Look up HS data
