@@ -339,7 +339,7 @@ div.dataTables_wrapper div.dataTables_bottom { display: flex; justify-content: s
   <button class="tab-btn active" onclick="switchTab('t1',this)">📊 Efectividad Global</button>
   <button class="tab-btn" onclick="switchTab('t2',this)">👥 Participación de Líderes</button>
   <button class="tab-btn" onclick="switchTab('t4',this)">📋 Bitácora | Calendario</button>
-  <button class="tab-btn" onclick="switchTab('t5',this)">🧠 Insights VoC</button>
+  
 </nav>
 
 <!-- ===================== TABLERO 1 ===================== -->
@@ -760,7 +760,7 @@ function badge(t, cls) { return `<span class="badge ${cls}">${t}</span>`; }
 function efBadge(ef) {
   if (ef==='SI') return badge('✓ Efectiva','b-green');
   if (ef==='NO') return badge('✗ No efectiva','b-red');
-  if (ef==='Pendiente por realizar') return badge('⏳ Pendiente','b-amber');
+  if (ef==='Pendiente'||(r.ef==='Pendiente'||r.ef==='Pendiente por realizar')) return badge('⏳ Pendiente','b-amber');
   return badge(ef||'—','b-gray');
 }
 function modalBadge(m) {
@@ -857,7 +857,7 @@ function populateT1() {
   // Use ALL teams from ALL_ALEGRA (not just leader teams) for complete TT filter
   const allTTs = [...new Set(ALL_ALEGRA.map(p=>p.team).filter(Boolean))].sort();
   populate('f1-tt', allTTs);
-  populate('f1-ef', ['SI','NO','Pendiente por realizar']);
+  populate('f1-ef', ['SI','NO','Pendiente']);
   const ents = [...new Set(RAW_ROWS.map(r=>r.correo).filter(Boolean))].sort();
   populate('f1-ent', ents, emailToName);
 }
@@ -869,9 +869,9 @@ function resetT1() {
 
 function updateT1() {
   const data = getF1();
-  const si = data.filter(r=>r.ef==='SI').length;
+  const si = data.filter(r=>(r.ef==='SI'||r.ef==='si')).length;
   const no = data.filter(r=>r.ef==='NO').length;
-  const pend = data.filter(r=>r.ef==='Pendiente por realizar').length;
+  const pend = data.filter(r=>(r.ef==='Pendiente'||r.ef==='Pendiente por realizar')).length;
   const pres = data.filter(r=>r.modal==='Presencial').length;
   const rem = data.filter(r=>r.modal==='Remoto').length;
   const pct = (si+no)>0 ? Math.round(si/(si+no)*100) : 0;
@@ -896,9 +896,9 @@ function updateT1() {
 // ─── CHARTS T1 ────────────────────────────────────────────────
 function renderMes(data) {
   const meses = [...new Set(data.map(r=>r.mes).filter(Boolean))].sort((a,b)=>MES.indexOf(a)-MES.indexOf(b));
-  const siD = meses.map(m=>data.filter(r=>r.mes===m&&r.ef==='SI').length);
+  const siD = meses.map(m=>data.filter(r=>r.mes===m&&(r.ef==='SI'||r.ef==='si')).length);
   const noD = meses.map(m=>data.filter(r=>r.mes===m&&r.ef==='NO').length);
-  const pdD = meses.map(m=>data.filter(r=>r.mes===m&&r.ef==='Pendiente por realizar').length);
+  const pdD = meses.map(m=>data.filter(r=>r.mes===m&&(r.ef==='Pendiente'||(r.ef==='Pendiente'||r.ef==='Pendiente por realizar'))).length);
   const tots = meses.map((_,i)=>siD[i]+noD[i]+pdD[i]);
 
   mkChart('ch-mes','bar',{
@@ -933,7 +933,7 @@ function renderMes(data) {
 function renderPct(data) {
   const meses=[...new Set(data.map(r=>r.mes).filter(Boolean))].sort((a,b)=>MES.indexOf(a)-MES.indexOf(b));
   const pctD=meses.map(m=>{
-    const si=data.filter(r=>r.mes===m&&r.ef==='SI').length;
+    const si=data.filter(r=>r.mes===m&&(r.ef==='SI'||r.ef==='si')).length;
     const no=data.filter(r=>r.mes===m&&r.ef==='NO').length;
     return (si+no)>0?Math.round(si/(si+no)*100):0;
   });
@@ -1197,7 +1197,7 @@ function renderClientes(data, skipSearch=false) {
       <td>${efBadge(r.ef)}</td>
       <td>${r.icp?badge(r.icp,'b-teal'):'—'}</td>
       <td style="font-size:11px;color:var(--gray-600)">${r.plan||'—'}</td>
-      <td>${lnk||'<span style="color:var(--gray-400);font-size:11px;font-style:italic">'+(r.ef==='SI'?'Sin transcripción':r.ef==='NO'?'N/A — No aplica':'Pendiente')+'</span>'}</td>
+      <td>${lnk||'<span style="color:var(--gray-400);font-size:11px;font-style:italic">'+((r.ef==='SI'||r.ef==='si')?'Sin transcripción':r.ef==='NO'?'N/A — No aplica':'Pendiente')+'</span>'}</td>
     </tr>`;
   }).join('');
   dtClientes = $('#tbl-clientes').DataTable({
@@ -1213,28 +1213,106 @@ function renderClientes(data, skipSearch=false) {
 function showInterviewDetail(id) {
   const iv = RAW_INTERVIEWS.find(r=>r._key===id||r.id===id); if(!iv) return;
   const ents = [...new Set(iv.entrevistadores||[])].map(emailToName);
+  const b = iv.hs_briefing || {};
+  const tickets = b.tickets_recientes || [];
+  const deals = b.deals_activos || [];
+  const preguntas = (b.ai_summary&&b.ai_summary.preguntas)||iv.preguntas_sugeridas||[];
+  const hallazgos = (b.ai_summary&&b.ai_summary.hallazgos)||[];
+  const resumen = (b.ai_summary&&b.ai_summary.resumen)||'';
+
   $('panel-title').textContent = iv.empresa||'Entrevista';
   $('panel-sub').textContent = `${iv.fecha||''} · ${iv.mes||''} · ${iv.pais||''}`;
   const lnk = docLink(iv.link);
+
+  // Determine session type for guide
+  const icp = (iv.icp||'').toLowerCase();
+  let tipoSesion = 'Sesión Tipo 1 — Empresa / Negocio';
+  if(icp.includes('contador')||icp.includes('super')) tipoSesion = 'Sesión Tipo 2 — Contadores / Firmas contables';
+  else if(icp.includes('lite')) tipoSesion = 'Sesión Tipo 3 — Emprendedores / Lite';
+
+  const pricingColor = iv.ef && iv.ef.toUpperCase()==='PENDIENTE' ? 'var(--amber)' : (iv.ef&&iv.ef.toUpperCase()==='SI'?'var(--em-600)':'var(--red)');
+  const hsUrl = iv.hs_id ? `https://app.hubspot.com/contacts/6180490/record/0-2/${iv.hs_id}?utm_source=visitaton` : '';
+
   $('panel-body').innerHTML = `
-    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px">
+    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px">
       ${efBadge(iv.ef)} ${modalBadge(iv.modal)}
       ${iv.icp?badge(iv.icp,'b-teal'):''} ${iv.plan?badge(iv.plan,'b-gray'):''}
+      ${iv.pais?badge(iv.pais,'b-purple'):''}
     </div>
+
+    ${iv.hs_id ? `<div style="margin-bottom:10px"><a href="${hsUrl}" target="_blank" style="display:inline-flex;align-items:center;gap:5px;font-size:11px;background:var(--gray-100);padding:4px 10px;border-radius:6px;text-decoration:none;color:var(--gray-600);font-weight:500">🔗 Ver en HubSpot · ID ${iv.hs_id}</a></div>` : ''}
+
+    ${b.nombre||b.ciudad||b.industria ? `
+    <div style="background:var(--gray-50);border-radius:8px;padding:12px;margin-bottom:12px;border:1px solid var(--gray-100)">
+      <div style="font-size:10px;font-weight:700;color:var(--gray-400);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px">📋 CLIENTE EN HUBSPOT</div>
+      ${b.nombre?`<div style="font-size:14px;font-weight:700;color:var(--gray-800);margin-bottom:4px">${b.nombre}</div>`:''}
+      <div style="display:flex;flex-wrap:wrap;gap:8px;font-size:11px;color:var(--gray-500)">
+        ${b.ciudad?`<span>📍 ${b.ciudad}</span>`:''}
+        ${b.industria?`<span>🏢 ${b.industria}</span>`:''}
+        ${b.antiguedad?`<span>📅 ${b.antiguedad}</span>`:''}
+      </div>
+      ${b.descripcion?`<div style="font-size:11px;color:var(--gray-500);margin-top:6px;font-style:italic;line-height:1.4">${b.descripcion.slice(0,180)}${b.descripcion.length>180?'…':''}</div>`:''}
+    </div>` : ''}
+
+    ${resumen ? `
+    <div style="background:rgba(14,200,179,.08);border-radius:8px;padding:12px;margin-bottom:12px;border-left:3px solid var(--teal-400)">
+      <div style="font-size:10px;font-weight:700;color:var(--teal-600);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px">🤖 RESUMEN IA</div>
+      <div style="font-size:12px;color:var(--gray-700);line-height:1.5">${resumen}</div>
+    </div>` : ''}
+
+    ${hallazgos.length ? `
+    <div style="background:rgba(245,158,11,.08);border-radius:8px;padding:12px;margin-bottom:12px;border-left:3px solid var(--amber)">
+      <div style="font-size:10px;font-weight:700;color:var(--amber);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px">⚡ HALLAZGOS CLAVE</div>
+      ${hallazgos.map(h=>`<div style="font-size:11.5px;color:var(--gray-700);margin-bottom:5px;line-height:1.4">${h}</div>`).join('')}
+    </div>` : (tickets.length===0 && deals.length===0 && !b.nombre ? `
+    <div style="background:var(--gray-50);border-radius:8px;padding:16px;margin-bottom:12px;text-align:center">
+      <div style="font-size:24px;margin-bottom:6px">🔍</div>
+      <div style="font-size:13px;font-weight:600;color:var(--gray-600)">Sin historial en HubSpot</div>
+      <div style="font-size:11px;color:var(--gray-400);margin-top:4px">No se encontraron datos CRM para este cliente</div>
+    </div>` : '')}
+
+    ${preguntas.length ? `
+    <div style="background:var(--gray-50);border-radius:8px;padding:12px;margin-bottom:12px;border:1px solid var(--gray-200)">
+      <div style="font-size:10px;font-weight:700;color:var(--gray-400);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px">❓ PREGUNTAS SUGERIDAS</div>
+      ${preguntas.map(p=>`<div style="display:flex;gap:8px;margin-bottom:7px;background:white;border-radius:6px;padding:8px 10px;border:1px solid var(--gray-100)"><span style="color:var(--teal-500);flex-shrink:0">❓</span><span style="font-size:12px;color:var(--gray-700);line-height:1.5">${p}</span></div>`).join('')}
+    </div>` : ''}
+
+    ${tickets.length ? `
+    <div style="margin-bottom:12px">
+      <div style="font-size:10px;font-weight:700;color:var(--gray-400);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px">🎫 TICKETS RECIENTES (${tickets.length})</div>
+      ${tickets.slice(0,4).map(t=>`<div style="background:white;border:1px solid var(--gray-100);border-radius:6px;padding:8px 10px;margin-bottom:5px"><div style="font-size:11.5px;font-weight:500;color:var(--gray-700);margin-bottom:2px">${t.asunto||'Sin asunto'}</div><div style="font-size:10px;color:var(--gray-400)">${t.fecha||''} · ${t.prioridad||'—'}</div></div>`).join('')}
+    </div>` : ''}
+
+    ${deals.length ? `
+    <div style="margin-bottom:12px">
+      <div style="font-size:10px;font-weight:700;color:var(--gray-400);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px">💼 DEALS (${deals.length})</div>
+      ${deals.slice(0,3).map(d=>`<div style="background:rgba(19,170,106,.07);border:1px solid rgba(19,170,106,.2);border-radius:6px;padding:8px 10px;margin-bottom:5px"><div style="font-size:11px;font-weight:500;color:var(--em-700)">${d.nombre||'—'}</div>${d.monto?`<div style="font-size:10px;color:var(--gray-500);margin-top:2px">💰 ${d.monto} · ${d.cierre||''}</div>`:''}</div>`).join('')}
+    </div>` : ''}
+
     <div style="background:var(--gray-50);border-radius:8px;padding:12px;margin-bottom:12px">
-      <div style="font-size:11px;font-weight:700;color:var(--gray-400);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Entrevistadores (${ents.length})</div>
-      ${ents.length?ents.map(e=>`<div style="font-size:13px;font-weight:500;color:var(--gray-700);padding:3px 0">👤 ${e}</div>`).join(''):'<div style="font-size:12px;color:var(--gray-400)">No registrados</div>'}
+      <div style="font-size:10px;font-weight:700;color:var(--gray-400);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">🎙 ENTREVISTADORES (${ents.length})</div>
+      ${ents.length?ents.map(e=>`<div style="font-size:12px;font-weight:500;color:var(--gray-700);padding:3px 0">👤 ${e}</div>`).join(''):'<div style="font-size:12px;color:var(--gray-400)">No registrados</div>'}
     </div>
-    ${iv.solicito?`<div style="margin-bottom:10px;font-size:12px"><strong style="color:var(--gray-600)">Solicitó:</strong> ${iv.solicito}</div>`:''}
-    ${iv.motivo_no?`<div style="margin-bottom:10px;font-size:12px"><strong style="color:var(--red)">Motivo no efectividad:</strong> ${iv.motivo_no}</div>`:''}
-    ${lnk?`<div style="margin-top:12px">${lnk}</div>`:''}
+
+    <div style="background:rgba(14,200,179,.06);border-radius:8px;padding:10px 12px;margin-bottom:12px;border:1px solid rgba(14,200,179,.2)">
+      <div style="font-size:10px;font-weight:700;color:var(--teal-600);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">📋 GUÍA DE LA SESIÓN VISITATÓN</div>
+      <div style="display:flex;align-items:center;gap:8px;background:var(--teal-600);border-radius:6px;padding:8px 12px;color:white;font-size:12px;font-weight:600">🎬 ${tipoSesion}</div>
+    </div>
+
+    ${iv.solicito?`<div style="margin-bottom:8px;font-size:12px"><strong style="color:var(--gray-600)">Solicitó:</strong> ${iv.solicito}</div>`:''}
+    ${iv.motivo_no?`<div style="margin-bottom:8px;font-size:12px;background:rgba(239,68,68,.08);padding:8px 10px;border-radius:6px"><strong style="color:var(--red)">Motivo no efectividad:</strong> ${iv.motivo_no}</div>`:''}
+    ${lnk?`<div style="margin-top:8px">${lnk}</div>`:''}
+
+    ${iv.ef&&iv.ef.toUpperCase()==='PENDIENTE' ? `
+    <div style="margin-top:16px">
+      <button onclick="window.open('https://calendar.google.com/calendar/render?action=TEMPLATE&text=Visitatón+${encodeURIComponent(iv.empresa||'')}', '_blank')" style="width:100%;padding:10px;background:var(--teal-400);color:white;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px">📅 🗓 Crear en Google Calendar</button>
+    </div>` : ''}
   `;
   $('panel-overlay').classList.add('open');
 }
-
 // ─── TABLERO 2 ────────────────────────────────────────────────
 function populateT2() {
-  populate('f2-mes',['enero','febrero','marzo','abril'],m=>m.charAt(0).toUpperCase()+m.slice(1));
+  populate('f2-mes',['enero','febrero','marzo','abril','mayo','junio'],m=>m.charAt(0).toUpperCase()+m.slice(1));
   const teams=[...new Set(RAW_LEADERS.map(l=>l.team).filter(Boolean))].sort();
   populate('f2-tt',teams);
   const paises=[...new Set(RAW_LEADERS.map(l=>l.pais).filter(Boolean))].sort();
@@ -1260,6 +1338,8 @@ function getF2() {
   else if(mes==='febrero') data=data.map(l=>({...l,_t:l.febrero,_v:l.virtual,_p:l.presencial,_si:l.febrero}));
   else if(mes==='marzo') data=data.map(l=>({...l,_t:l.marzo,_v:l.virtual,_p:l.presencial,_si:l.marzo}));
   else if(mes==='abril') data=data.map(l=>({...l,_t:l.abril,_v:l.virtual,_p:l.presencial,_si:l.abril}));
+  else if(mes==='mayo') data=data.map(l=>({...l,_t:l.mayo||0,_v:l.virtual,_p:l.presencial,_si:l.mayo||0}));
+  else if(mes==='junio') data=data.map(l=>({...l,_t:l.junio||0,_v:l.virtual,_p:l.presencial,_si:l.junio||0}));
   else data=data.map(l=>({...l,_t:l.total,_v:l.virtual,_p:l.presencial,_si:l.si||0}));
 
   if(estado==='activo') data=data.filter(l=>l._t>0);
@@ -1356,9 +1436,9 @@ function renderT2Top(data) {
 }
 
 function renderT2LidMes(data) {
-  const MESES_ORDER = ['enero','febrero','marzo','abril'];
+  const MESES_ORDER = ['enero','febrero','marzo','abril','mayo','junio'];
   const mesesPresentes = [...new Set(RAW_LEADERS.map(l=>
-    ['enero','febrero','marzo','abril'].filter(m=>l[m]>0)
+    ['enero','febrero','marzo','abril','mayo','junio'].filter(m=>l[m]>0)
   ).flat())].sort((a,b)=>MESES_ORDER.indexOf(a)-MESES_ORDER.indexOf(b));
   
   const totalLideres = data.length; // total leaders in current filter
@@ -2284,7 +2364,7 @@ function updateT4() {
   }).sort((a,b)=>(b.fecha||'').localeCompare(a.fecha||''));
 
   // KPIs
-  const si   = _t4Data.filter(r=>r.ef==='SI').length;
+  const si   = _t4Data.filter(r=>(r.ef==='SI'||r.ef==='si')).length;
   const no   = _t4Data.filter(r=>r.ef==='NO').length;
   const pend = _t4Data.filter(r=>r.ef!=='SI'&&r.ef!=='NO').length;
   const set  = v => { if($(v.id)) $(v.id).textContent = v.val; };
@@ -2450,62 +2530,7 @@ function onLiderClick(l) {
 <!-- ═══════════════════════════════════════════════════
      TABLERO 5 — INSIGHTS VoC (ANÁLISIS IA POR ENTREVISTA)
 ════════════════════════════════════════════════════ -->
-<div id="t5" class="tablero">
-  <div class="sec-head">
-    <h2>🧠 Insights Voz del Cliente</h2>
-    <p>Análisis IA de cada entrevista Visitatón. Highlights, Lowlights y Clusters temáticos.</p>
-  </div>
 
-  <!-- FILTERS T5 -->
-  <div class="filter-bar" style="margin-bottom:20px">
-    <div class="filter-inner">
-      <div class="fg"><label>País</label>
-        <select id="f5-pais" onchange="renderT5()"><option value="">Todos</option></select>
-      </div>
-      <div class="fg"><label>Cluster</label>
-        <select id="f5-cluster" onchange="renderT5()"><option value="">Todos</option></select>
-      </div>
-      <div class="fg"><label>Tipo</label>
-        <select id="f5-tipo" onchange="renderT5()">
-          <option value="">Todos</option>
-          <option value="FRICTION">🔴 Fricción</option>
-          <option value="PRAISE">💚 Elogio</option>
-          <option value="SUGGESTION">💡 Sugerencia</option>
-        </select>
-      </div>
-      <div class="fg" style="max-width:200px">
-        <label>Buscar</label>
-        <input type="text" id="f5-q" placeholder="Empresa, país…" oninput="renderT5()"
-          style="border:1px solid var(--gray-200);border-radius:var(--r-sm);padding:7px 10px;font-size:12.5px;width:100%;outline:none;font-family:Inter,sans-serif">
-      </div>
-      <button class="btn-reset" onclick="resetT5()">↺ Limpiar</button>
-    </div>
-  </div>
-
-  <!-- KPIs VoC -->
-  <div class="kpi-grid" id="t5-kpis" style="margin-bottom:20px"></div>
-
-  <!-- CHARTS ROW -->
-  <div class="chart-grid" style="margin-bottom:20px">
-    <div class="cc c8">
-      <div class="cc-head"><div>
-        <div class="cc-title">Clusters por frecuencia de menciones</div>
-        <div class="cc-sub">Fricciones · Elogios · Sugerencias acumulados</div>
-      </div></div>
-      <div class="cc-wrap" style="height:260px"><canvas id="ch-t5-clusters"></canvas></div>
-    </div>
-    <div class="cc c4">
-      <div class="cc-head"><div>
-        <div class="cc-title">Pareto de Fricciones</div>
-        <div class="cc-sub">Top clusters con más fricción</div>
-      </div></div>
-      <div class="cc-wrap" style="height:260px"><canvas id="ch-t5-pareto"></canvas></div>
-    </div>
-  </div>
-
-  <!-- ENTREVISTAS ANALIZADAS -->
-  <div id="t5-cards"></div>
-</div>
 
 
 <script>
