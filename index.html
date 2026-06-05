@@ -480,7 +480,7 @@ div.dataTables_wrapper div.dataTables_bottom { display: flex; justify-content: s
     <div class="overflow-x">
       <table id="tbl-team" class="display" style="width:100%">
         <thead><tr>
-          <th>Nombre</th><th>Team</th><th>Ene</th><th>Feb</th><th>Mar</th><th>Abr</th>
+          <th>Nombre</th><th>Team</th><th>Ene</th><th>Feb</th><th>Mar</th><th>Abr</th><th>May</th><th>Jun</th>
           <th>Total</th><th>Estado</th>
         </tr></thead>
         <tbody id="tbl-team-body"></tbody>
@@ -579,7 +579,7 @@ div.dataTables_wrapper div.dataTables_bottom { display: flex; justify-content: s
     </div>
     <div class="overflow-x">
       <table id="tbl-lideres" class="display" style="width:100%">
-        <thead><tr><th>Líder</th><th>Team</th><th>País</th><th>Cargo</th><th>Total</th><th>Ef.</th><th>Virtual</th><th>Pres.</th><th>Ene</th><th>Feb</th><th>Mar</th><th>Abr</th></tr></thead>
+        <thead><tr><th>Líder</th><th>Team</th><th>País</th><th>Cargo</th><th>Total</th><th>Ef.</th><th>Virtual</th><th>Pres.</th><th>Ene</th><th>Feb</th><th>Mar</th><th>Abr</th><th>May</th><th>Jun</th><th>Estado</th></tr></thead>
         <tbody id="tbl-l-body"></tbody>
       </table>
     </div>
@@ -760,7 +760,7 @@ function badge(t, cls) { return `<span class="badge ${cls}">${t}</span>`; }
 function efBadge(ef) {
   if (ef==='SI') return badge('✓ Efectiva','b-green');
   if (ef==='NO') return badge('✗ No efectiva','b-red');
-  if (ef==='Pendiente'||(r.ef==='Pendiente'||r.ef==='Pendiente por realizar')) return badge('⏳ Pendiente','b-amber');
+  if (ef==='Pendiente'||ef==='Pendiente por realizar') return badge('⏳ Pendiente','b-amber');
   return badge(ef||'—','b-gray');
 }
 function modalBadge(m) {
@@ -840,7 +840,7 @@ function getF1(excludeFilter) {
       return (r.entrevistadores||[]).some(e=>emailTeam[e]===tt);
     });
   }
-  if(ef && excludeFilter!=='ef') data = data.filter(r=>r.ef===ef);
+  if(ef && excludeFilter!=='ef') data = data.filter(r=>(r.ef||'').toUpperCase()===(ef||'').toUpperCase());
   if(ent) {
     const ids = new Set(RAW_ROWS.filter(r=>r.correo===ent).map(r=>r.id));
     data = data.filter(r=>ids.has(r.id));
@@ -898,7 +898,7 @@ function renderMes(data) {
   const meses = [...new Set(data.map(r=>r.mes).filter(Boolean))].sort((a,b)=>MES.indexOf(a)-MES.indexOf(b));
   const siD = meses.map(m=>data.filter(r=>r.mes===m&&(r.ef==='SI'||r.ef==='si')).length);
   const noD = meses.map(m=>data.filter(r=>r.mes===m&&r.ef==='NO').length);
-  const pdD = meses.map(m=>data.filter(r=>r.mes===m&&(r.ef==='Pendiente'||(r.ef==='Pendiente'||r.ef==='Pendiente por realizar'))).length);
+  const pdD = meses.map(m=>data.filter(r=>r.mes===m&&(r.ef==='Pendiente'||r.ef==='Pendiente por realizar')).length);
   const tots = meses.map((_,i)=>siD[i]+noD[i]+pdD[i]);
 
   mkChart('ch-mes','bar',{
@@ -1585,30 +1585,36 @@ function renderLideres(data, keepLast=false) {
   if(!keepLast) _lastT2Data = data;
   if(dtLideres){dtLideres.destroy();dtLideres=null;}
   const tbody=$('tbl-l-body');
-  // Solo mostrar líderes con al menos 1 entrevista
-  const sorted=[...data].filter(l=>l._t>0).sort((a,b)=>b._t-a._t);
+  const sorted=[...data].sort((a,b)=>b._t-a._t||a.nombre.localeCompare(b.nombre));
   tbody.innerHTML=sorted.map((l,i)=>{
     const siVal = l.si||0;
+    const mk=v=>v>0?badge(v,'b-teal'):'<span style="color:var(--gray-300)">—</span>';
+    const estado=l._t>0
+      ?'<span class="badge b-green" style="font-size:10px">● Activo</span>'
+      :'<span class="badge b-amber" style="font-size:10px">○ Pendiente</span>';
     return `<tr onclick="showLiderDetail(l)" style="cursor:pointer" title="Clic para ver empresas visitadas">
       <td style="font-weight:500">${l.nombre||'—'}</td>
       <td>${l.team?badge(l.team,'b-teal'):'—'}</td>
       <td style="color:var(--gray-600)">${l.pais||'—'}</td>
       <td style="font-size:11px;color:var(--gray-600)">${l.cargo||'—'}</td>
-      <td style="font-weight:700;text-align:center;color:var(--teal-600)">${l._t}</td>
-      <td style="font-weight:600;text-align:center;color:var(--em-600)">${siVal}</td>
-      <td style="text-align:center;color:var(--gray-500)">${l._v}</td>
-      <td style="text-align:center;color:var(--gray-500)">${l._p}</td>
-      <td style="text-align:center">${l.enero>0?badge(l.enero,'b-teal'):'<span style="color:var(--gray-300)">—</span>'}</td>
-      <td style="text-align:center">${l.febrero>0?badge(l.febrero,'b-teal'):'<span style="color:var(--gray-300)">—</span>'}</td>
-      <td style="text-align:center">${l.marzo>0?badge(l.marzo,'b-teal'):'<span style="color:var(--gray-300)">—</span>'}</td>
-      <td style="text-align:center">${l.abril>0?badge(l.abril,'b-teal'):'<span style="color:var(--gray-300)">—</span>'}</td>
+      <td style="font-weight:700;text-align:center;color:${l._t>0?'var(--teal-600)':'var(--gray-300)'}">${l._t||'—'}</td>
+      <td style="font-weight:600;text-align:center;color:var(--em-600)">${siVal||'—'}</td>
+      <td style="text-align:center;color:var(--gray-500)">${l._v||'—'}</td>
+      <td style="text-align:center;color:var(--gray-500)">${l._p||'—'}</td>
+      <td style="text-align:center">${mk(l.enero)}</td>
+      <td style="text-align:center">${mk(l.febrero)}</td>
+      <td style="text-align:center">${mk(l.marzo)}</td>
+      <td style="text-align:center">${mk(l.abril)}</td>
+      <td style="text-align:center">${mk(l.mayo||0)}</td>
+      <td style="text-align:center">${mk(l.junio||0)}</td>
+      <td>${estado}</td>
     </tr>`;
   }).join('');
   dtLideres=$('#tbl-lideres').DataTable({
     pageLength:15,
     language:{paginate:{previous:'‹',next:'›'},emptyTable:'Sin líderes con entrevistas.',info:'_START_–_END_ de _TOTAL_'},
     order:[[4,'desc']],
-    columnDefs:[{type:'num',targets:[4,5,6,7,8,9,10,11]}]
+    columnDefs:[{type:'num',targets:[4,5,6,7,8,9,10,11,12,13]}]
   });
 }
 
@@ -1928,8 +1934,40 @@ function openHsPanel(r){
   // Look up HS data
   const key=_hsKey(empresa,r.id);
   const hs=HS_DATA[key]||HS_DATA[empresa]||HS_DATA[r.id]||null;
-  if(hs) _renderHsPanel(hs,r);
-  else _renderHsNoData(r);
+  if(hs) {
+    _renderHsPanel(hs,r);
+  } else if(r.hs_briefing && (r.hs_briefing.nombre || (r.hs_briefing.tickets_recientes||[]).length || (r.hs_briefing.deals_activos||[]).length)) {
+    // Build synthetic HS panel from embedded hs_briefing
+    const b = r.hs_briefing;
+    const synth = {
+      empresa: b.nombre || r.empresa,
+      name: b.nombre || r.empresa,
+      hs_id: r.hs_id,
+      hs_url: r.hs_id ? `https://app.hubspot.com/contacts/6180490/record/0-2/${r.hs_id}?utm_source=visitaton` : '',
+      pais: b.pais_hs || r.pais,
+      plan: r.plan,
+      created: '',
+      antiguedad: '',
+      contacts: 0,
+      lifecyclestage: '',
+      total_tickets: (b.tickets_recientes||[]).length,
+      open_tickets: 0,
+      closed_tickets: 0,
+      canales: [],
+      tickets_recientes: (b.tickets_recientes||[]).map(t=>({
+        asunto: t.asunto, prioridad: t.prioridad||'—', canal: 'ticket', fecha: t.fecha||''
+      })),
+      ai_summary: {
+        resumen: b.descripcion || '',
+        hallazgos: [],
+        preguntas: r.preguntas_sugeridas || []
+      },
+      deals: (b.deals_activos||[]).map(d=>({nombre:d.nombre,monto:d.monto,etapa:d.etapa,cierre:d.cierre}))
+    };
+    _renderHsPanel(synth, r);
+  } else {
+    _renderHsNoData(r);
+  }
 }
 
 function _hsKey(empresa,id){
@@ -2146,7 +2184,18 @@ function _renderHsPanel(hs,r){
     </div>`;
   }
 
-  $('hs-body').innerHTML=html;
+
+  // Deals section
+  if((hs.deals||[]).length > 0){
+    html+=`<div class="hs-sec">💼 Deals activos</div>`;
+    hs.deals.forEach(d=>{
+      html+=`<div style="background:rgba(19,170,106,.07);border:1px solid rgba(19,170,106,.2);border-radius:6px;padding:8px 10px;margin-bottom:6px">
+        <div style="font-size:11.5px;font-weight:600;color:var(--em-700)">${d.nombre||'—'}</div>
+        ${d.monto?`<div style="font-size:10px;color:var(--gray-500);margin-top:2px">💰 ${d.monto} · ${d.cierre||''}</div>`:''}
+      </div>`;
+    });
+  }
+    $('hs-body').innerHTML=html;
 }
 function _smartQuestions(r){
   const base=[
@@ -2168,6 +2217,9 @@ function _smartQuestions(r){
     extra.push('¿Cómo está siendo tu experiencia con la facturación electrónica DIAN en Alegra?');
   if(pais.includes('mexico')||plan.includes('multirfc'))
     extra.push('¿El módulo MultiRFC está cubriendo todas las necesidades fiscales de tus clientes en México?');
+    // Also include questions from hs_briefing if available
+  const hbPregs = (r.hs_briefing && r.hs_briefing.ai_summary && r.hs_briefing.ai_summary.preguntas) || [];
+  if(hbPregs.length > 0) return hbPregs;
   return [...extra,...base].slice(0,5);
 }
 
@@ -2256,20 +2308,20 @@ function renderTeamTable(filteredInterviews) {
   const mesFilter = sv('f1-mes');
 
   _teamTableData = people.map(p => {
-    // Count per month from ALL_ALEGRA pre-computed data
-    // But also cross-check against filtered interviews for accuracy
-    let ene=0,feb=0,mar=0,abr=0,tot=0;
+    let ene=0,feb=0,mar=0,abr=0,mayo=0,jun=0,tot=0;
     filteredInterviews.forEach(iv => {
       if((iv.entrevistadores||[]).includes(p.correo)) {
-        const m = iv.mes;
+        const m = (iv.mes||'').toLowerCase();
         if(m==='enero') ene++;
         else if(m==='febrero') feb++;
         else if(m==='marzo') mar++;
         else if(m==='abril') abr++;
+        else if(m==='mayo') mayo++;
+        else if(m==='junio') jun++;
         tot++;
       }
     });
-    return { ...p, _ene:ene, _feb:feb, _mar:mar, _abr:abr, _tot:tot };
+    return { ...p, _ene:ene, _feb:feb, _mar:mar, _abr:abr, _mayo:mayo, _jun:jun, _tot:tot };
   }).sort((a,b) => b._tot - a._tot || a.nombre.localeCompare(b.nombre));
 
   _renderTeamRows(_teamTableData);
@@ -2292,6 +2344,8 @@ function _renderTeamRows(data) {
       <td style="text-align:center">${mk(p._feb)}</td>
       <td style="text-align:center">${mk(p._mar)}</td>
       <td style="text-align:center">${mk(p._abr)}</td>
+      <td style="text-align:center">${mk(p._mayo)}</td>
+      <td style="text-align:center">${mk(p._jun)}</td>
       <td style="text-align:center;font-size:13px;font-weight:700;color:${p._tot>0?'var(--em-700)':'var(--gray-300)'}">${p._tot||'—'}</td>
       <td>${estado}</td>
     </tr>`;
@@ -2301,7 +2355,7 @@ function _renderTeamRows(data) {
     dom:'lrtip',
     language:{paginate:{previous:'‹',next:'›'},emptyTable:'Sin datos.',info:'_START_–_END_ de _TOTAL_',lengthMenu:'_MENU_ por página'},
     order:[[6,'desc']],
-    columnDefs:[{orderable:false,targets:[7]}]
+    columnDefs:[{orderable:false,targets:[8]}]
   });
 }
 
